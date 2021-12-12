@@ -1,0 +1,43 @@
+use std::sync::Arc;
+
+use hyper;
+use super::configuration::Configuration;
+
+pub struct APIClient<C: hyper::client::connect::Connect + Clone + Send + Sync> {
+  configuration: Arc<Configuration<C>>,
+{{#apiInfo}}
+{{#apis}}
+{{#operations.[0]}}
+  {{classFilename}}: Box<::apis::{{classname}}>,
+{{/operations.[0]}}
+{{/apis}}
+{{/apiInfo}}
+}
+
+impl<C: hyper::client::connect::Connect + Clone + Send + Sync> APIClient<C> {
+  pub fn new(configuration: Configuration<C>) -> APIClient<C> {
+    let rc = Arc::new(configuration);
+
+    APIClient {
+      configuration: rc.clone(),
+{{#apiInfo}}
+{{#apis}}
+{{#operations.[0]}}
+      {{classFilename}}: Box::new(::apis::{{classname}}Client::new(rc.clone())),
+{{/operations.[0]}}
+{{/apis}}
+{{/apiInfo}}
+    }
+  }
+
+{{#apiInfo}}
+{{#apis}}
+{{#operations.[0]}}
+  pub fn {{classFilename}}(&self) -> &::apis::{{classname}}{
+    self.{{classFilename}}.as_ref()
+  }
+{{/operations.[0]}}
+{{/apis}}
+{{/apiInfo}}
+
+}
