@@ -325,7 +325,7 @@ impl Podman {
     /// Prune unused data.
     |
     pub async fn prune(&self) -> Result<models::LibpodSystemPruneResponse> {
-        self.post_json("/libpod/system/prune", Payload::None::<&str>)
+        self.post_json("/libpod/system/prune", Payload::empty())
             .await
     }}
 

@@ -25,7 +25,7 @@ impl<'podman> Container<'podman> {
     |
     pub async fn start(&self, detach_keys: Option<String>) -> Result<()> {
         let ep = url::construct_ep(&format!("/libpod/containers/{}/start", &self.id), detach_keys.map(|d| url::encoded_pair("detachKeys", d)));
-        self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
     api_doc! {
@@ -44,7 +44,7 @@ impl<'podman> Container<'podman> {
     |
     pub async fn stop(&self, opts: &opts::ContainerStopOpts) -> Result<()> {
         let ep = url::construct_ep(&format!("/libpod/containers/{}/stop", &self.id), opts.serialize());
-        self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
     api_doc! {
@@ -83,7 +83,7 @@ impl<'podman> Container<'podman> {
     |
     pub async fn kill_signal(&self, signal: impl Into<String>) -> Result<()> {
         let ep = url::construct_ep(&format!("/libpod/containers/{}/kill", &self.id), Some(url::encoded_pair("signal", signal.into())));
-        self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
     api_doc! {
