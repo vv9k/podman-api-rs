@@ -221,7 +221,7 @@ impl Podman {
     /// Returns a handle to podman containers that can be used to operate on them.
     |
     pub fn containers(&self) -> api::Containers<'_> {
-        api::Containers::new(&self)
+        api::Containers::new(self)
     }}
 
     api_doc! {
@@ -229,7 +229,7 @@ impl Podman {
     /// Returns a handle to podman execs that can be used to operate on them.
     |
     pub fn execs(&self) -> api::Execs<'_> {
-        api::Execs::new(&self)
+        api::Execs::new(self)
     }}
 
     api_doc! {
@@ -237,7 +237,7 @@ impl Podman {
     /// Returns a handle to podman images that can be used to operate on them.
     |
     pub fn images(&self) -> api::Images<'_> {
-        api::Images::new(&self)
+        api::Images::new(self)
     }}
 
     api_doc! {
@@ -245,7 +245,7 @@ impl Podman {
     /// Returns a handle to podman manifests that can be used to operate on them.
     |
     pub fn manifests(&self) -> api::Manifests<'_> {
-        api::Manifests::new(&self)
+        api::Manifests::new(self)
     }}
 
     api_doc! {
@@ -253,7 +253,7 @@ impl Podman {
     /// Returns a handle to podman networks that can be used to operate on them.
     |
     pub fn networks(&self) -> api::Networks<'_> {
-        api::Networks::new(&self)
+        api::Networks::new(self)
     }}
 
     api_doc! {
@@ -261,7 +261,7 @@ impl Podman {
     /// Returns a handle to podman pods that can be used to operate on them.
     |
     pub fn pods(&self) -> api::Pods<'_> {
-        api::Pods::new(&self)
+        api::Pods::new(self)
     }}
 
     api_doc! {
@@ -269,7 +269,7 @@ impl Podman {
     /// Returns a handle to podman volumes that can be used to operate on them.
     |
     pub fn volumes(&self) -> api::Volumes<'_> {
-        api::Volumes::new(&self)
+        api::Volumes::new(self)
     }}
 
     api_doc! {
@@ -277,7 +277,7 @@ impl Podman {
     /// Returns a handle to podman secrets that can be used to operate on them.
     |
     pub fn secrets(&self) -> api::Secrets<'_> {
-        api::Secrets::new(&self)
+        api::Secrets::new(self)
     }}
 
     //####################################################################################################

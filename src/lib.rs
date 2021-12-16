@@ -1,12 +1,12 @@
 #[macro_use]
 mod builder;
-mod conn;
 mod id;
 mod podman;
 mod util;
 mod version;
 
 pub mod api;
+pub mod conn;
 pub mod models;
 pub mod opts;
 

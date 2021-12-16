@@ -8,10 +8,11 @@ use futures_util::{
 use pin_project::pin_project;
 use std::{convert::TryInto, io};
 
+#[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 /// An enum representing a chunk of TTY text streamed from a Podman container.
 ///
 /// For convenience, this type can deref to the contained `Vec<u8>`.
-#[derive(Debug, Clone)]
 pub enum TtyChunk {
     StdIn(Vec<u8>),
     StdOut(Vec<u8>),
