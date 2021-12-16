@@ -49,7 +49,7 @@ impl<'podman> Container<'podman> {
 
     api_doc! {
     Container => InspectLibpod
-    /// Return low-level information about a container.
+    /// Return low-level information about this container.
     ///
     /// Examples:
     ///
@@ -65,6 +65,43 @@ impl<'podman> Container<'podman> {
     pub async fn inspect(&self) -> Result<models::LibpodContainerInspectResponse> {
         let ep = url::construct_ep(&format!("/libpod/containers/{}/json", &self.id), Some(url::encoded_pair("size", "true")));
         self.podman.get_json(&ep).await
+    }}
+
+    api_doc! {
+    Container => KillLibpod
+    /// Send a signal to this container, defaults to killing the container
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").kill_signal("INT").await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn kill_signal(&self, signal: impl Into<String>) -> Result<()> {
+        let ep = url::construct_ep(&format!("/libpod/containers/{}/kill", &self.id), Some(url::encoded_pair("signal", signal.into())));
+        self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Container => KillLibpod
+    /// Kill this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").kill().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn kill(&self) -> Result<()> {
+        self.kill_signal("TERM").await
     }}
 }
 
