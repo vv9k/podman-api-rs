@@ -1,4 +1,11 @@
-use crate::{conn::Payload, models, opts, util::url, Result};
+use crate::{
+    conn::{Headers, Payload},
+    models, opts,
+    util::url,
+    Result,
+};
+
+use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(
     Container => id
@@ -228,6 +235,41 @@ impl<'podman> Container<'podman> {
                 Payload::empty(),
             )
             .await
+    }}
+
+    api_doc! {
+    Container => CheckpointLibpod
+    /// Checkpoint this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let mut container_stream = podman.containers().get("79c93f220e3e").checkpoint(
+    ///     &ContainerCheckpointOpts::builder()
+    ///         .leave_running(true)
+    ///         .print_stats(true)
+    ///         .build(),
+    /// );
+    ///
+    /// while let Some(chunk) = container_stream.next().await {
+    ///     println!("{:?}", chunk);
+    /// }
+    /// ```
+    |
+    pub async fn checkpoint(
+        &self,
+        opts: &opts::ContainerCheckpointOpts,
+    ) -> impl Stream<Item = Result<Vec<u8>>> + 'podman {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/checkpoint", &self.id),
+            opts.serialize(),
+        );
+        self.podman
+            .stream_post(ep, Payload::empty(), Headers::none())
+            .map_ok(|c| c.to_vec())
     }}
 }
 

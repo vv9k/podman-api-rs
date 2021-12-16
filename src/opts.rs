@@ -173,3 +173,40 @@ impl ContainerDeleteOptsBuilder {
         volumes => "v"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust the way a container is checkpointed.
+    ContainerCheckpoint
+);
+
+impl ContainerCheckpointOptsBuilder {
+    impl_url_bool_field!(
+        /// Export the checkpoint image to a tar.gz
+        export => "export"
+    );
+
+    impl_url_bool_field!(
+        /// Do not include root file-system changes when exporting
+        ignore_root_fs => "ignoreRootFS"
+    );
+
+    impl_url_bool_field!(
+        /// Keep all temporary checkpoint files
+        keep => "keep"
+    );
+
+    impl_url_bool_field!(
+        /// Leave the container running after writing checkpoint to disk
+        leave_running => "leaveRunning"
+    );
+
+    impl_url_bool_field!(
+        /// Add checkpoint statistics to the returned CheckpointReport
+        print_stats => "printStats"
+    );
+
+    impl_url_bool_field!(
+        /// Checkpoint a container with established TCP connections
+        tcp_established => "tcpEstablished"
+    );
+}
