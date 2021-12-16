@@ -182,6 +182,30 @@ impl<'podman> Container<'podman> {
         self.delete(&opts::ContainerDeleteOpts::builder().force(true).build())
             .await
     }}
+
+    api_doc! {
+    Container => MountLibpod
+    /// Mount this container to the filesystem.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().get("79c93f220e3e").mount().await {
+    ///     Ok(id) => println!("mounted container {}", id),
+    ///     Err(e) => eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn mount(&self) -> Result<String> {
+        self.podman
+            .post_json(
+                &format!("/libpod/containers/{}/mount", &self.id),
+                Payload::empty(),
+            )
+            .await
+    }}
 }
 
 impl<'podman> Containers<'podman> {
