@@ -206,8 +206,9 @@ impl<'podman> Container<'podman> {
             )
             .await
     }}
+
     api_doc! {
-    Container => MountLibpod
+    Container => UnmountLibpod
     /// Unmount this container from the filesystem.
     ///
     /// Examples:
