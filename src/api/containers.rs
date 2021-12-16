@@ -206,6 +206,28 @@ impl<'podman> Container<'podman> {
             )
             .await
     }}
+    api_doc! {
+    Container => MountLibpod
+    /// Unmount this container from the filesystem.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").unmount().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn unmount(&self) -> Result<()> {
+        self.podman
+            .post_json(
+                &format!("/libpod/containers/{}/unmount", &self.id),
+                Payload::empty(),
+            )
+            .await
+    }}
 }
 
 impl<'podman> Containers<'podman> {
