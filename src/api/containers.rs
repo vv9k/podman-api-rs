@@ -103,6 +103,24 @@ impl<'podman> Container<'podman> {
     pub async fn kill(&self) -> Result<()> {
         self.kill_signal("TERM").await
     }}
+
+    api_doc! {
+    Container => PauseLibpod
+    /// Use the cgroups freezer to suspend all processes in this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").pause().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn pause(&self) -> Result<()> {
+        self.podman.post(&format!("/libpod/containers/{}/pause", &self.id), Payload::empty()).await.map(|_| ())
+    }}
 }
 
 impl<'podman> Containers<'podman> {
