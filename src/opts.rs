@@ -40,6 +40,12 @@ impl EventsOptsBuilder {
     }
 }
 
+//####################################################################################################
+//
+// Containers
+//
+//####################################################################################################
+
 impl_opts_builder!(url =>
     /// Adjust the list of returned containers with this options.
     ContainerList
@@ -127,4 +133,26 @@ impl ContainerListOptsBuilder {
     );
 
     impl_filter_func!(ContainerListFilter);
+}
+
+impl_opts_builder!(url =>
+    /// Adjust the way a container is stopped.
+    ContainerStop
+);
+
+impl ContainerStopOptsBuilder {
+    impl_url_bool_field!(
+        /// Stop all containers
+        all => "all"
+    );
+
+    impl_url_bool_field!(
+        /// Do not return error if container is already stopped
+        ignore => "Ignore"
+    );
+
+    impl_url_field!(
+        /// number of seconds to wait before killing container
+        timeout: usize => "Timeout"
+    );
 }
