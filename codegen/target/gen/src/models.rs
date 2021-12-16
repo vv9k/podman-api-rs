@@ -1860,7 +1860,7 @@ pub struct InlineResponse2001 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20010 {
+pub struct LibpodContainerHealthcheckResponse {
     /// FailingStreak is the number of consecutive failed healthchecks
     #[serde(rename = "FailingStreak")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1991,7 +1991,7 @@ pub struct LibpodContainerInspectResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20012 {
+pub struct LibpodContainerStatsResponse {
     #[serde(rename = "AvgCPU")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub avg_cpu: Option<f32>,
@@ -2052,7 +2052,7 @@ pub struct InlineResponse20012 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20013 {
+pub struct LibpodImageHistoryResponse {
     #[serde(rename = "Annotations")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotations: Option<HashMap<String, String>>,
@@ -2125,14 +2125,14 @@ pub struct InlineResponse20013 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20014 {
+pub struct LibpodImageTreeResponse {
     #[serde(rename = "Tree")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tree: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20015 {
+pub struct LibpodPodInspectResponse {
     /// CgroupParent is the parent of the pod's CGroup.
     #[serde(rename = "CgroupParent")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2275,7 +2275,7 @@ pub struct LibpodVersionResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20019 {
+pub struct LibpodVolumeCreateResponse {
     /// Anonymous indicates that the volume was created as an anonymous volume for a specific container, and will be be removed when any container using it is removed.
     #[serde(rename = "Anonymous")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2405,7 +2405,7 @@ pub struct InlineResponse2002 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20020 {
+pub struct LibpodNetworkCreateResponse {
     #[serde(rename = "Attachable")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attachable: Option<bool>,
@@ -2446,21 +2446,21 @@ pub struct InlineResponse20020 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20021 {
+pub struct LibpodNetworksPruneResponse {
     #[serde(rename = "NetworksDeleted")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub networks_deleted: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20022 {
+pub struct LibpodVolumeListResponse {
     #[serde(rename = "Volumes")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volumes: Option<Vec<VolumeListOkBody>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20023 {
+pub struct DockerVolumeInfoResponse {
     /// Date/Time the volume was created.
     #[serde(rename = "CreatedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2495,7 +2495,7 @@ pub struct InlineResponse20023 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20024 {
+pub struct DockerVolumePruneResponse {
     #[serde(rename = "SpaceReclaimed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub space_reclaimed: Option<i64>,
