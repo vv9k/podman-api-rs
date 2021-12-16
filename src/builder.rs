@@ -79,6 +79,25 @@ macro_rules! impl_url_field {
     };
 }
 
+macro_rules! impl_url_vec_field {
+    ($(#[doc = $docs:expr])* $name:ident : $ty:tt => $api_name:literal) => {
+        paste::item! {
+            $(
+                #[doc= $docs]
+            )*
+            pub fn [< $name >]<I, [< $ty >]>(mut self, $name: I)-> Self
+            where
+                I: IntoIterator<Item = $ty>,
+                $ty: Into<String>
+            {
+                let joined = $name.into_iter().map(|it| it.into()).collect::<Vec<_>>().join(",");
+                self.params.insert($api_name, format!("[{}]",joined));
+                self
+            }
+        }
+    };
+}
+
 macro_rules! impl_url_bool_field {
     ($(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
         paste::item! {

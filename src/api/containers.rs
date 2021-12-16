@@ -271,6 +271,36 @@ impl<'podman> Container<'podman> {
             .stream_post(ep, Payload::empty(), Headers::none())
             .map_ok(|c| c.to_vec())
     }}
+
+    api_doc! {
+    Container => ImageCommitLibpod
+    /// Create a new image from this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .containers()
+    ///     .get("79c93f220e3e")
+    ///     .commit(
+    ///         &ContainerCommitOpts::builder()
+    ///             .pause(true)
+    ///             .repo("image-name")
+    ///             .tag("1.0.0")
+    ///             .build(),
+    ///     )
+    ///     .await
+    /// {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn commit(&self, opts: &opts::ContainerCommitOpts) -> Result<()> {
+        let ep = url::construct_ep("/libpod/commit", opts.serialize());
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
 }
 
 impl<'podman> Containers<'podman> {

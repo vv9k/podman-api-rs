@@ -210,3 +210,53 @@ impl ContainerCheckpointOptsBuilder {
         tcp_established => "tcpEstablished"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust the way a new image is created from a container.
+    ContainerCommit
+);
+
+impl ContainerCommitOpts {
+    pub(crate) fn for_container(&self, container: crate::Id) -> Self {
+        let mut new = self.clone();
+        new.params.insert("container", container.to_string());
+        new
+    }
+}
+
+impl ContainerCommitOptsBuilder {
+    impl_url_str_field!(
+        /// Author of the image
+        author: A => "author"
+    );
+
+    impl_url_vec_field!(
+        /// Instructions to apply while committing in Dockerfile format (i.e. "CMD=/bin/foo")
+        changes: C => "changes"
+    );
+
+    impl_url_str_field!(
+        /// Commit message
+        comment: C => "comment"
+    );
+
+    impl_url_str_field!(
+        /// Format of the image manifest and metadata (default "oci")
+        format: F => "format"
+    );
+
+    impl_url_bool_field!(
+        /// Pause the container before committing it
+        pause => "pause"
+    );
+
+    impl_url_str_field!(
+        /// The repository name for the created image
+        repo: R => "repo"
+    );
+
+    impl_url_str_field!(
+        /// Tag name for the created image
+        tag: T => "tag"
+    );
+}
