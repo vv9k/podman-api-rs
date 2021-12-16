@@ -1876,7 +1876,7 @@ pub struct InlineResponse20010 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse20011 {
+pub struct LibpodContainerInspectResponse {
     #[serde(rename = "AppArmorProfile")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_armor_profile: Option<String>,

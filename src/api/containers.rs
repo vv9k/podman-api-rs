@@ -46,6 +46,26 @@ impl<'podman> Container<'podman> {
         let ep = url::construct_ep(&format!("/libpod/containers/{}/stop", &self.id), opts.serialize());
         self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
     }}
+
+    api_doc! {
+    Container => InspectLibpod
+    /// Return low-level information about a container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().get("79c93f220e3e").inspect().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn inspect(&self) -> Result<models::LibpodContainerInspectResponse> {
+        let ep = url::construct_ep(&format!("/libpod/containers/{}/json", &self.id), Some(url::encoded_pair("size", "true")));
+        self.podman.get_json(&ep).await
+    }}
 }
 
 impl<'podman> Containers<'podman> {
