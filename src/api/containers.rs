@@ -85,19 +85,19 @@ impl<'podman> Container<'podman> {
 
     api_doc! {
     Container => KillLibpod
-    /// Send a signal to this container, defaults to killing the container
+    /// Send a signal to this container.
     ///
     /// Examples:
     ///
     /// ```no_run
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.containers().get("79c93f220e3e").kill_signal("INT").await {
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").send_signal("INT").await {
     ///     eprintln!("{}", e);
     /// }
     /// ```
     |
-    pub async fn kill_signal(&self, signal: impl Into<String>) -> Result<()> {
+    pub async fn send_signal(&self, signal: impl Into<String>) -> Result<()> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/kill", &self.id),
             Some(url::encoded_pair("signal", signal.into())),
@@ -120,7 +120,7 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn kill(&self) -> Result<()> {
-        self.kill_signal("TERM").await
+        self.send_signal("TERM").await
     }}
 
     api_doc! {
@@ -173,14 +173,14 @@ impl<'podman> Container<'podman> {
 
     api_doc! {
     Container => DeleteLibpod
-    /// Force remove this container
+    /// Force remove this container.
     ///
     /// Examples:
     ///
     /// ```no_run
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.containers().get("79c93f220e3e").pause().await {
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").remove().await {
     ///     eprintln!("{}", e);
     /// }
     /// ```
@@ -205,13 +205,14 @@ impl<'podman> Container<'podman> {
     /// }
     /// ```
     |
-    pub async fn mount(&self) -> Result<String> {
+    pub async fn mount(&self) -> Result<crate::Id> {
         self.podman
             .post_json(
                 &format!("/libpod/containers/{}/mount", &self.id),
                 Payload::empty(),
             )
             .await
+            .map(|id: String| id.into())
     }}
 
     api_doc! {
