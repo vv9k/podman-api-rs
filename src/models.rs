@@ -105,3 +105,53 @@ pub struct Actor {
     #[serde(rename = "Attributes")]
     pub attributes: Attributes,
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ContainerStatus {
+    Created,
+    Configured,
+    Restarting,
+    Running,
+    Removing,
+    Paused,
+    Exited,
+    Dead,
+}
+
+impl AsRef<str> for ContainerStatus {
+    fn as_ref(&self) -> &str {
+        use ContainerStatus::*;
+        match &self {
+            Created => "created",
+            Configured => "configured",
+            Restarting => "restarting",
+            Running => "running",
+            Removing => "removing",
+            Paused => "paused",
+            Exited => "exited",
+            Dead => "dead",
+        }
+    }
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ContainerHealth {
+    Starting,
+    Healthy,
+    Unhealthy,
+    None,
+}
+
+impl AsRef<str> for ContainerHealth {
+    fn as_ref(&self) -> &str {
+        use ContainerHealth::*;
+        match &self {
+            Starting => "starting",
+            Healthy => "healthy",
+            Unhealthy => "unhealthy",
+            None => "none",
+        }
+    }
+}
