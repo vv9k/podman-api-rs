@@ -24,7 +24,10 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn start(&self, detach_keys: Option<String>) -> Result<()> {
-        let ep = url::construct_ep(&format!("/libpod/containers/{}/start", &self.id), detach_keys.map(|d| url::encoded_pair("detachKeys", d)));
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/start", &self.id),
+            detach_keys.map(|d| url::encoded_pair("detachKeys", d)),
+        );
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
@@ -43,7 +46,10 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn stop(&self, opts: &opts::ContainerStopOpts) -> Result<()> {
-        let ep = url::construct_ep(&format!("/libpod/containers/{}/stop", &self.id), opts.serialize());
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/stop", &self.id),
+            opts.serialize(),
+        );
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
@@ -63,7 +69,10 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::LibpodContainerInspectResponse> {
-        let ep = url::construct_ep(&format!("/libpod/containers/{}/json", &self.id), Some(url::encoded_pair("size", "true")));
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/json", &self.id),
+            Some(url::encoded_pair("size", "true")),
+        );
         self.podman.get_json(&ep).await
     }}
 
@@ -82,7 +91,10 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn kill_signal(&self, signal: impl Into<String>) -> Result<()> {
-        let ep = url::construct_ep(&format!("/libpod/containers/{}/kill", &self.id), Some(url::encoded_pair("signal", signal.into())));
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/kill", &self.id),
+            Some(url::encoded_pair("signal", signal.into())),
+        );
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
@@ -119,7 +131,14 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn pause(&self) -> Result<()> {
-        self.podman.post(&format!("/libpod/containers/{}/pause", &self.id), Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(
+                &format!("/libpod/containers/{}/pause", &self.id),
+                Payload::empty(),
+            )
+            .await
+            .map(|_| ())
+    }}
     }}
 }
 
