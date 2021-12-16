@@ -262,4 +262,37 @@ impl<'podman> Containers<'podman> {
         let ep = url::construct_ep("/libpod/containers/json", opts.serialize());
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Container => ExistsLibpod
+    /// Quick way to determine if a container exists by name or ID
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().get("79c93f220e3e").exists().await {
+    ///     Ok(exists) => if exists {
+    ///         println!("container exists!");
+    ///     } else {
+    ///         println!("container doesn't exists!");
+    ///     },
+    ///     Err(e) => eprintln!("check failed: {}", e);
+    /// }
+    /// ```
+    |
+    pub async fn exists(&self, name_or_id: impl Into<crate::Id>) -> Result<bool> {
+        let ep = format!("/libpod/containers/{}/exists", name_or_id.into());
+        match self.podman.get(&ep).await {
+            Ok(_) => Ok(true),
+            Err(e) => match e {
+                crate::Error::Fault {
+                    code: http::StatusCode::NOT_FOUND,
+                    message: _,
+                } => Ok(false),
+                e => Err(e),
+            },
+        }
+    }}
 }
