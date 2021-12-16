@@ -15,10 +15,10 @@ pub use podman::Podman;
 pub use version::ApiVersion;
 
 /// Latest libpod API version supported by this crate
-pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(3, 2, 0);
+pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(3, 4, 4);
 macro_rules! _version {
     () => {
-        "v3.2.0"
+        "v3.4.4"
     };
 }
 pub(crate) use _version as version;
