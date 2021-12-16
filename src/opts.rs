@@ -156,3 +156,20 @@ impl ContainerStopOptsBuilder {
         timeout: usize => "Timeout"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust the way a container is deleted.
+    ContainerDelete
+);
+
+impl ContainerDeleteOptsBuilder {
+    impl_url_bool_field!(
+        /// Force delete the container.
+        force => "force"
+    );
+
+    impl_url_bool_field!(
+        /// Delete associated volumes.
+        volumes => "v"
+    );
+}

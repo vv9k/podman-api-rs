@@ -139,6 +139,48 @@ impl<'podman> Container<'podman> {
             .await
             .map(|_| ())
     }}
+
+    api_doc! {
+    Container => DeleteLibpod
+    /// Delete this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .containers()
+    ///     .get("79c93f220e3e")
+    ///     .delete(&ContainerDeleteOpts::builder().volumes(true).build())
+    ///     .await
+    /// {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn delete(&self, opts: &opts::ContainerDeleteOpts) -> Result<()> {
+        let ep = url::construct_ep(format!("/libpod/containers/{}", &self.id), opts.serialize());
+        self.podman.delete(&ep).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Container => DeleteLibpod
+    /// Force remove this container
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").pause().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn remove(&self) -> Result<()> {
+        self.delete(&opts::ContainerDeleteOpts::builder().force(true).build())
+            .await
     }}
 }
 
