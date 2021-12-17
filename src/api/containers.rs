@@ -1,4 +1,5 @@
 use crate::{
+    api::Exec,
     conn::{Headers, Payload},
     models, opts,
     util::url,
@@ -302,6 +303,48 @@ impl<'podman> Container<'podman> {
         let opts = opts.for_container(self.id.clone());
         let ep = url::construct_ep("/libpod/commit", opts.serialize());
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Container => ExecLibpod
+    /// Create an exec session to run a command inside this container. Exec sessions will be
+    /// automatically removed 5 minutes after they exit.
+    ///
+    /// This endpoint only creates the exec. To start it use [Exec::start](Exec::start).
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let exec = podman
+    /// .containers()
+    /// .get("79c93f220e3e")
+    /// .create_exec(
+    ///     &podman_api::opts::ExecCreateOpts::builder()
+    ///         .command(["cat", "/some/path/in/container"])
+    ///         .attach_stdout(true)
+    ///         .attach_stderr(true)
+    ///         .build(),
+    /// )
+    /// .await
+    /// .unwrap();
+    /// ```
+    |
+    pub async fn create_exec(&self, opts: &opts::ExecCreateOpts) -> Result<Exec<'_>> {
+        use serde::Deserialize;
+        let ep = format!("/libpod/containers/{}/exec", self.id);
+
+        #[derive(Deserialize)]
+        struct CreateExecResponse {
+            #[serde(rename = "Id")]
+            id: crate::Id,
+        }
+
+        self.podman
+            .post_json(&ep, Payload::Json(opts.serialize()?))
+            .await
+            .map(|resp: CreateExecResponse| Exec::new(&self.podman, resp.id))
     }}
 }
 

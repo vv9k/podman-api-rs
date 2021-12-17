@@ -112,7 +112,6 @@ macro_rules! impl_url_bool_field {
     };
 }
 
-#[allow(unused_macros)]
 macro_rules! impl_str_enum_field {
     ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
         paste::item! {
@@ -121,7 +120,7 @@ macro_rules! impl_str_enum_field {
             )*
             pub fn [< $name >](mut self, $name: $ty)-> Self
             {
-                self.params.insert($api_name, serde_json::json!($name.as_ref()));
+                self.params.insert($api_name, serde_json::json!($name.to_string()));
                 self
             }
         }
