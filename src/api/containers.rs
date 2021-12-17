@@ -299,6 +299,7 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn commit(&self, opts: &opts::ContainerCommitOpts) -> Result<()> {
+        let opts = opts.for_container(self.id.clone());
         let ep = url::construct_ep("/libpod/commit", opts.serialize());
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
