@@ -381,3 +381,28 @@ impl ExecStartOptsBuilder {
         width: usize => "w"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how to wait for a container.
+    ContainerWait
+);
+
+impl ContainerWaitOptsBuilder {
+    pub fn conditions<I>(mut self, conditions: I) -> Self
+    where
+        I: IntoIterator<Item = models::ContainerStatus>,
+    {
+        let joined = conditions
+            .into_iter()
+            .map(|it| format!("\"{}\"", it.as_ref()))
+            .collect::<Vec<_>>()
+            .join(",");
+        self.params.insert("condition", format!("[{}]", joined));
+        self
+    }
+
+    impl_url_str_field!(
+        /// Time Interval to wait before polling for completion. Example: `250ms`, `2s`
+        interval: I => "interval"
+    );
+}

@@ -463,6 +463,35 @@ impl<'podman> Container<'podman> {
             .await
             .map(|_| ())
     }}
+
+    api_doc! {
+    Container => WaitLibpod
+    /// Wait for this container to meet a given condition.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .containers()
+    ///     .get("79c93f220e3e")
+    ///     .wait(
+    ///         &ContainerWaitOpts::builder()
+    ///             .conditions([ContainerStatus::Configured])
+    ///             .interval("300ms")
+    ///             .build(),
+    ///     )
+    ///     .await
+    /// {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn wait(&self, opts: &opts::ContainerWaitOpts) -> Result<()> {
+        let ep = url::construct_ep(&format!("/libpod/containers/{}/wait", &self.id), opts.serialize());
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
 }
 
 impl<'podman> Containers<'podman> {
