@@ -149,6 +149,29 @@ impl<'podman> Container<'podman> {
     }}
 
     api_doc! {
+    Container => UnpauseLibpod
+    /// Unpause this container
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").unpause().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn unpause(&self) -> Result<()> {
+        self.podman
+            .post(
+                &format!("/libpod/containers/{}/unpause", &self.id),
+                Payload::empty(),
+            )
+            .await
+            .map(|_| ())
+    }}
+    api_doc! {
     Container => DeleteLibpod
     /// Delete this container.
     ///
