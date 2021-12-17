@@ -171,6 +171,51 @@ impl<'podman> Container<'podman> {
             .await
             .map(|_| ())
     }}
+
+    api_doc! {
+    Container => RestartLibpod
+    /// Restart this container with a timeout.
+    ///
+    /// Parameters:
+    ///  * t - number of seconds to wait before killing the container
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").restart_with_timeout(20).await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn restart_with_timeout(&self, t: usize) -> Result<()> {
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/restart", &self.id),
+            Some(url::encoded_pair("t", t.to_string())),
+        );
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Container => RestartLibpod
+    /// Restart this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").restart().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn restart(&self) -> Result<()> {
+        let ep = format!("/libpod/containers/{}/restart", &self.id);
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
+
     api_doc! {
     Container => DeleteLibpod
     /// Delete this container.
