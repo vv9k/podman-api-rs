@@ -13,12 +13,12 @@ impl_opts_builder!(
 impl EventsOptsBuilder {
     impl_url_str_field!(
         /// Start streaming events from this time
-        since: S => "since"
+        since => "since"
     );
 
     impl_url_str_field!(
         /// Stop streaming events later than this
-        until: U => "until"
+        until => "until"
     );
 
     impl_url_bool_field!(
@@ -227,22 +227,22 @@ impl ContainerCommitOpts {
 impl ContainerCommitOptsBuilder {
     impl_url_str_field!(
         /// Author of the image
-        author: A => "author"
+        author => "author"
     );
 
     impl_url_vec_field!(
         /// Instructions to apply while committing in Dockerfile format (i.e. "CMD=/bin/foo")
-        changes: C => "changes"
+        changes => "changes"
     );
 
     impl_url_str_field!(
         /// Commit message
-        comment: C => "comment"
+        comment => "comment"
     );
 
     impl_url_str_field!(
         /// Format of the image manifest and metadata (default "oci")
-        format: F => "format"
+        format => "format"
     );
 
     impl_url_bool_field!(
@@ -252,12 +252,12 @@ impl ContainerCommitOptsBuilder {
 
     impl_url_str_field!(
         /// The repository name for the created image
-        repo: R => "repo"
+        repo => "repo"
     );
 
     impl_url_str_field!(
         /// Tag name for the created image
-        tag: T => "tag"
+        tag => "tag"
     );
 }
 
@@ -311,12 +311,12 @@ impl ExecCreateOptsBuilder {
 
     impl_vec_field!(
         /// Command to run, as a string or array of strings.
-        command: C => "Cmd"
+        command => "Cmd"
     );
 
     impl_str_field!(
         /// Override the key sequence for detaching a container. Format is a single character [a-Z] or ctrl- where is one of: a-z, @, ^, [, , or _.
-        detach_keys: K => "DetachKeys"
+        detach_keys => "DetachKeys"
     );
 
     /// A list of environment variables to use for the command execution.
@@ -351,7 +351,7 @@ impl ExecCreateOptsBuilder {
 
     impl_str_field!(
         /// The working directory for the exec process inside the container.
-        working_dir: D => "WorkingDir"
+        working_dir => "WorkingDir"
     );
 }
 
@@ -403,6 +403,6 @@ impl ContainerWaitOptsBuilder {
 
     impl_url_str_field!(
         /// Time Interval to wait before polling for completion. Example: `250ms`, `2s`
-        interval: I => "interval"
+        interval => "interval"
     );
 }

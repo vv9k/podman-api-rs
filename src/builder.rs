@@ -1,12 +1,12 @@
 macro_rules! impl_vec_field {
-    ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
+    ($(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
         paste::item! {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name  >]<[< $ty >], S>(mut self, $name: $ty)-> Self
+            pub fn [< $name  >]<I, S>(mut self, $name: I)-> Self
             where
-                $ty: IntoIterator<Item = S>,
+                I: IntoIterator<Item = S>,
                 S: AsRef<str> + serde::Serialize
             {
                 self.params.insert($api_name, serde_json::json!($name.into_iter().collect::<Vec<_>>()));
@@ -32,14 +32,12 @@ macro_rules! impl_field {
 }
 
 macro_rules! impl_str_field {
-    ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
+    ($(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
         paste::item! {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name >]<[< $ty >]>(mut self, $name: $ty)-> Self
-            where
-                $ty: AsRef<str> + serde::Serialize,
+            pub fn [< $name >](mut self, $name: impl AsRef<str> + serde::Serialize)-> Self
             {
                 self.params.insert($api_name, serde_json::json!($name.as_ref()));
                 self
@@ -49,14 +47,12 @@ macro_rules! impl_str_field {
 }
 
 macro_rules! impl_url_str_field {
-    ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
+    ($(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
         paste::item! {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name >]<[< $ty >]>(mut self, $name: $ty)-> Self
-            where
-                $ty: Into<String>,
+            pub fn [< $name >](mut self, $name: impl Into<String>)-> Self
             {
                 self.params.insert($api_name, $name.into());
                 self
@@ -80,15 +76,15 @@ macro_rules! impl_url_field {
 }
 
 macro_rules! impl_url_vec_field {
-    ($(#[doc = $docs:expr])* $name:ident : $ty:tt => $api_name:literal) => {
+    ($(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
         paste::item! {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name >]<I, [< $ty >]>(mut self, $name: I)-> Self
+            pub fn [< $name >]<I, S>(mut self, $name: I)-> Self
             where
-                I: IntoIterator<Item = $ty>,
-                $ty: Into<String>
+                I: IntoIterator<Item = S>,
+                S: Into<String>
             {
                 let joined = $name.into_iter().map(|it| it.into()).collect::<Vec<_>>().join(",");
                 self.params.insert($api_name, format!("[{}]",joined));
@@ -128,20 +124,20 @@ macro_rules! impl_str_enum_field {
 }
 
 macro_rules! impl_map_field {
-    (url $(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
-        impl_map_field! { $(#[doc = $docs])* $name: $ty => $api_name => serde_json::to_string(&$name.into_iter().collect::<std::collections::HashMap<_, _>>()).unwrap_or_default() }
+    (url $(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
+        impl_map_field! { $(#[doc = $docs])* $name => $api_name => serde_json::to_string(&$name.into_iter().collect::<std::collections::HashMap<_, _>>()).unwrap_or_default() }
     };
-    (json $(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
-        impl_map_field! { $(#[doc = $docs])* $name: $ty => $api_name => serde_json::json!($name.into_iter().collect::<std::collections::HashMap<_, _>>()) }
+    (json $(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
+        impl_map_field! { $(#[doc = $docs])* $name => $api_name => serde_json::json!($name.into_iter().collect::<std::collections::HashMap<_, _>>()) }
     };
-    ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal => $ret:expr) => {
+    ($(#[doc = $docs:expr])* $name:ident => $api_name:literal => $ret:expr) => {
         paste::item! {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name  >]<[< $ty >], K, V>(mut self, $name: $ty)-> Self
+            pub fn [< $name  >]<I, K, V>(mut self, $name: I)-> Self
             where
-                $ty: IntoIterator<Item = (K, V)>,
+                I: IntoIterator<Item = (K, V)>,
                 K: AsRef<str> + serde::Serialize + Eq + std::hash::Hash,
                 V: AsRef<str> + serde::Serialize
             {
