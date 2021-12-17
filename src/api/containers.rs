@@ -414,6 +414,31 @@ impl<'podman> Container<'podman> {
             .await
             .map(|resp: CreateExecResponse| Exec::new(&self.podman, resp.id))
     }}
+
+    api_doc! {
+    Container => RenameLibpod
+    /// Change the name of this container.
+    ///
+    /// Parameters:
+    ///  * new_name - new name to give for this container
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("79c93f220e3e").rename("my-container").await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn rename(&self, new_name: impl AsRef<str>) -> Result<()> {
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/rename", &self.id),
+            Some(url::encoded_pair("name", new_name.as_ref())),
+        );
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
 }
 
 impl<'podman> Containers<'podman> {
