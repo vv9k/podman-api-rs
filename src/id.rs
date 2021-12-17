@@ -1,4 +1,6 @@
-#[derive(Debug, Clone, PartialEq, PartialOrd)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 /// Represents unique identifier given by libpod to an object upon creation.
 pub struct Id(String);
 
