@@ -496,6 +496,46 @@ impl<'podman> Container<'podman> {
 
 impl<'podman> Containers<'podman> {
     api_doc! {
+    Container => CreateLibpod
+    /// Create a container with specified options.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .containers()
+    ///     .create(
+    ///         &ContainerCreateOpts::builder()
+    ///             .image("debian:11")
+    ///             .command(
+    ///                 ["/usr/bin/httpd"]
+    ///             )
+    ///             .env([
+    ///                 ("app", "web"),
+    ///             ])
+    ///             .build(),
+    ///     )
+    ///     .await
+    /// {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn create(
+        &self,
+        opts: &opts::ContainerCreateOpts,
+    ) -> Result<models::ContainerCreateCreatedBody> {
+        self.podman
+            .post_json(
+                &"/libpod/containers/create",
+                Payload::Json(opts.serialize()?),
+            )
+            .await
+    }}
+
+    api_doc! {
     Container => ListLibpod
     /// Returns a list of containers.
     ///
