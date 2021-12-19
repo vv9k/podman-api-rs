@@ -1346,10 +1346,12 @@ impl_opts_builder!(url =>
 
 impl ImageTagOptsBuilder {
     impl_url_str_field!(
-        repository => "repo"
+        /// Set the image repository.
+        repo => "repo"
     );
 
     impl_url_str_field!(
+        /// Set the image tag.
         tag => "tag"
     );
 }
