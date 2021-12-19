@@ -32,8 +32,25 @@ impl<'podman> Image<'podman> {
             .get_json(&format!("/libpod/images/{}/json", &self.id))
             .await
     }}
+
+    api_doc! {
+    Image => HistoryLibpod
+    /// Return parent layers of an image.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.images().get("debian").history().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn history(&self) -> Result<models::HistoryResponseItem> {
         self.podman
-            .get_json(&format!("/libpod/images/{}", &self.id))
+            .get_json(&format!("/libpod/images/{}/history", &self.id))
             .await
     }}
 
