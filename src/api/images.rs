@@ -1,4 +1,9 @@
-use crate::{conn::Payload, models, opts, util::url, Result};
+use crate::{
+    conn::{Headers, Payload},
+    models, opts,
+    util::url,
+    Result,
+};
 
 impl_api_ty!(
     Image => id
@@ -212,5 +217,41 @@ impl<'podman> Images<'podman> {
     pub async fn list(&self, opts: &opts::ImageListOpts) -> Result<Vec<models::LibpodImageSummary>> {
         let ep = url::construct_ep("/libpod/images/json", opts.serialize());
         self.podman.get_json(&ep).await
+    }}
+
+    api_doc! {
+    Image => PullLibpod
+    /// Pull one or more images from a container registry.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .images()
+    ///     .pull(
+    ///         &PullOpts::builder()
+    ///             .reference("rockylinux/rockylinux:8")
+    ///             .build(),
+    ///     )
+    ///     .await
+    /// {
+    ///     eprintln!("{}", e);
+    /// }
+    |
+    pub async fn pull(
+        &self,
+        opts: &opts::PullOpts,
+    ) -> Result<models::LibpodImagesPullReport> {
+        let headers = opts
+            .auth_header()
+            .map(|a| Headers::single(crate::conn::AUTH_HEADER, a));
+
+        self.podman.post_json_headers(
+            url::construct_ep("/libpod/images/pull", opts.serialize()),
+            Payload::empty(),
+            headers,
+        ).await
     }}
 }

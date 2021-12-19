@@ -1,6 +1,8 @@
 //! Options used for configuring the behavior of certain API endpoints
 
 use crate::{api::Filter, models};
+use serde::Serialize;
+use std::collections::HashMap;
 use std::fmt;
 
 pub type EventsConstraint = (String, Vec<String>);
@@ -1350,4 +1352,209 @@ impl ImageTagOptsBuilder {
     impl_url_str_field!(
         tag => "tag"
     );
+}
+
+#[derive(Clone, Serialize, Debug)]
+#[serde(untagged)]
+pub enum RegistryAuth {
+    Password {
+        username: String,
+        password: String,
+
+        #[serde(skip_serializing_if = "Option::is_none")]
+        email: Option<String>,
+
+        #[serde(rename = "serveraddress")]
+        #[serde(skip_serializing_if = "Option::is_none")]
+        server_address: Option<String>,
+    },
+    Token {
+        #[serde(rename = "identitytoken")]
+        identity_token: String,
+    },
+}
+
+impl RegistryAuth {
+    /// return a new instance with token authentication
+    pub fn token(token: impl Into<String>) -> RegistryAuth {
+        RegistryAuth::Token {
+            identity_token: token.into(),
+        }
+    }
+
+    /// return a new instance of a builder for authentication
+    pub fn builder() -> RegistryAuthBuilder {
+        RegistryAuthBuilder::default()
+    }
+
+    /// serialize authentication as JSON in base64
+    pub fn serialize(&self) -> String {
+        serde_json::to_string(self)
+            .map(|c| base64::encode_config(&c, base64::URL_SAFE))
+            .unwrap_or_default()
+    }
+}
+
+#[derive(Default)]
+pub struct RegistryAuthBuilder {
+    username: Option<String>,
+    password: Option<String>,
+    email: Option<String>,
+    server_address: Option<String>,
+}
+
+impl RegistryAuthBuilder {
+    /// The username used for authentication.
+    pub fn username(&mut self, username: impl Into<String>) -> &mut Self {
+        self.username = Some(username.into());
+        self
+    }
+
+    /// The password used for authentication.
+    pub fn password(&mut self, password: impl Into<String>) -> &mut Self {
+        self.password = Some(password.into());
+        self
+    }
+
+    /// The email addres used for authentication.
+    pub fn email(&mut self, email: impl Into<String>) -> &mut Self {
+        self.email = Some(email.into());
+        self
+    }
+
+    /// The server address of registry, should be a domain/IP without a protocol.
+    /// Example: `10.92.0.1`, `docker.corp.local`
+    pub fn server_address(&mut self, server_address: impl Into<String>) -> &mut Self {
+        self.server_address = Some(server_address.into());
+        self
+    }
+
+    /// Create the final authentication object.
+    pub fn build(&self) -> RegistryAuth {
+        RegistryAuth::Password {
+            username: self.username.clone().unwrap_or_default(),
+            password: self.password.clone().unwrap_or_default(),
+            email: self.email.clone(),
+            server_address: self.server_address.clone(),
+        }
+    }
+}
+
+#[derive(Default, Debug)]
+pub struct PullOpts {
+    auth: Option<RegistryAuth>,
+    params: HashMap<&'static str, String>,
+}
+
+impl PullOpts {
+    /// return a new instance of a builder for Opts
+    pub fn builder() -> PullOptsBuilder {
+        PullOptsBuilder::default()
+    }
+
+    /// serialize Opts as a string. returns None if no Opts are defined
+    pub fn serialize(&self) -> Option<String> {
+        if self.params.is_empty() {
+            None
+        } else {
+            Some(crate::util::url::encoded_pairs(
+                self.params.iter().map(|(k, v)| (k, v)),
+            ))
+        }
+    }
+
+    pub(crate) fn auth_header(&self) -> Option<String> {
+        self.auth.clone().map(|a| a.serialize())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+/// The networking mode for the run commands during image build.
+pub enum PullPolicy {
+    Always,
+    Missing,
+    Newer,
+    Never,
+}
+
+impl AsRef<str> for PullPolicy {
+    fn as_ref(&self) -> &str {
+        match self {
+            PullPolicy::Always => "always",
+            PullPolicy::Missing => "missing",
+            PullPolicy::Newer => "newer",
+            PullPolicy::Never => "never",
+        }
+    }
+}
+
+impl fmt::Display for PullPolicy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct PullOptsBuilder {
+    auth: Option<RegistryAuth>,
+    params: HashMap<&'static str, String>,
+}
+
+impl PullOptsBuilder {
+    impl_url_bool_field!(
+        /// Pull all tagged images in the repository.
+        all_tags => "allTags"
+    );
+
+    impl_url_str_field!(
+        /// Pull image for the specified architecture.
+        arch => "Arch"
+    );
+
+    impl_url_str_field!(
+        /// username:password for the registry.
+        credentials => "credentials"
+    );
+
+    impl_url_str_field!(
+        /// Pull image for the specified operating system.
+        os => "OS"
+    );
+
+    impl_url_enum_field!(
+        /// Image pull policy.
+        policy: PullPolicy => "policy"
+    );
+
+    impl_url_bool_field!(
+        /// Silences extra stream data on pull.
+        quiet => "quiet"
+    );
+
+    impl_url_str_field!(
+        /// Mandatory reference to the image.
+        reference => "referene"
+    );
+
+    impl_url_bool_field!(
+        /// Require TLS verification.
+        tls_verify => "tlsVerify"
+    );
+
+    impl_url_str_field!(
+        /// Pull image for the specified variant.
+        variant => "Variant"
+    );
+
+    pub fn auth(&mut self, auth: RegistryAuth) -> &mut Self {
+        self.auth = Some(auth);
+        self
+    }
+
+    pub fn build(&mut self) -> PullOpts {
+        PullOpts {
+            auth: self.auth.take(),
+            params: self.params.clone(),
+        }
+    }
 }
