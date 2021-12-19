@@ -37,6 +37,48 @@ impl<'podman> Image<'podman> {
             },
         }
     }}
+
+    api_doc! {
+    Image => DeleteLibpod
+    /// Delete this image from local storage. To forcefully remove an image use
+    /// [`Image::remove`](Image::remove).
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.images().get("debian").delete().await
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn delete(&self) -> Result<()> {
+        self.podman.delete(&format!("/libpod/images/{}", &self.id)).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Image => DeleteLibpod
+    /// Remove this image forcefully from local storage. To remove the image normally use
+    /// [`Image::delete`](Image::delete).
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.images().get("debian").remove().await
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn remove(&self) -> Result<()> {
+        let ep = url::construct_ep(
+            format!("/libpod/images/{}", &self.id),
+            Some(url::encoded_pair("force", true)),
+        );
+        self.podman.delete(&ep).await.map(|_| ())
+    }}
 }
 
 impl<'podman> Images<'podman> {
