@@ -2052,7 +2052,7 @@ pub struct LibpodContainerStatsResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodImageHistoryResponse {
+pub struct LibpodImageInspectResponse {
     #[serde(rename = "Annotations")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotations: Option<HashMap<String, String>>,

@@ -13,6 +13,31 @@ impl_api_ty!(
 
 impl<'podman> Image<'podman> {
     api_doc! {
+    Image => InspectLibpod
+    /// Obtain low-level information about this image.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.images().get("debian").inspect().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn inspect(&self) -> Result<models::LibpodImageInspectResponse> {
+        self.podman
+            .get_json(&format!("/libpod/images/{}/json", &self.id))
+            .await
+    }}
+        self.podman
+            .get_json(&format!("/libpod/images/{}", &self.id))
+            .await
+    }}
+
+    api_doc! {
     Image => ExistsLibpod
     /// Quick way to determine if a image exists by name or ID.
     ///
@@ -27,7 +52,7 @@ impl<'podman> Image<'podman> {
     ///     } else {
     ///         println!("image doesn't exists!");
     ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e);
+    ///     Err(e) => eprintln!("check failed: {}", e),
     /// }
     /// ```
     |
