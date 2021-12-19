@@ -1558,3 +1558,20 @@ impl PullOptsBuilder {
         }
     }
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how an image is exported.
+    ImageExport
+);
+
+impl ImageExportOptsBuilder {
+    impl_url_bool_field!(
+        /// Use compression on image.
+        compress => "compress"
+    );
+
+    impl_url_str_field!(
+        /// Format for exported image.
+        format => "format"
+    );
+}

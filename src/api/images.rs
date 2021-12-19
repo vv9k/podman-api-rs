@@ -5,6 +5,8 @@ use crate::{
     Result,
 };
 
+use futures_util::stream::{Stream, TryStreamExt};
+
 impl_api_ty!(
     Image => id
 );
@@ -150,6 +152,18 @@ impl<'podman> Image<'podman> {
             opts.serialize()
         );
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Image => GetLibpod
+    /// Export this image.
+    |
+    pub fn export(
+        &self,
+        opts: &opts::ImageExportOpts,
+    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + 'podman {
+        let ep = url::construct_ep(format!("/libpod/images/{}/get", &self.id), opts.serialize());
+        Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
     }}
 }
 
