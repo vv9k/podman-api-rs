@@ -55,10 +55,8 @@ impl_opts_builder!(url =>
 #[derive(Debug)]
 /// Used to filter listed containers by one of the variants.
 pub enum ContainerListFilter {
-    // TODO: add stronger types for parameters
-    //
-    /// Image name or <image-name>[:<tag>], <image id>, or <image@digest>
-    Ancestor(String),
+    /// Images that are ancestors.
+    Ancestor(ImageOpt),
     /// Container ID or name
     Before(String),
     /// <port>[/<proto>] or <startport-endport>/[<proto>]
@@ -69,11 +67,10 @@ pub enum ContainerListFilter {
     /// A container's ID
     Id(crate::Id),
     IsTask(bool),
-    /// Container label
-    Label {
-        key: String,
-        value: String,
-    },
+    /// Container key label.
+    LabelKey(String),
+    /// Container key-value label.
+    LabelKeyVal(String, String),
     /// A container's name
     Name(String),
     /// Network ID or name
@@ -93,14 +90,15 @@ impl Filter for ContainerListFilter {
     fn query_key_val(&self) -> (&'static str, String) {
         use ContainerListFilter::*;
         match &self {
-            Ancestor(ancestor) => ("ancestor", ancestor.clone()),
+            Ancestor(ancestor) => ("ancestor", ancestor.to_string()),
             Before(container) => ("before", container.clone()),
             Expose(port) => ("expose", port.clone()),
             Exited(code) => ("exited", code.to_string()),
             Health(health) => ("health", health.as_ref().to_string()),
             Id(id) => ("id", id.to_string()),
             IsTask(is_task) => ("is-task", is_task.to_string()),
-            Label { key, value } => ("label", format!("{}={}", key, value)),
+            LabelKey(key) => ("label", key.clone()),
+            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
             Name(name) => ("name", name.clone()),
             Network(net) => ("network", net.clone()),
             Pod(pod) => ("pod", pod.clone()),
@@ -1266,5 +1264,75 @@ impl ImageBuildOptsBuilder {
     impl_url_str_field!(
         /// Target build stage
         target => "target"
+    );
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how images are listed.
+    ImageList
+);
+
+#[derive(Debug, Clone)]
+/// Used to filter listed images with [`ImagesListFilter`](ImagesListFilter).
+pub enum ImageOpt {
+    Name(crate::Id),
+    Tag(crate::Id, String),
+    Digest(crate::Id, String),
+}
+
+impl fmt::Display for ImageOpt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use ImageOpt::*;
+        match self {
+            Name(id) => write!(f, "{}", id),
+            Tag(id, tag) => write!(f, "{}:{}", id, tag),
+            Digest(id, digest) => write!(f, "{}@{}", id, digest),
+        }
+    }
+}
+
+#[derive(Debug)]
+/// Used to filter listed images by one of the variants.
+pub enum ImageListFilter {
+    Before(ImageOpt),
+    Dangling(bool),
+    /// Image that contains key label.
+    LabelKey(String),
+    /// Image that contains key-value label.
+    LabelKeyVal(String, String),
+    /// Image name with optional tag.
+    Reference(crate::Id, Option<String>),
+    Id(crate::Id),
+    Since(ImageOpt),
+}
+
+impl Filter for ImageListFilter {
+    fn query_key_val(&self) -> (&'static str, String) {
+        use ImageListFilter::*;
+        match &self {
+            Before(image) => ("before", image.to_string()),
+            Dangling(dangling) => ("dangling", dangling.to_string()),
+            LabelKey(key) => ("label", key.clone()),
+            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
+            Reference(image, tag) => (
+                "reference",
+                if let Some(tag) = tag {
+                    format!("{}:{}", image, tag)
+                } else {
+                    image.to_string()
+                },
+            ),
+            Id(id) => ("id", id.to_string()),
+            Since(image) => ("since", image.to_string()),
+        }
+    }
+}
+
+impl ImageListOptsBuilder {
+    impl_filter_func!(ImageListFilter);
+
+    impl_url_bool_field!(
+        /// Show all images. Only images from a final layer (no children) are shown by default.
+        all => "all"
     );
 }

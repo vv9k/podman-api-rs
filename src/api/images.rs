@@ -40,4 +40,33 @@ impl<'podman> Images<'podman> {
             )
             .await
     }}
+
+    api_doc! {
+    Image => ListLibpod
+    /// Returns a list of images.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// for image in podman
+    ///     .images()
+    ///     .list(
+    ///         &ImageListOpts::builder()
+    ///             .all(true)
+    ///             .filter([ImageListFilter::Dangling(true)])
+    ///             .build(),
+    ///     )
+    ///     .await
+    ///     .unwrap()
+    /// {
+    ///     println!("{:?}", image);
+    /// }
+    /// ```
+    |
+    pub async fn list(&self, opts: &opts::ImageListOpts) -> Result<Vec<models::LibpodImageSummary>> {
+        let ep = url::construct_ep("/libpod/images/json", opts.serialize());
+        self.podman.get_json(&ep).await
+    }}
 }

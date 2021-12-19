@@ -549,10 +549,7 @@ impl<'podman> Containers<'podman> {
     ///     .list(
     ///         &ContainerListOpts::builder()
     ///             .all(true)
-    ///             .filter([ContainerListFilter::Label {
-    ///                 key: "app".into(),
-    ///                 value: "web".into(),
-    ///             }])
+    ///             .filter([ContainerListFilter::LabelKeyVal("app".into(), "web".into())])
     ///             .build(),
     ///     )
     ///     .await
