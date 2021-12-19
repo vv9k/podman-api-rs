@@ -4,6 +4,41 @@ impl_api_ty!(
     Image => id
 );
 
+impl<'podman> Image<'podman> {
+    api_doc! {
+    Image => ExistsLibpod
+    /// Quick way to determine if a image exists by name or ID.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.images().get("debian").exists().await {
+    ///     Ok(exists) => if exists {
+    ///         println!("image exists!");
+    ///     } else {
+    ///         println!("image doesn't exists!");
+    ///     },
+    ///     Err(e) => eprintln!("check failed: {}", e);
+    /// }
+    /// ```
+    |
+    pub async fn exists(&self) -> Result<bool> {
+        let ep = format!("/libpod/images/{}/exists", &self.id);
+        match self.podman.get(&ep).await {
+            Ok(_) => Ok(true),
+            Err(e) => match e {
+                crate::Error::Fault {
+                    code: http::StatusCode::NOT_FOUND,
+                    message: _,
+                } => Ok(false),
+                e => Err(e),
+            },
+        }
+    }}
+}
+
 impl<'podman> Images<'podman> {
     api_doc! {
     Image => BuildLibpod
