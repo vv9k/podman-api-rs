@@ -1039,3 +1039,232 @@ impl ContainerCreateOptsBuilder {
         work_dir => "work_dir"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how an image is built.
+    ImageBuild
+);
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+/// The networking mode for the run commands during image build.
+pub enum NetworkMode {
+    /// Limited to containers within a single host, port mapping required for external access.
+    Bridge,
+    /// No isolation between host and containers on this network.
+    Host,
+    /// Disable all networking for this container.
+    None,
+    /// Share networking with given container.
+    Container,
+    /// Custom network's name.
+    Custom(String),
+}
+
+impl AsRef<str> for NetworkMode {
+    fn as_ref(&self) -> &str {
+        match self {
+            NetworkMode::Bridge => "bridge",
+            NetworkMode::Host => "host",
+            NetworkMode::None => "none",
+            NetworkMode::Container => "container",
+            NetworkMode::Custom(custom) => &custom,
+        }
+    }
+}
+
+impl fmt::Display for NetworkMode {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+/// Used to set the image platform with [`platform`](ImageBuildOptsBuilder::platform).
+pub struct Platform {
+    os: String,
+    arch: Option<String>,
+    version: Option<String>,
+}
+
+impl Platform {
+    pub fn new(os: impl Into<String>) -> Self {
+        Self {
+            os: os.into(),
+            arch: None,
+            version: None,
+        }
+    }
+
+    pub fn arch(mut self, arch: impl Into<String>) -> Self {
+        self.arch = Some(arch.into());
+        self
+    }
+
+    pub fn version(mut self, version: impl Into<String>) -> Self {
+        self.version = Some(version.into());
+        self
+    }
+}
+
+impl fmt::Display for Platform {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(arch) = &self.arch {
+            if let Some(vers) = &self.version {
+                write!(f, "{}/{}/{}", self.os, arch, vers)
+            } else {
+                write!(f, "{}/{}", self.os, arch)
+            }
+        } else {
+            write!(f, "{}", self.os)
+        }
+    }
+}
+
+impl ImageBuildOptsBuilder {
+    impl_map_field!(url
+        /// Key-value build time variables.
+        build_args => "buildargs"
+    );
+
+    /// List of images used to build cache resolution
+    pub fn cache_from<I>(mut self, images: impl IntoIterator<Item = I>) -> Self
+    where
+        I: Into<String>,
+    {
+        self.params.insert(
+            "cachefrom",
+            serde_json::to_string(&images.into_iter().map(|i| i.into()).collect::<Vec<_>>())
+                .unwrap_or_default(),
+        );
+        self
+    }
+
+    impl_url_field!(
+        /// Limits the CPU CFS (Completely Fair Scheduler) period.
+        cpu_period: isize => "cpuperiod"
+    );
+
+    impl_url_field!(
+        /// Limits the CPU CFS (Completely Fair Scheduler) quota.
+        cpu_quota: isize => "cpuquota"
+    );
+
+    impl_url_field!(
+        /// Set CPUs in which to allow execution. Example: `0-1`, `1-3`
+        cpu_set_cpus: isize => "cpusetcpus"
+    );
+
+    impl_url_field!(
+        /// CPU shares - relative weights
+        cpu_shares: isize => "cpushares"
+    );
+
+    impl_url_str_field!(
+        /// Path within the build context to the Dockerfile. This is ignored
+        /// if remote is specified and points to an external Dockerfile.
+        dockerfile => "Dockerfile"
+    );
+
+    impl_url_str_field!(
+        /// Extra hosts to add to /etc/hosts.
+        extra_hosts => "extrahosts"
+    );
+
+    impl_url_bool_field!(
+        /// Always remove intermediate containers, even upon failure.
+        force_rm => "forcerm"
+    );
+
+    impl_url_bool_field!(
+        /// Inject http proxy environment variables into container.
+        http_proxy => "httpproxy"
+    );
+
+    impl_map_field!(url
+        /// Key-value pairs to set as labels on the new image.
+        labels => "labels"
+    );
+
+    impl_url_bool_field!(
+        /// Cache intermediate layers during build.
+        layers => "layers"
+    );
+
+    impl_url_field!(
+        /// The upper limit (in bytes) on how much memory running
+        /// containers can use.
+        memory: usize => "memory"
+    );
+
+    impl_url_field!(
+        /// Limits the amount of memory and swap together.
+        memswap: usize => "memswap"
+    );
+
+    impl_url_enum_field!(
+        /// Set the networking mode for the run commands during build.
+        network_mode: NetworkMode => "networkmode"
+    );
+
+    impl_url_bool_field!(
+        /// Do not use the cache when building the image.
+        no_cache => "nocache"
+    );
+
+    impl_url_str_field!(
+        /// Output configuration.
+        outputs => "outputs"
+    );
+
+    pub fn platform(mut self, platform: Platform) -> Self {
+        self.params.insert("platform", platform.to_string());
+        self
+    }
+
+    impl_url_bool_field!(
+        /// Attempt to pull the image even if an older image exists locally.
+        pull => "pull"
+    );
+
+    impl_url_bool_field!(
+        /// Suppress verbose build output.
+        quiet => "q"
+    );
+
+    impl_url_str_field!(
+        /// A Git repository URI or HTTP/HTTPS context URI. If the URI points
+        /// to a single text file, the file’s contents are placed into a file
+        /// called Dockerfile and the image is built from that file. If the URI
+        /// points to a tarball, the file is downloaded by the daemon and
+        /// the contents therein used as the context for the build. If the URI
+        /// points to a tarball and the dockerfile parameter is also specified,
+        /// there must be a file with the corresponding path inside the tarball.
+        remote => "remote"
+    );
+
+    impl_url_bool_field!(
+        /// Remove intermediate containers after a successful build.
+        remove => "rm"
+    );
+
+    impl_url_field!(
+        /// Value to use when mounting an shmfs on the container's /dev/shm directory.
+        /// Default is 64MB
+        shared_mem_size: usize => "shmsize"
+    );
+
+    impl_url_bool_field!(
+        /// Silently ignored. Squash the resulting images layers into a single layer.
+        squash => "squash"
+    );
+
+    impl_url_str_field!(
+        /// A name and optional tag to apply to the image in the `name:tag` format.
+        tag => "t"
+    );
+
+    impl_url_str_field!(
+        /// Target build stage
+        target => "target"
+    );
+}

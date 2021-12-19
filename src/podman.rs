@@ -1,6 +1,5 @@
 //! Main entrypoint for interacting with the Podman API.
-//!
-//! API Reference: <https://docs.podman.io/en/v3.2.0/_static/api.html>
+
 use crate::{
     api,
     conn::{get_http_connector, Headers, Payload, Transport},

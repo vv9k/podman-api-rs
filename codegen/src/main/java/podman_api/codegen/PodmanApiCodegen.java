@@ -19,6 +19,8 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
 
   static Map<String, String> SPECIAL_TYPES = new HashMap<String, String>() {
     {
+      put("InlineResponse2001", "DockerImageBuildResponse");
+      put("InlineResponse2009", "LibpodImageBuildResponse");
       put("InlineResponse20010", "LibpodContainerHealthcheckResponse");
       put("InlineResponse20011", "LibpodContainerInspectResponse");
       put("InlineResponse20012", "LibpodContainerStatsResponse");
@@ -89,8 +91,6 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
     supportingFiles.add(new SupportingFile("Cargo.mustache", "", "Cargo.toml"));
     supportingFiles.add(new SupportingFile("gitignore.mustache", "", ".gitignore"));
 
-    // supportingFiles.add(new SupportingFile("api_test.mustache", "src",
-    // "api_test.rs"));
     defaultIncludes = new HashSet<String>(
         Arrays.asList(
             "map",

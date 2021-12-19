@@ -108,6 +108,21 @@ macro_rules! impl_url_bool_field {
     };
 }
 
+macro_rules! impl_url_enum_field {
+    ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
+        paste::item! {
+            $(
+                #[doc= $docs]
+            )*
+            pub fn [< $name >](mut self, $name: $ty)-> Self
+            {
+                self.params.insert($api_name, $name.to_string());
+                self
+            }
+        }
+    };
+}
+
 macro_rules! impl_str_enum_field {
     ($(#[doc = $docs:expr])* $name:ident: $ty:tt => $api_name:literal) => {
         paste::item! {

@@ -1853,7 +1853,7 @@ pub struct InlineResponse200 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2001 {
+pub struct DockerImageBuildResponse {
     /// output from build process
     #[serde(rename = "stream")]
     pub stream: String,
@@ -2663,7 +2663,7 @@ pub struct InlineResponse2008 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2009 {
+pub struct LibpodImageBuildResponse {
     /// output from build process
     #[serde(rename = "stream")]
     pub stream: String,
