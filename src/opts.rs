@@ -1336,3 +1336,18 @@ impl ImageListOptsBuilder {
         all => "all"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust the way an image is tagged/untagged.
+    ImageTag
+);
+
+impl ImageTagOptsBuilder {
+    impl_url_str_field!(
+        repository => "repo"
+    );
+
+    impl_url_str_field!(
+        tag => "tag"
+    );
+}

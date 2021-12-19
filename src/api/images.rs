@@ -79,6 +79,73 @@ impl<'podman> Image<'podman> {
         );
         self.podman.delete(&ep).await.map(|_| ())
     }}
+
+    api_doc! {
+    Image => TagLibpod
+    /// Tag an image so that it becomes part of a repository.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .images()
+    ///     .get("debian")
+    ///     .tag(
+    ///         &ImageTagOpts::builder()
+    ///             .repo("my.custom.repo/debian")
+    ///             .tag("1.0.0")
+    ///             .build(),
+    ///     )
+    ///     .await
+    ///     .unwrap()
+    /// {
+    ///     println!("{:?}", image);
+    /// }
+    /// ```
+    |
+    pub async fn tag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
+        let ep = url::construct_ep(
+            format!("/libpod/images/{}/tag", &self.id),
+            opts.serialize()
+        );
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
+
+    api_doc! {
+    Image => UntagLibpod
+    /// Untag an image. If repo and tag are not specified, all tags are removed
+    /// from the image.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .images()
+    ///     .get("debian")
+    ///     .untag(
+    ///         &ImageTagOpts::builder()
+    ///             .repo("my.custom.repo/debian")
+    ///             .tag("1.0.0")
+    ///             .build(),
+    ///     )
+    ///     .await
+    ///     .unwrap()
+    /// {
+    ///     println!("{:?}", image);
+    /// }
+    /// ```
+    |
+    pub async fn untag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
+        let ep = url::construct_ep(
+            format!("/libpod/images/{}/tag", &self.id),
+            opts.serialize()
+        );
+        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+    }}
 }
 
 impl<'podman> Images<'podman> {
@@ -92,7 +159,7 @@ impl<'podman> Images<'podman> {
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     /// if let Err(e) = podman
-    ///     .containers()
+    ///     .images()
     ///     .create(
     ///         &ImageBuildOpts::builder()
     ///             .remote("http://some.url.to/Dockerfile")
