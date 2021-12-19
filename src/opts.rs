@@ -1577,3 +1577,30 @@ impl ImageExportOptsBuilder {
         format => "format"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how an image is imported.
+    ImageImport
+);
+
+impl ImageImportOptsBuilder {
+    impl_url_vec_field!(
+        /// Apply the following possible instructions to the created image: CMD | ENTRYPOINT | ENV | EXPOSE | LABEL | STOPSIGNAL | USER | VOLUME | WORKDIR.
+        changes => "changes"
+    );
+
+    impl_url_str_field!(
+        /// Set commit message for imported image.
+        message => "message"
+    );
+
+    impl_url_str_field!(
+        /// Optional Name[:TAG] for the image.
+        reference => "reference"
+    );
+
+    impl_url_str_field!(
+        /// Load image from the specified URL.
+        url => "url"
+    );
+}

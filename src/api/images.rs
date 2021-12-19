@@ -334,4 +334,39 @@ impl<'podman> Images<'podman> {
             .post_json("/libpod/images/load", Payload::XTar(archive))
             .await
     }}
+
+    api_doc! {
+    Image => ImportLibpod
+    /// Import a previously exported tarball as an image.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman
+    ///     .images()
+    ///     .pull(
+    ///         &PullOpts::builder()
+    ///             .reference("rockylinux/rockylinux:8")
+    ///             .build(),
+    ///     )
+    ///     .await
+    /// {
+    ///     eprintln!("{}", e);
+    /// }
+    |
+    pub async fn import(
+        &self,
+        opts: &opts::ImageImportOpts,
+        image: impl AsRef<[u8]>,
+    ) -> Result<models::LibpodImagesPullReport> {
+        let archive = image.as_ref().to_vec();
+        self.podman
+            .post_json(
+                url::construct_ep("/libpod/images/import", opts.serialize()),
+                Payload::XTar(archive),
+            )
+            .await
+    }}
 }
