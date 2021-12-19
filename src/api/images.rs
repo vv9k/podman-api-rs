@@ -310,4 +310,28 @@ impl<'podman> Images<'podman> {
             headers,
         ).await
     }}
+
+    api_doc! {
+    Image => LoadLibpod
+    /// Load an image (oci-archive or docker-archive) stream.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let image = std::fs::read("image_archive")?;
+    ///
+    /// match podman.images().load(&image).await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn load(&self, image: impl AsRef<[u8]>) -> Result<models::ImageLoadReport> {
+        let archive = image.as_ref().to_vec();
+        self.podman
+            .post_json("/libpod/images/load", Payload::XTar(archive))
+            .await
+    }}
 }
