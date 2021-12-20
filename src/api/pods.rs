@@ -368,4 +368,34 @@ impl<'podman> Pods<'podman> {
     pub async fn prune(&self) -> Result<Vec<models::PodPruneReport>> {
         self.podman.get_json("/libpod/pods/prune").await
     }}
+
+    api_doc! {
+    Pod => StatsAllLibpod
+    /// Display a live stream of resource usage statistics for the containers in one or more pods.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let stream = podman.pods().stats(&PodStatsOpts::builder().all(true).build())
+    /// while let Some(chunk) = stream.next().await {
+    ///     match chunk{
+    ///         Ok(chunk) => println!("{:?}", chunk),
+    ///         Err(e) => eprintln!("{}", e);
+    ///     }
+    /// }
+    /// ```
+    |
+    pub async fn stats(
+        &self,
+        opts: &opts::PodStatsOpts,
+    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + 'podman {
+        let ep = url::construct_ep(
+            "/libpod/pods/stats",
+            opts.serialize(),
+        );
+        self.podman.stream_get_json(ep)
+    }}
 }

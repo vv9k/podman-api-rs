@@ -81,3 +81,20 @@ impl PodTopOptsBuilder {
         ps_args => "ps_args"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how stats of a process are listed.
+    PodStats
+);
+
+impl PodStatsOptsBuilder {
+    impl_url_bool_field!(
+        /// Provide statistics for all running pods.
+        all => "all"
+    );
+
+    impl_url_vec_field!(
+        /// Names or IDs of pods.
+        names_or_ids => "namesOrIds"
+    );
+}
