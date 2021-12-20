@@ -107,6 +107,7 @@ pub struct Multiplexer<'a> {
 }
 
 impl<'a> Multiplexer<'a> {
+    #[allow(dead_code)]
     pub(crate) fn new<T>(tcp_connection: T) -> Self
     where
         T: AsyncRead + AsyncWrite + Send + 'a,

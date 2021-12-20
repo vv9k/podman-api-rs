@@ -412,7 +412,7 @@ impl<'podman> Container<'podman> {
         self.podman
             .post_json(&ep, Payload::Json(opts.serialize()?))
             .await
-            .map(|resp: CreateExecResponse| Exec::new(&self.podman, resp.id))
+            .map(|resp: CreateExecResponse| Exec::new(self.podman, resp.id))
     }}
 
     api_doc! {

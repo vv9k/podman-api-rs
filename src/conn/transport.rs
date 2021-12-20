@@ -1,4 +1,5 @@
 //! Transports for communicating with the Podman daemon
+#![allow(dead_code)]
 
 use crate::{Error, Result};
 

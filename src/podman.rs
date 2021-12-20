@@ -419,6 +419,7 @@ impl Podman {
             .await
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn post_headers<B>(
         &self,
         endpoint: &str,
@@ -438,6 +439,7 @@ impl Podman {
             .await
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn put<B>(&self, endpoint: &str, body: Payload<B>) -> Result<String>
     where
         B: Into<Body>,
@@ -526,6 +528,7 @@ impl Podman {
         Ok(serde_json::from_str::<T>(&raw_string)?)
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn head_response(&self, endpoint: &str) -> Result<Response<Body>> {
         self.transport
             .request(
@@ -557,6 +560,7 @@ impl Podman {
         )
     }
 
+    #[allow(dead_code)]
     /// Send a streaming post request.
     fn stream_json_post<'a, B>(
         &'a self,
@@ -575,6 +579,7 @@ impl Podman {
         )
     }
 
+    #[allow(dead_code)]
     /// Send a streaming post request that returns a stream of JSON values
     ///
     /// When a received chunk does not contain a full JSON reads more chunks from the stream
@@ -615,6 +620,7 @@ impl Podman {
         )
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn stream_post_upgrade<'a, B>(
         &'a self,
         endpoint: impl AsRef<str> + 'a,

@@ -261,9 +261,9 @@ pub enum ImageVolumeMode {
 impl AsRef<str> for ImageVolumeMode {
     fn as_ref(&self) -> &str {
         match self {
-            &ImageVolumeMode::Ignore => "ignore",
-            &ImageVolumeMode::Tmpfs => "tmpfs",
-            &ImageVolumeMode::Anonymous => "anonymous",
+            ImageVolumeMode::Ignore => "ignore",
+            ImageVolumeMode::Tmpfs => "tmpfs",
+            ImageVolumeMode::Anonymous => "anonymous",
         }
     }
 }
@@ -289,9 +289,9 @@ pub enum SocketNotifyMode {
 impl AsRef<str> for SocketNotifyMode {
     fn as_ref(&self) -> &str {
         match self {
-            &SocketNotifyMode::Container => "container",
-            &SocketNotifyMode::ConmonOnly => "conmon-only",
-            &SocketNotifyMode::Ignore => "ignore",
+            SocketNotifyMode::Container => "container",
+            SocketNotifyMode::ConmonOnly => "conmon-only",
+            SocketNotifyMode::Ignore => "ignore",
         }
     }
 }
@@ -313,9 +313,9 @@ pub enum SeccompPolicy {
 impl AsRef<str> for SeccompPolicy {
     fn as_ref(&self) -> &str {
         match self {
-            &SeccompPolicy::Empty => "empty",
-            &SeccompPolicy::Default => "default",
-            &SeccompPolicy::Image => "image",
+            SeccompPolicy::Empty => "empty",
+            SeccompPolicy::Default => "default",
+            SeccompPolicy::Image => "image",
         }
     }
 }
@@ -337,9 +337,9 @@ pub enum SystemdEnabled {
 impl AsRef<str> for SystemdEnabled {
     fn as_ref(&self) -> &str {
         match self {
-            &SystemdEnabled::True => "true",
-            &SystemdEnabled::False => "false",
-            &SystemdEnabled::Always => "always",
+            SystemdEnabled::True => "true",
+            SystemdEnabled::False => "false",
+            SystemdEnabled::Always => "always",
         }
     }
 }

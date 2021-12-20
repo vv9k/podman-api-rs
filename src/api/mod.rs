@@ -28,7 +28,9 @@ pub(crate) trait Filter {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub(crate) enum ApiResource {
+/// Types of resources available in Podman. This is just a helper enum listing all possible
+/// categories of endpoints.
+pub enum ApiResource {
     Containers,
     Exec,
     Images,
@@ -37,6 +39,7 @@ pub(crate) enum ApiResource {
     Pods,
     Secrets,
     Volumes,
+    System,
 }
 
 impl AsRef<str> for ApiResource {
@@ -51,6 +54,7 @@ impl AsRef<str> for ApiResource {
             Pods => "pods",
             Secrets => "secrets",
             Volumes => "volumes",
+            System => "system",
         }
     }
 }

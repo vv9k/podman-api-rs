@@ -30,7 +30,7 @@ impl AsRef<str> for NetworkMode {
             NetworkMode::Host => "host",
             NetworkMode::None => "none",
             NetworkMode::Container => "container",
-            NetworkMode::Custom(custom) => &custom,
+            NetworkMode::Custom(custom) => custom,
         }
     }
 }
