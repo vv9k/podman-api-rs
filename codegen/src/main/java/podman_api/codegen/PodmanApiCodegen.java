@@ -36,6 +36,7 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
       put("InlineResponse20022", "LibpodVolumeListResponse");
       put("InlineResponse20023", "DockerVolumeInfoResponse");
       put("InlineResponse20024", "DockerVolumePruneResponse");
+      put("InlineResponse2011", "LibpodSecretCreateResponse");
     }
   };
 

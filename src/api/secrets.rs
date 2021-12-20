@@ -1,4 +1,4 @@
-use crate::{models, util::url, Result};
+use crate::{models, opts, util::url, Result};
 
 impl_api_ty!(
     Secret => id
@@ -47,5 +47,37 @@ impl<'podman> Secrets<'podman> {
         self.podman
             .get_json("/libpod/secrets/json")
             .await
+    }}
+
+    api_doc! {
+    Secret => CreateLibpod
+    /// Create a new secret.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.secrets().create().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn create(
+        &self,
+        opts: &opts::SecretCreateOpts,
+        secret: impl Into<String>,
+    ) -> Result<Secret<'_>> {
+        let ep = url::construct_ep("/libpod/secrets/create", opts.serialize());
+        self.podman
+            .post_json(
+                &ep,
+                crate::conn::Payload::Json(serde_json::to_string(&secret.into())?),
+            )
+            .await
+            .map(|resp: models::LibpodSecretCreateResponse| {
+                Secret::new(&self.podman, resp.ID.unwrap_or_default())
+            })
     }}
 }

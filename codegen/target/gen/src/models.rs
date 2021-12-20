@@ -2682,7 +2682,7 @@ pub struct InlineResponse201 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2011 {
+pub struct LibpodSecretCreateResponse {
     #[serde(rename = "ID")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ID: Option<String>,
