@@ -23,3 +23,31 @@ pub(crate) trait Filter {
     // TODO: Add a stronger return type. Not all filters are `key=val`, soma are only `key`
     fn query_key_val(&self) -> (&'static str, String);
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub(crate) enum ApiResource {
+    Containers,
+    Exec,
+    Images,
+    Manifests,
+    Networks,
+    Pods,
+    Secrets,
+    Volumes,
+}
+
+impl AsRef<str> for ApiResource {
+    fn as_ref(&self) -> &str {
+        use ApiResource::*;
+        match self {
+            Containers => "containers",
+            Exec => "exec",
+            Images => "images",
+            Manifests => "manifests",
+            Networks => "networks",
+            Pods => "pods",
+            Secrets => "secrets",
+            Volumes => "volumes",
+        }
+    }
+}

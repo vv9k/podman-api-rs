@@ -1,5 +1,5 @@
 use crate::{
-    api::Exec,
+    api::{ApiResource, Exec},
     conn::{Headers, Payload},
     models, opts,
     util::url,
@@ -513,17 +513,9 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
-        let ep = format!("/libpod/containers/{}/exists", &self.id);
-        match self.podman.get(&ep).await {
-            Ok(_) => Ok(true),
-            Err(e) => match e {
-                crate::Error::Fault {
-                    code: http::StatusCode::NOT_FOUND,
-                    message: _,
-                } => Ok(false),
-                e => Err(e),
-            },
-        }
+        self.podman
+            .resource_exists(ApiResource::Containers, &self.id)
+            .await
     }}
 }
 

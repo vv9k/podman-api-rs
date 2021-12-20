@@ -1,7 +1,7 @@
 //! Main entrypoint for interacting with the Podman API.
 
 use crate::{
-    api,
+    api::{self, ApiResource},
     conn::{get_http_connector, Headers, Payload, Transport},
     models,
     opts::*,
@@ -354,6 +354,24 @@ impl Podman {
                 }),
         )
     }}
+
+    pub(crate) async fn resource_exists(
+        &self,
+        resource: ApiResource,
+        id: &crate::Id,
+    ) -> Result<bool> {
+        let ep = format!("/libpod/{}/{}/exists", resource.as_ref(), id);
+        match self.get(&ep).await {
+            Ok(_) => Ok(true),
+            Err(e) => match e {
+                crate::Error::Fault {
+                    code: http::StatusCode::NOT_FOUND,
+                    message: _,
+                } => Ok(false),
+                e => Err(e),
+            },
+        }
+    }
 
     //####################################################################################################
     //

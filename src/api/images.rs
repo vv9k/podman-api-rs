@@ -1,4 +1,5 @@
 use crate::{
+    api::ApiResource,
     conn::{Headers, Payload},
     models, opts,
     util::url,
@@ -74,17 +75,9 @@ impl<'podman> Image<'podman> {
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
-        let ep = format!("/libpod/images/{}/exists", &self.id);
-        match self.podman.get(&ep).await {
-            Ok(_) => Ok(true),
-            Err(e) => match e {
-                crate::Error::Fault {
-                    code: http::StatusCode::NOT_FOUND,
-                    message: _,
-                } => Ok(false),
-                e => Err(e),
-            },
-        }
+        self.podman
+            .resource_exists(ApiResource::Images, &self.id)
+            .await
     }}
 
     api_doc! {
