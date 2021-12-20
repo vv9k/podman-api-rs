@@ -2505,7 +2505,7 @@ pub struct DockerVolumePruneResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2003 {
+pub struct LibpodPodTopResponse {
     /// Each process running in the container, where each is process is an array of values corresponding to the titles.
     #[serde(rename = "Processes")]
     #[serde(deserialize_with = "deserialize_nonoptional_vec")]

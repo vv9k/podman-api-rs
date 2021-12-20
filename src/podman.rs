@@ -620,6 +620,27 @@ impl Podman {
         )
     }
 
+    pub(crate) fn stream_get_json<'a, T>(
+        &'a self,
+        endpoint: impl AsRef<str> + Unpin + 'a,
+    ) -> impl Stream<Item = Result<T>> + 'a
+    where
+        T: DeserializeOwned,
+    {
+        self.stream_get(endpoint)
+            .and_then(|chunk| async move {
+                let stream = futures_util::stream::iter(
+                    serde_json::Deserializer::from_slice(&chunk)
+                        .into_iter()
+                        .collect::<Vec<_>>(),
+                )
+                .map_err(Error::from);
+
+                Ok(stream)
+            })
+            .try_flatten()
+    }
+
     #[allow(dead_code)]
     pub(crate) async fn stream_post_upgrade<'a, B>(
         &'a self,

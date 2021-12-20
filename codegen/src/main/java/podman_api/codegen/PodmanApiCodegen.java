@@ -20,6 +20,7 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
   static Map<String, String> SPECIAL_TYPES = new HashMap<String, String>() {
     {
       put("InlineResponse2001", "DockerImageBuildResponse");
+      put("InlineResponse2003", "LibpodPodTopResponse");
       put("InlineResponse2009", "LibpodImageBuildResponse");
       put("InlineResponse20010", "LibpodContainerHealthcheckResponse");
       put("InlineResponse20011", "LibpodContainerInspectResponse");

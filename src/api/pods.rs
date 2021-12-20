@@ -1,5 +1,7 @@
 use crate::{api::ApiResource, conn::Payload, models, opts, util::url, Result};
 
+use futures_util::stream::Stream;
+
 impl_api_ty!(
     Pod => id
 );
@@ -264,6 +266,58 @@ impl<'podman> Pod<'podman> {
     |
     pub async fn exists(&self) -> Result<bool> {
         self.podman.resource_exists(ApiResource::Pods, &self.id).await
+    }}
+
+    api_doc! {
+    Pod => TopLibpod
+    /// List processes inside this pod.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.pods().get("79c93f220e3e").top(&Default::default()).await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn top(&self, opts: &opts::PodTopOpts) -> Result<models::LibpodPodTopResponse> {
+        let ep = url::construct_ep(format!("/libpod/pods/{}/top", &self.id), opts.serialize());
+        self.podman.get_json(&ep).await
+    }}
+
+    api_doc! {
+    Pod => TopLibpod
+    /// List processes inside this pod.
+    ///
+    /// Only supported as of version > 4.0
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let stream = podman.pods().get("79c93f220e3e").top_stream(&Default::default())
+    /// while let Some(chunk) = stream.next().await {
+    ///     match chunk{
+    ///         Ok(chunk) => println!("{:?}", chunk),
+    ///         Err(e) => eprintln!("{}", e);
+    ///     }
+    /// }
+    /// ```
+    |
+    pub async fn top_stream(
+        &self,
+        opts: &opts::PodTopOpts,
+    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + 'podman {
+        let ep = url::construct_ep(
+            format!("/libpod/pods/{}/top", &self.id),
+            opts.stream().serialize(),
+        );
+        self.podman.stream_get_json(ep)
     }}
 }
 
