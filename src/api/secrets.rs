@@ -25,6 +25,27 @@ impl<'podman> Secret<'podman> {
             .get_json(&format!("/libpod/secrets/{}/json", &self.id))
             .await
     }}
+
+    api_doc! {
+    Secret => DeleteLibpod
+    /// Remove this secret
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.secrets().delete().await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn delete(&self) -> Result<()> {
+        self.podman
+            .delete(&format!("/libpod/secrets/{}/", &self.id))
+            .await
+            .map(|_| ())
+    }}
 }
 
 impl<'podman> Secrets<'podman> {
