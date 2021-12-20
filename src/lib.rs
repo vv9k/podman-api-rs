@@ -3,16 +3,15 @@ mod builder;
 mod id;
 mod podman;
 mod util;
-mod version;
 
 pub mod api;
 pub mod conn;
 pub mod models;
 pub mod opts;
 
+pub use api::ApiVersion;
 pub use id::Id;
 pub use podman::Podman;
-pub use version::ApiVersion;
 
 /// Latest libpod API version supported by this crate
 pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(3, 4, 4);
