@@ -349,4 +349,23 @@ impl<'podman> Pods<'podman> {
         let ep = url::construct_ep("/libpod/pods/json", opts.serialize());
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Pod => ListLibpod
+    /// Returns a list of pods.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.pods().prune().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn prune(&self) -> Result<Vec<models::PodPruneReport>> {
+        self.podman.get_json("/libpod/pods/prune").await
+    }}
 }
