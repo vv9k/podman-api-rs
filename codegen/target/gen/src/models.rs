@@ -2275,7 +2275,7 @@ pub struct LibpodVersionResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodVolumeCreateResponse {
+pub struct LibpodVolumeInspectResponse {
     /// Anonymous indicates that the volume was created as an anonymous volume for a specific container, and will be be removed when any container using it is removed.
     #[serde(rename = "Anonymous")]
     #[serde(skip_serializing_if = "Option::is_none")]

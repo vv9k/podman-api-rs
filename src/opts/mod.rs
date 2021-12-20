@@ -4,11 +4,13 @@ mod containers;
 mod exec;
 mod images;
 mod pods;
+mod volumes;
 
 pub use containers::*;
 pub use exec::*;
 pub use images::*;
 pub use pods::*;
+pub use volumes::*;
 
 pub type EventsConstraint = (String, Vec<String>);
 

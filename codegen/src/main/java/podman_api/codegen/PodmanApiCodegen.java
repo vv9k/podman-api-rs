@@ -30,7 +30,7 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
       put("InlineResponse20016", "LibpodDataUsageResponse");
       put("InlineResponse20017", "LibpodSystemPruneResponse");
       put("InlineResponse20018", "LibpodVersionResponse");
-      put("InlineResponse20019", "LibpodVolumeCreateResponse");
+      put("InlineResponse20019", "LibpodVolumeInspectResponse");
       put("InlineResponse20020", "LibpodNetworkCreateResponse");
       put("InlineResponse20021", "LibpodNetworksPruneResponse");
       put("InlineResponse20022", "LibpodVolumeListResponse");
