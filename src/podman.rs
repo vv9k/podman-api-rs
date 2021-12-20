@@ -198,15 +198,18 @@ impl Podman {
     /// Verifies the API version returned by the server and adjusts the version used by this client
     /// in future requests.
     pub async fn adjust_api_version(&mut self) -> Result<()> {
-        todo!();
-        //let server_version: ApiVersion =
-        //self.version().await.and_then(|v| v.api_version.parse())?;
+        let server_version: Option<ApiVersion> = self
+            .version()
+            .await
+            .map(|v| v.api_version.and_then(|v| v.parse().ok()))?;
 
-        //if server_version <= self.version {
-        //self.version = server_version;
-        //}
+        if let Some(version) = server_version {
+            if version <= self.version {
+                self.version = version;
+            }
+        }
 
-        //Ok(())
+        Ok(())
     }
 
     //####################################################################################################
