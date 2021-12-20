@@ -210,9 +210,9 @@ macro_rules! impl_opts_builder {
 
             impl [< $name OptsBuilder >] {
                 #[doc = concat!("Finish building ", stringify!($name), "Opts.")]
-                pub fn build(&self) -> [< $name Opts >] {
+                pub fn build(self) -> [< $name Opts >] {
                     [< $name Opts >] {
-                        params: self.params.clone(),
+                        params: self.params,
                     }
                 }
             }
