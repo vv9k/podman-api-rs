@@ -155,3 +155,30 @@ impl AsRef<str> for ContainerHealth {
         }
     }
 }
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum PodStatus {
+    Created,
+    Dead,
+    Degraded,
+    Exited,
+    Paused,
+    Running,
+    Stopped,
+}
+
+impl AsRef<str> for PodStatus {
+    fn as_ref(&self) -> &str {
+        use PodStatus::*;
+        match &self {
+            Created => "created",
+            Dead => "dead",
+            Degraded => "degraded",
+            Exited => "exited",
+            Paused => "paused",
+            Running => "running",
+            Stopped => "stopped",
+        }
+    }
+}
