@@ -5,6 +5,31 @@
 
 > Rust interface to Podman
 
+# Usage
 
-## License
+Add the following to your `Cargo.toml` file
+
+```toml
+[dependencies]
+podman-api = "0.1"
+```
+
+## SSL Connection
+
+To enable HTTPS connection to docker add a `tls` flag to `Cargo.toml`.
+
+## Default features
+
+By default only `chrono` feature is enabled. To disable it use:
+
+```toml
+podman-api = { version = "0.1", default-features = false }
+```
+
+## Examples
+
+Examples for most API endpoints can be found in the [library documentation](https://docs.rs/podman-api/).
+
+
+# License
 [MIT](https://github.com/vv9k/podman-api-rs/blob/master/LICENSE)
