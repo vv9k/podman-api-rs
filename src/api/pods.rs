@@ -398,4 +398,34 @@ impl<'podman> Pods<'podman> {
         );
         self.podman.stream_get_json(ep)
     }}
+
+    api_doc! {
+    Pod => CreateLibpod
+    /// Create a container with specified options.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match self
+    ///     .podman
+    ///     .containers()
+    ///     .create(&PodCreateOpts::builder().name("my-pod").build())
+    ///     .await
+    /// {
+    ///     Ok(pod) => { /* do something with the pod */ }
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn create(&self, opts: &opts::PodCreateOpts) -> Result<Pod<'_>> {
+        self.podman
+            .post_json(
+                &"/libpod/containers/create",
+                Payload::Json(opts.serialize()?),
+            )
+            .await
+            .map(|resp: models::IdResponse| Pod::new(self.podman, resp.id))
+    }}
 }

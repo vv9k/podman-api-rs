@@ -400,19 +400,12 @@ impl<'podman> Container<'podman> {
     /// ```
     |
     pub async fn create_exec(&self, opts: &opts::ExecCreateOpts) -> Result<Exec<'_>> {
-        use serde::Deserialize;
         let ep = format!("/libpod/containers/{}/exec", self.id);
-
-        #[derive(Deserialize)]
-        struct CreateExecResponse {
-            #[serde(rename = "Id")]
-            id: crate::Id,
-        }
 
         self.podman
             .post_json(&ep, Payload::Json(opts.serialize()?))
             .await
-            .map(|resp: CreateExecResponse| Exec::new(self.podman, resp.id))
+            .map(|resp: models::IdResponse| Exec::new(self.podman, resp.id))
     }}
 
     api_doc! {
