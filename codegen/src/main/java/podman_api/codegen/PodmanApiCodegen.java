@@ -56,7 +56,7 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
   public PodmanApiCodegen() {
     super();
 
-    additionalProperties.put(CodegenConstants.PACKAGE_VERSION, "0.0.1");
+    additionalProperties.put(CodegenConstants.PACKAGE_VERSION, "0.1.0");
     additionalProperties.put(CodegenConstants.PACKAGE_NAME, "podman-api-stubs");
 
     /**

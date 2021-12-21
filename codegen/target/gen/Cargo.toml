@@ -1,6 +1,6 @@
 [package]
 name = "podman-api-stubs"
-version = "0.0.1"
+version = "0.1.0"
 authors = [ "Wojciech Kępka <wojciech@wkepka.dev>" ]
 description = "Generated libpod swagger stubs for use in podman-api"
 license = "MIT"
