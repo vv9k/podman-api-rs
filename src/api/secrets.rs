@@ -98,7 +98,7 @@ impl<'podman> Secrets<'podman> {
             )
             .await
             .map(|resp: models::LibpodSecretCreateResponse| {
-                Secret::new(&self.podman, resp.ID.unwrap_or_default())
+                Secret::new(self.podman, resp.ID.unwrap_or_default())
             })
     }}
 }
