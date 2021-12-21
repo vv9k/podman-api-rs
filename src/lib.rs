@@ -1,3 +1,6 @@
+//! Rust interface to Podman.
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 #[macro_use]
 mod builder;
 mod id;
