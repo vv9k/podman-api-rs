@@ -861,4 +861,23 @@ impl<'podman> Containers<'podman> {
 
         Box::pin(self.podman.stream_get_json(ep))
     }}
+
+    api_doc! {
+    Container => ShowMountedLibpod
+    /// List all mounted containers mount points.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().list_mounted().await {
+    ///     Ok(mounts) => println!("{:?}", mounts),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn list_mounted(&self) -> Result<serde_json::Value> {
+        self.podman.get_json("/libpod/containers/showmounted").await
+    }}
 }

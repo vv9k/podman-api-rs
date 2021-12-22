@@ -6,3 +6,4 @@
 * Add `Container::logs` method
 * Add `Container::stats`, `Container::stats_stream`, `Containers::stats` and `Containers::stats_stream` methods
 * Add `Container::top` and `Container::top_stream` methods
+* Add `Containers::list_mounted`
