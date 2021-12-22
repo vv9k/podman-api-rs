@@ -948,3 +948,45 @@ impl ContainerChangesOptsBuilder {
         parent => "parent"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how to attach to a running container.
+    ContainerLogs
+);
+
+impl ContainerLogsOptsBuilder {
+    impl_url_bool_field!(
+        /// Keep connection after returning logs.
+        follow => "follow"
+    );
+
+    impl_url_str_field!(
+        /// Only return logs since this time, as a UNIX timestamp.
+        since => "since"
+    );
+
+    impl_url_bool_field!(
+        /// Return logs from STDERR.
+        stderr => "stderr"
+    );
+
+    impl_url_bool_field!(
+        /// Return logs from STDOUT.
+        stdout => "stdout"
+    );
+
+    impl_url_str_field!(
+        /// Only return this number of log lines from the end of the logs. Default - `all`
+        tail => "tail"
+    );
+
+    impl_url_bool_field!(
+        /// Add timestamps to every log line.
+        timestamps => "timestamps"
+    );
+
+    impl_url_str_field!(
+        /// Only return logs before this time, as a UNIX timestamp.
+        until => "until"
+    );
+}

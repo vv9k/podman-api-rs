@@ -3,3 +3,4 @@
 
 * Add `Container::attach` method
 * Add `Container::changes` method
+* Add `Container::logs` method

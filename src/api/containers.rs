@@ -576,6 +576,43 @@ impl<'podman> Container<'podman> {
         );
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Container => LogsLibpod
+    /// Get logs from this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let mut logs = podman.containers().get("3f278d2d0d79").logs(
+    ///     &ContainerLogsOpts::builder()
+    ///         .stdout(true)
+    ///         .stderr(true)
+    ///         .follow(true)
+    ///         .build(),
+    /// );
+    ///
+    /// while let Some(chunk) = logs.next().await {
+    ///     match chunk {
+    ///         Ok(chunk) => println!("{}", String::from_utf8_lossy(&chunk)),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// }
+    /// ```
+    |
+    pub fn logs(
+        &self,
+        opts: &opts::ContainerLogsOpts,
+    ) -> impl Stream<Item = Result<Vec<u8>>> + 'podman {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/logs", &self.id),
+            opts.serialize(),
+        );
+        Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
+    }}
 }
 
 impl<'podman> Containers<'podman> {
