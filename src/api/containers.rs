@@ -1,6 +1,6 @@
 use crate::{
     api::{ApiResource, Exec},
-    conn::{Headers, Payload},
+    conn::{tty, Headers, Payload},
     models, opts,
     util::url,
     Result,
@@ -509,6 +509,41 @@ impl<'podman> Container<'podman> {
         self.podman
             .resource_exists(ApiResource::Containers, &self.id)
             .await
+    }}
+
+    api_doc! {
+    Container => AttachLibpod
+    /// Attach to this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let tty_multiplexer = podman.containers().get("79c93f220e3e").attach().await?;
+    /// let (mut reader, _writer) = tty_multiplexer.split();
+    ///
+    /// while let Some(tty_result) = reader.next().await {
+    ///     match tty_result {
+    ///         Ok(chunk) => println!("{:?}", chunk),
+    ///         Err(e) => eprintln!("Error: {}", e),
+    ///     }
+    /// }
+    /// ```
+    |
+    pub async fn attach(
+        &self,
+        opts: &opts::ContainerAttachOpts,
+    ) -> Result<tty::Multiplexer<'podman>> {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/attach", &self.id),
+            opts.stream().serialize(),
+        );
+        self.podman
+            .stream_post_upgrade(ep, Payload::empty())
+            .await
+            .map(tty::Multiplexer::new)
     }}
 }
 

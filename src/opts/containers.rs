@@ -872,3 +872,38 @@ impl ContainerCreateOptsBuilder {
         work_dir => "work_dir"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how to attach to a running container.
+    ContainerAttach
+);
+
+impl ContainerAttachOpts {
+    pub(crate) fn stream(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("stream", true.to_string());
+        new
+    }
+}
+
+impl ContainerAttachOptsBuilder {
+    impl_url_str_field!(
+        /// Keys to use for detaching from the container.
+        detach_keys => "detachKeys"
+    );
+
+    impl_url_bool_field!(
+        /// Attach to container STDERR
+        stderr => "stderr"
+    );
+
+    impl_url_bool_field!(
+        /// Attach to container STDIN
+        stdin => "stdin"
+    );
+
+    impl_url_bool_field!(
+        /// Attach to container STDOUT
+        stdout => "stdout"
+    );
+}
