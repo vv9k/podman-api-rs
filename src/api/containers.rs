@@ -545,6 +545,37 @@ impl<'podman> Container<'podman> {
             .await
             .map(tty::Multiplexer::new)
     }}
+
+    api_doc! {
+    Container => ChangesLibpod
+    /// Returns which files in this container's filesystem have been added, deleted, or modified.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .containers()
+    ///     .get("79c93f220e3e")
+    ///     .changes(&Default::default())
+    ///     .await
+    /// {
+    ///     Ok(changes) => println!("{:?}", changes),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn changes(
+        &self,
+        opts: &opts::ContainerWaitOpts,
+    ) -> Result<Vec<models::ContainerChangeResponseItem>> {
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/changes", &self.id),
+            opts.serialize(),
+        );
+        self.podman.get_json(&ep).await
+    }}
 }
 
 impl<'podman> Containers<'podman> {

@@ -2,3 +2,4 @@
 ---
 
 * Add `Container::attach` method
+* Add `Container::changes` method
