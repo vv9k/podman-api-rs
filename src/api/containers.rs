@@ -674,6 +674,65 @@ impl<'podman> Container<'podman> {
                 .build(),
         )
     }}
+
+    api_doc! {
+    Container => TopLibpod
+    /// List processes running inside this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().get("fc93f220e3e").top(&Default::default()).await {
+    ///     Ok(stats) => println!("{:?}", stats),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn top(&self, opts: &opts::ContainerTopOpts) -> Result<models::ContainerTopOkBody> {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/top", &self.id),
+            opts.oneshot().serialize(),
+        );
+
+        self.podman.get_json(&ep).await
+    }}
+
+    api_doc! {
+    Container => TopLibpod
+    /// List processes running inside this container as a stream. (As of libpod version 4.0)
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let mut top = podman
+    ///     .containers()
+    ///     .get("fc93f220e3e")
+    ///     .top_stream(&Default::default());
+    ///
+    /// while let Some(chunk) = top.next().await {
+    ///     match chunk {
+    ///         Ok(chunk) => println!("{:?}", chunk),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// }
+    /// ```
+    |
+    pub fn top_stream(
+        &self,
+        opts: &opts::ContainerTopOpts,
+    ) -> impl Stream<Item = Result<models::ContainerTopOkBody>> + 'podman {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/top", &self.id),
+            opts.stream().serialize(),
+        );
+
+        Box::pin(self.podman.stream_get_json(ep))
+    }}
 }
 
 impl<'podman> Containers<'podman> {

@@ -1021,3 +1021,35 @@ impl ContainerStatsOptsBuilder {
         interval: usize => "interval"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how container stats are reported.
+    ContainerTop
+);
+
+impl ContainerTopOpts {
+    pub(crate) fn oneshot(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("stream", false.to_string());
+        new
+    }
+
+    pub(crate) fn stream(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("stream", true.to_string());
+        new
+    }
+}
+
+impl ContainerTopOptsBuilder {
+    impl_url_field!(
+        /// if streaming, delay in seconds between updates. Must be >1. (As of version 4.0)
+        delay: usize => "delay"
+    );
+
+    impl_url_str_field!(
+        /// Arguments to pass to ps such as aux. Requires ps(1) to be installed in the container
+        /// if no ps(1) compatible AIX descriptors are used.
+        ps_args => "ps_args"
+    );
+}
