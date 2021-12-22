@@ -261,7 +261,7 @@ impl<'podman> Image<'podman> {
             opts.serialize(),
         );
         self.podman.get_json(&ep).await
-    }   }
+    }}
 }
 
 impl<'podman> Images<'podman> {
@@ -423,5 +423,33 @@ impl<'podman> Images<'podman> {
                 Payload::XTar(archive),
             )
             .await
+    }}
+
+    api_doc! {
+    Image => DeleteAllLibpod
+    /// Remove multiple images. To remove a single image use
+    /// [`Image::delete`](Image::delete) or [`Image::remove`](Image::remove).
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .images()
+    ///     .remove_multiple(&ImagesRemoveOpts::builder().all(true).force(true).build())
+    ///     .await
+    /// {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn remove(
+        &self,
+        opts: &opts::ImagesRemoveOpts,
+    ) -> Result<models::LibpodImagesRemoveReport> {
+        let ep = url::construct_ep("/libpod/images/remove", opts.serialize());
+        self.podman.delete_json(&ep).await
     }}
 }

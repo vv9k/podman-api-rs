@@ -9,3 +9,4 @@
 * Add `Containers::list_mounted`
 * Add `Image::changes`
 * Add `Image::tree`
+* Add `Images::remove`

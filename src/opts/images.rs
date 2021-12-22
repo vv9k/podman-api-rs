@@ -579,3 +579,25 @@ impl ImageTreeOptsBuilder {
         what_requires => "whatrequires"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how multiple images will be removed.
+    ImagesRemove
+);
+
+impl ImagesRemoveOptsBuilder {
+    impl_url_bool_field!(
+        /// Remove all images.
+        all => "all"
+    );
+
+    impl_url_bool_field!(
+        /// Force image removal (including containers using the images).
+        force => "force"
+    );
+
+    impl_url_vec_field!(
+        /// Images IDs or names to remove.
+        images => "images"
+    );
+}
