@@ -200,6 +200,37 @@ impl<'podman> Image<'podman> {
         let ep = url::construct_ep(format!("/libpod/images/{}/get", &self.id), opts.serialize());
         Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
     }}
+
+    api_doc! {
+    Image => ChangesLibpod
+    /// Returns which files in this image's filesystem have been added, deleted, or modified.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .images()
+    ///     .get("79c93f220e3e")
+    ///     .changes(&Default::default())
+    ///     .await
+    /// {
+    ///     Ok(changes) => println!("{:?}", changes),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn changes(
+        &self,
+        opts: &opts::ChangesOpts,
+    ) -> Result<Vec<models::ContainerChangeResponseItem>> {
+        let ep = url::construct_ep(
+            &format!("/libpod/images/{}/changes", &self.id),
+            opts.serialize(),
+        );
+        self.podman.get_json(&ep).await
+    }}
 }
 
 impl<'podman> Images<'podman> {
