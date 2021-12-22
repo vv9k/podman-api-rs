@@ -87,7 +87,7 @@ macro_rules! impl_url_vec_field {
                 S: Into<String>
             {
                 let joined = $name.into_iter().map(|it| it.into()).collect::<Vec<_>>().join(",");
-                self.params.insert($api_name, format!("[{}]",joined));
+                self.params.insert($api_name, format!("{}",joined));
                 self
             }
         }
