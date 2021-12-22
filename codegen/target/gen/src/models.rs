@@ -1991,7 +1991,7 @@ pub struct LibpodContainerInspectResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodContainerStatsResponse {
+pub struct LibpodContainerStats {
     #[serde(rename = "AvgCPU")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub avg_cpu: Option<f32>,

@@ -182,3 +182,12 @@ impl AsRef<str> for PodStatus {
         }
     }
 }
+
+#[derive(Deserialize, Debug, Serialize, Clone)]
+pub struct LibpodContainerStatsResponse {
+    #[serde(rename = "Error")]
+    error: serde_json::Value,
+    #[serde(rename = "Stats")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    stats: Option<Vec<LibpodContainerStats>>,
+}

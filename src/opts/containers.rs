@@ -990,3 +990,34 @@ impl ContainerLogsOptsBuilder {
         until => "until"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how container stats are reported.
+    ContainerStats
+);
+
+impl ContainerStatsOpts {
+    pub(crate) fn oneshot(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("stream", false.to_string());
+        new
+    }
+
+    pub(crate) fn stream(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("stream", true.to_string());
+        new
+    }
+}
+
+impl ContainerStatsOptsBuilder {
+    impl_url_vec_field!(
+        /// Names or IDs of containers
+        containers => "containers"
+    );
+
+    impl_url_field!(
+        /// Time in seconds between stats reports
+        interval: usize => "interval"
+    );
+}

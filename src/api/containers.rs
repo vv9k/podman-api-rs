@@ -613,6 +613,67 @@ impl<'podman> Container<'podman> {
         );
         Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
     }}
+
+    api_doc! {
+    Container => StatsAllLibpod
+    /// Return a single resource usage statistics of this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().get("fc93f220e3e").stats().await {
+    ///     Ok(stats) => println!("{:?}", stats),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn stats(&self) -> Result<models::LibpodContainerStatsResponse> {
+        self.podman
+            .containers()
+            .stats(
+                &opts::ContainerStatsOpts::builder()
+                    .containers([self.id.to_string()])
+                    .build(),
+            )
+            .await
+    }}
+
+    api_doc! {
+    Container => StatsAllLibpod
+    /// Return a stream of resource usage statistics of this container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let mut stats = podman
+    ///     .containers()
+    ///     .get("fc93f220e3e")
+    ///     .stats_stream(None);
+    ///
+    /// while let Some(chunk) = stats.next().await {
+    ///     match chunk {
+    ///         Ok(chunk) => println!("{:?}", chunk),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// }
+    /// ```
+    |
+    pub fn stats_stream(
+        &self,
+        interval: Option<usize>,
+    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>> + 'podman {
+        self.podman.containers().stats_stream(
+            &opts::ContainerStatsOpts::builder()
+                .containers([self.id.to_string()])
+                .interval(interval.unwrap_or(5))
+                .build(),
+        )
+    }}
 }
 
 impl<'podman> Containers<'podman> {
@@ -683,5 +744,62 @@ impl<'podman> Containers<'podman> {
     pub async fn list(&self, opts: &opts::ContainerListOpts) -> Result<Vec<models::ListContainer>> {
         let ep = url::construct_ep("/libpod/containers/json", opts.serialize());
         self.podman.get_json(&ep).await
+    }}
+
+    api_doc! {
+    Container => StatsAllLibpod
+    /// Return a single resource usage statistics of one or more container. If not container is
+    /// specified in the options, the statistics of all are returned.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().stats(&Default::default()).await {
+    ///     Ok(stats) => println!("{:?}", stats),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn stats(
+        &self,
+        opts: &opts::ContainerStatsOpts,
+    ) -> Result<models::LibpodContainerStatsResponse> {
+        let ep = url::construct_ep("/libpod/containers/stats", opts.oneshot().serialize());
+
+        self.podman.get_json(&ep).await
+    }}
+
+    api_doc! {
+    Container => StatsAllLibpod
+    /// Return a stream of resource usage statistics of one or more container. If not container is
+    /// specified in the options, the statistics of all are returned.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let mut stats = podman
+    ///     .containers()
+    ///     .stats_stream(&Default::default());
+    ///
+    /// while let Some(chunk) = stats.next().await {
+    ///     match chunk {
+    ///         Ok(chunk) => println!("{:?}", chunk),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// }
+    /// ```
+    |
+    pub fn stats_stream(
+        &self,
+        opts: &opts::ContainerStatsOpts,
+    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>> + 'podman {
+        let ep = url::construct_ep("/libpod/containers/stats", opts.stream().serialize());
+
+        Box::pin(self.podman.stream_get_json(ep))
     }}
 }
