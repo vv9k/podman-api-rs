@@ -231,6 +231,37 @@ impl<'podman> Image<'podman> {
         );
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Image => TreeLibpod
+    /// Retrieve the image tree for this image.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .images()
+    ///     .get("79c93f220e3e")
+    ///     .tree(&Default::default())
+    ///     .await
+    /// {
+    ///     Ok(tree) => println!("{:?}", tree),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn tree(
+        &self,
+        opts: &opts::ImageTreeOpts,
+    ) -> Result<Vec<models::LibpodImageTreeResponse>> {
+        let ep = url::construct_ep(
+            format!("/libpod/images/{}/tree", &self.id),
+            opts.serialize(),
+        );
+        self.podman.get_json(&ep).await
+    }   }
 }
 
 impl<'podman> Images<'podman> {

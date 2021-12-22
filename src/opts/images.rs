@@ -567,3 +567,15 @@ impl ImageImportOptsBuilder {
         url => "url"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how the image tree is retrieved.
+    ImageTree
+);
+
+impl ImageTreeOptsBuilder {
+    impl_url_bool_field!(
+        /// Show all child images and layers of the specified image.
+        what_requires => "whatrequires"
+    );
+}

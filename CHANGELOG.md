@@ -8,3 +8,4 @@
 * Add `Container::top` and `Container::top_stream` methods
 * Add `Containers::list_mounted`
 * Add `Image::changes`
+* Add `Image::tree`
