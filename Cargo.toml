@@ -12,7 +12,8 @@ repository = "https://github.com/vv9k/podman-api-rs"
 keywords = ["podman", "api", "containers", "docker", "unix"]
 
 [dependencies]
-podman-api-stubs = "0.1.0"
+#podman-api-stubs = "0.1.0"
+podman-api-stubs = { path = "./codegen/target/gen" }
 
 log = "0.4"
 thiserror = "1"
