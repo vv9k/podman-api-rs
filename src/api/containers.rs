@@ -568,7 +568,7 @@ impl<'podman> Container<'podman> {
     |
     pub async fn changes(
         &self,
-        opts: &opts::ContainerChangesOpts,
+        opts: &opts::ChangesOpts,
     ) -> Result<Vec<models::ContainerChangeResponseItem>> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/changes", &self.id),

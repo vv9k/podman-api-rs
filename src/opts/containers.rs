@@ -909,47 +909,6 @@ impl ContainerAttachOptsBuilder {
 }
 
 impl_opts_builder!(url =>
-    /// Adjust how filesystem changes inside a container are returned.
-    ContainerChanges
-);
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-/// Used with [`ContainerChangesOptsBuilder::diff_type`](ContainerChangesOptsBuilder::diff_type).
-pub enum DiffType {
-    All,
-    Container,
-    Image,
-}
-
-impl AsRef<str> for DiffType {
-    fn as_ref(&self) -> &str {
-        match self {
-            DiffType::All => "all",
-            DiffType::Container => "container",
-            DiffType::Image => "image",
-        }
-    }
-}
-
-impl fmt::Display for DiffType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_ref())
-    }
-}
-
-impl ContainerChangesOptsBuilder {
-    impl_url_enum_field!(
-        /// Select what you want to match.
-        diff_type: DiffType => "diffType"
-    );
-
-    impl_url_str_field!(
-        /// Specify a second layer which is used to compare against it instead of the parent layer.
-        parent => "parent"
-    );
-}
-
-impl_opts_builder!(url =>
     /// Adjust how to attach to a running container.
     ContainerLogs
 );

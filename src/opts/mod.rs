@@ -14,6 +14,8 @@ pub use volumes::*;
 
 pub type EventsConstraint = (String, Vec<String>);
 
+use std::fmt;
+
 impl_opts_builder!(
     url =>
     /// Used to filter events returned by [Podman::events](crate::Podman::events).
@@ -48,6 +50,47 @@ impl EventsOptsBuilder {
         );
         self
     }
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how filesystem changes inside a container or image are returned.
+    Changes
+);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Used with [`ChangesOptsBuilder::diff_type`](ChangesOptsBuilder::diff_type).
+pub enum DiffType {
+    All,
+    Container,
+    Image,
+}
+
+impl AsRef<str> for DiffType {
+    fn as_ref(&self) -> &str {
+        match self {
+            DiffType::All => "all",
+            DiffType::Container => "container",
+            DiffType::Image => "image",
+        }
+    }
+}
+
+impl fmt::Display for DiffType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
+}
+
+impl ChangesOptsBuilder {
+    impl_url_enum_field!(
+        /// Select what you want to match.
+        diff_type: DiffType => "diffType"
+    );
+
+    impl_url_str_field!(
+        /// Specify a second layer which is used to compare against it instead of the parent layer.
+        parent => "parent"
+    );
 }
 
 //####################################################################################################
