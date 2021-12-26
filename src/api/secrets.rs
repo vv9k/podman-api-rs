@@ -16,7 +16,7 @@ impl<'podman> Secret<'podman> {
     ///
     /// match podman.secrets().get("79c93f220e3e").inspect().await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -60,7 +60,7 @@ impl<'podman> Secrets<'podman> {
     ///
     /// match podman.secrets().list().await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -81,7 +81,7 @@ impl<'podman> Secrets<'podman> {
     ///
     /// match podman.secrets().create().await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |

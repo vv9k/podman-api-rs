@@ -20,7 +20,7 @@ impl<'podman> Volume<'podman> {
     ///     } else {
     ///         println!("volume doesn't exists!");
     ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e);
+    ///     Err(e) => eprintln!("check failed: {}", e),
     /// }
     /// ```
     |

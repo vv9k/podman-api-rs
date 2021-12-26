@@ -20,7 +20,7 @@ impl<'podman> Network<'podman> {
     ///     } else {
     ///         println!("network doesn't exists!");
     ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e);
+    ///     Err(e) => eprintln!("check failed: {}", e),
     /// }
     /// ```
     |

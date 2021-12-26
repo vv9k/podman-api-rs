@@ -86,7 +86,7 @@ impl<'podman> Pod<'podman> {
     ///
     /// match podman.pods().get("79c93f220e3e").inspect().await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -279,7 +279,7 @@ impl<'podman> Pod<'podman> {
     ///
     /// match podman.pods().get("79c93f220e3e").top(&Default::default()).await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -304,7 +304,7 @@ impl<'podman> Pod<'podman> {
     /// while let Some(chunk) = stream.next().await {
     ///     match chunk{
     ///         Ok(chunk) => println!("{:?}", chunk),
-    ///         Err(e) => eprintln!("{}", e);
+    ///         Err(e) => eprintln!("{}", e),
     ///     }
     /// }
     /// ```
@@ -361,7 +361,7 @@ impl<'podman> Pods<'podman> {
     ///
     /// match podman.pods().prune().await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -383,7 +383,7 @@ impl<'podman> Pods<'podman> {
     /// while let Some(chunk) = stream.next().await {
     ///     match chunk{
     ///         Ok(chunk) => println!("{:?}", chunk),
-    ///         Err(e) => eprintln!("{}", e);
+    ///         Err(e) => eprintln!("{}", e),
     ///     }
     /// }
     /// ```

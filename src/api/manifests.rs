@@ -20,7 +20,7 @@ impl<'podman> Manifest<'podman> {
     ///     } else {
     ///         println!("manifest doesn't exists!");
     ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e);
+    ///     Err(e) => eprintln!("check failed: {}", e),
     /// }
     /// ```
     |

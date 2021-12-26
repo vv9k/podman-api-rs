@@ -72,7 +72,7 @@ impl<'podman> Container<'podman> {
     ///
     /// match podman.containers().get("79c93f220e3e").inspect().await {
     ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -270,7 +270,7 @@ impl<'podman> Container<'podman> {
     ///
     /// match podman.containers().get("79c93f220e3e").mount().await {
     ///     Ok(id) => println!("mounted container {}", id),
-    ///     Err(e) => eprintln!("{}", e);
+    ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
     |
@@ -501,7 +501,7 @@ impl<'podman> Container<'podman> {
     ///     } else {
     ///         println!("container doesn't exists!");
     ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e);
+    ///     Err(e) => eprintln!("check failed: {}", e),
     /// }
     /// ```
     |
