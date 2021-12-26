@@ -760,6 +760,33 @@ impl<'podman> Container<'podman> {
     ) -> Result<serde_json::Value> {
         self.podman.generate_systemd_units(opts, &self.id).await
     }}
+
+    api_doc! {
+    Generate => KubeLibpod
+    /// Generate Kubernetes YAML based on this container
+    ///
+    /// Parameters:
+    /// * service - Generate YAML for a Kubernetes service object.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .pods()
+    ///     .get("fc93f220e3e")
+    ///     .generate_kube_yaml(false)
+    ///     .await
+    /// {
+    ///     Ok(yaml) => println!("{:?}", yaml),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn generate_kube_yaml(&self, service: bool) -> Result<String> {
+        self.podman.generate_kube_yaml(service, &self.id).await
+    }}
 }
 
 impl<'podman> Containers<'podman> {

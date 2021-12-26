@@ -116,6 +116,11 @@ impl<B: Into<Body>> Payload<B> {
     }
 }
 
+pub(crate) async fn body_to_string(body: Body) -> Result<String> {
+    let bytes = hyper::body::to_bytes(body).await?;
+    String::from_utf8(bytes.to_vec()).map_err(Error::from)
+}
+
 /// Transports are types which define the means of communication
 /// with the Podman daemon
 #[derive(Clone, Debug)]
@@ -176,8 +181,7 @@ impl Transport {
         B: Into<Body>,
     {
         let body = self.get_body(method, endpoint, body, headers).await?;
-        let bytes = hyper::body::to_bytes(body).await?;
-        String::from_utf8(bytes.to_vec()).map_err(Error::from)
+        body_to_string(body).await
     }
 
     pub(crate) fn stream_chunks<'transport, B>(

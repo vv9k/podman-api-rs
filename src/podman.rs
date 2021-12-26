@@ -2,7 +2,7 @@
 
 use crate::{
     api::{self, ApiResource},
-    conn::{get_http_connector, Headers, Payload, Transport},
+    conn::{get_http_connector, transport, Headers, Payload, Transport},
     models,
     opts::*,
     util, ApiVersion, Error, Result, LATEST_API_VERSION,
@@ -383,6 +383,17 @@ impl Podman {
             opts.serialize(),
         );
         self.get_json(&ep).await
+    }
+
+    pub(crate) async fn generate_kube_yaml(&self, service: bool, id: &crate::Id) -> Result<String> {
+        let opts = [("names", id.to_string()), ("service", service.to_string())];
+        let ep = util::url::construct_ep(
+            "/libpod/generate/kube",
+            Some(util::url::encoded_pairs(opts)),
+        );
+
+        let body = self.get(&ep).await.map(|b| b.into_body())?;
+        transport::body_to_string(body).await
     }
 
     //####################################################################################################
