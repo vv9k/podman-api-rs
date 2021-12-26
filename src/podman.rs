@@ -291,6 +291,17 @@ impl Podman {
     api_doc! {
     System => InfoLibpod
     /// Returns information on the system and libpod configuration
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.info().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
     |
     pub async fn info(&self) -> Result<models::HostInfo> {
         self.get_json("/libpod/info").await
@@ -299,6 +310,17 @@ impl Podman {
     api_doc! {
     System => Ping
     /// Return protocol information from libpod.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.ping().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
     |
     pub async fn ping(&self) -> Result<models::LibpodPingInfo> {
         self.get("/libpod/_ping")
@@ -309,6 +331,17 @@ impl Podman {
     api_doc! {
     System => VersionLibpod
     /// Returns component version information.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.version().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
     |
     pub async fn version(&self) -> Result<models::LibpodVersionResponse> {
         self.get_json("/libpod/version").await
@@ -317,6 +350,17 @@ impl Podman {
     api_doc! {
     System => DataUsageLibpod
     /// Return information about disk usage for containers, images, and volumes.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.data_usage().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
     |
     pub async fn data_usage(&self) -> Result<models::LibpodDataUsageResponse> {
         self.get_json("/libpod/system/df").await
@@ -325,6 +369,17 @@ impl Podman {
     api_doc! {
     System => PruneLibpod
     /// Prune unused data.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.prune().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
     |
     pub async fn prune(&self) -> Result<models::LibpodSystemPruneResponse> {
         self.post_json("/libpod/system/prune", Payload::empty())
@@ -335,6 +390,22 @@ impl Podman {
     System => EventsLibpod
     |
     /// Returns system events
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let events = podman.events(&Default::default());
+    ///
+    /// while let Some(event) = events.next().await {
+    ///     match event {
+    ///         Ok(event) => println!("{:?}", event),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// }
+    /// ```
     pub fn events<'libpod>(
         &'libpod self,
         opts: &EventsOpts,
