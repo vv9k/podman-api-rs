@@ -93,6 +93,96 @@ impl ChangesOptsBuilder {
     );
 }
 
+impl_opts_builder!(url =>
+    /// Adjust how systemd units are generated from a container or pod.
+    SystemdUnits
+);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Used with [`SystemdUnitsOptsBuilder::restart_policy`](SystemdUnitsOptsBuilder::restart_policy).
+pub enum RestartPolicy {
+    No,
+    OnSuccess,
+    OnFailure,
+    OnAbnormal,
+    OnWatchdog,
+    OnAbort,
+    Always,
+}
+
+impl AsRef<str> for RestartPolicy {
+    fn as_ref(&self) -> &str {
+        use RestartPolicy::*;
+        match self {
+            No => "no",
+            OnSuccess => "on-success",
+            OnFailure => "on-failure",
+            OnAbnormal => "on-abnormal",
+            OnWatchdog => "on-watchdog",
+            OnAbort => "on-abort",
+            Always => "always",
+        }
+    }
+}
+
+impl fmt::Display for RestartPolicy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
+}
+
+impl SystemdUnitsOptsBuilder {
+    impl_url_str_field!(
+        /// Systemd unit name prefix for containers.
+        container_prefix => "containerPrefix"
+    );
+
+    impl_url_bool_field!(
+        /// Create a new container instead of starting an existing one.
+        new => "new"
+    );
+
+    impl_url_bool_field!(
+        /// Do not generate the header including the Podman version and the timestamp.
+        no_header => "noHeader"
+    );
+
+    impl_url_str_field!(
+        /// Systemd unit name prefix for pods.
+        pod_prefix => "podPrefix"
+    );
+
+    impl_url_enum_field!(
+        /// Systemd restart-policy.
+        restart_policy: RestartPolicy => "restartPolicy"
+    );
+
+    impl_url_field!(
+        /// Configures the time to sleep before restarting a service.
+        restart_sec: usize => "restartSec"
+    );
+
+    impl_url_str_field!(
+        /// Systemd unit name separator between name/id and prefix.
+        separator => "separator"
+    );
+
+    impl_url_field!(
+        /// Start timeout in seconds.
+        start_timeout: usize => "startTimeout"
+    );
+
+    impl_url_field!(
+        /// Stop timeout in seconds.
+        stop_timeout: usize => "stopTimeout"
+    );
+
+    impl_url_bool_field!(
+        /// Use container/pod names instead of IDs.
+        use_name => "useName"
+    );
+}
+
 //####################################################################################################
 //
 // Secrets

@@ -10,3 +10,4 @@
 * Add `Image::changes`
 * Add `Image::tree`
 * Add `Images::remove`
+* Add `generate_systemd_units` method to `Pod` and `Container`

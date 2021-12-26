@@ -373,6 +373,18 @@ impl Podman {
         }
     }
 
+    pub(crate) async fn generate_systemd_units(
+        &self,
+        opts: &SystemdUnitsOpts,
+        id: &crate::Id,
+    ) -> Result<serde_json::Value> {
+        let ep = util::url::construct_ep(
+            format!("/libpod/generate/{}/systemd", &id),
+            opts.serialize(),
+        );
+        self.get_json(&ep).await
+    }
+
     //####################################################################################################
     //
     // Utility functions to make requests

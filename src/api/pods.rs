@@ -319,6 +319,33 @@ impl<'podman> Pod<'podman> {
         );
         self.podman.stream_get_json(ep)
     }}
+
+    api_doc! {
+    Generate => SystemdLibpod
+    /// Generate Systemd Units based on this pod.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .pods()
+    ///     .get("ea03584c0fd6")
+    ///     .generate_systemd_units(&Default::default())
+    ///     .await
+    /// {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn generate_systemd_units(
+        &self,
+        opts: &opts::SystemdUnitsOpts,
+    ) -> Result<serde_json::Value> {
+        self.podman.generate_systemd_units(opts, &self.id).await
+    }}
 }
 
 impl<'podman> Pods<'podman> {
