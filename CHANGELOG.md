@@ -12,4 +12,4 @@
 * Add `Images::remove`
 * Add `generate_systemd_units` method to `Pod` and `Container`
 * Add `generate_kube_yaml` method to `Pod` and `Container`
-
+* Add `Podman::play_kubernetes_yaml`

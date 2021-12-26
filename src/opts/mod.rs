@@ -183,6 +183,43 @@ impl SystemdUnitsOptsBuilder {
     );
 }
 
+impl_opts_builder!(url =>
+    /// Adjust how a kubernetes YAML will create pods and containers.
+    PlayKubernetesYaml
+);
+
+impl PlayKubernetesYamlOptsBuilder {
+    impl_url_str_field!(
+        /// Logging driver for the containers in the pod.
+        log_driver => "logDriver"
+    );
+
+    impl_url_vec_field!(
+        /// Use the network mode or specify an array of networks.
+        network => "network"
+    );
+
+    impl_url_bool_field!(
+        /// Start the pod after creating it.
+        start => "start"
+    );
+
+    impl_url_vec_field!(
+        /// Static IPs used for the pods.
+        static_ips => "staticIPs"
+    );
+
+    impl_url_vec_field!(
+        /// Static MACs used for the pods.
+        static_macs => "static_macs"
+    );
+
+    impl_url_bool_field!(
+        /// Require HTTPS and verify signatures when contacting registries.
+        tls_verify => "tlsVerify"
+    );
+}
+
 //####################################################################################################
 //
 // Secrets

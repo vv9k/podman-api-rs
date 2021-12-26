@@ -355,6 +355,50 @@ impl Podman {
         )
     }}
 
+    api_doc! {
+    Play => KubeDownLibpod
+    /// Create and run pods based on a Kubernetes YAML file (pod or service kind).
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let yaml = r#"
+    /// apiVersion: v1
+    /// kind: Pod
+    /// metadata:
+    ///   name: youthfulwescoff
+    /// spec:
+    ///   containers:
+    ///   - image: docker.io/library/alpine:latest
+    ///     name: youthfulwescoff
+    ///     securityContext:
+    ///       capabilities:
+    ///         drop:
+    ///         - CAP_MKNOD
+    ///         - CAP_NET_RAW
+    ///         - CAP_AUDIT_WRITE
+    ///     stdin: true
+    ///     tty: true
+    /// "#;
+    ///
+    /// match podman.play_kubernetes_yaml(&Default::default(), yaml).await {
+    ///     Ok(report) => println!("{:?}", report),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn play_kubernetes_yaml(
+        &self,
+        opts: &PlayKubernetesYamlOpts,
+        yaml: impl Into<String>,
+    ) -> Result<models::PlayKubeReport> {
+        let ep = util::url::construct_ep("/libpod/play/kube", opts.serialize());
+        let yaml = yaml.into();
+        self.post_json(&ep, Payload::Text(yaml)).await
+    }}
+
     pub(crate) async fn resource_exists(
         &self,
         resource: ApiResource,
