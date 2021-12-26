@@ -427,7 +427,7 @@ impl Podman {
     }}
 
     api_doc! {
-    Play => KubeDownLibpod
+    Play => KubeLibpod
     /// Create and run pods based on a Kubernetes YAML file (pod or service kind).
     ///
     /// Example:
@@ -468,6 +468,25 @@ impl Podman {
         let ep = util::url::construct_ep("/libpod/play/kube", opts.serialize());
         let yaml = yaml.into();
         self.post_json(&ep, Payload::Text(yaml)).await
+    }}
+
+    api_doc! {
+    Play => KubeDownLibpod
+    /// Tears down pods defined in a YAML file.
+    ///
+    /// Example:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.remove_kubernetes_pods().await {
+    ///     Ok(report) => println!("{:?}", report),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn remove_kubernetes_pods(&self) -> Result<models::PlayKubeReport> {
+        self.delete_json("/libpod/play/kube").await
     }}
 
     pub(crate) async fn resource_exists(
