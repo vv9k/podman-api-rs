@@ -57,3 +57,17 @@ impl ManifestImageAddOptsBuilder {
         variant => "variant"
     );
 }
+
+impl_opts_required_builder!(url =>
+    /// Adjust how a manifest list is pushed to a registry.
+    ManifestPush,
+    /// The destination for the manifest
+    destination => "destination"
+);
+
+impl ManifestPushOptsBuilder {
+    impl_url_bool_field!(
+        /// Push all images.
+        all => "all"
+    );
+}

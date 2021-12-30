@@ -106,6 +106,33 @@ impl<'podman> Manifest<'podman> {
 
         self.podman.delete_json(&ep).await
     }}
+
+    api_doc! {
+    Manifest => PushLibpod
+    /// Push this manifest list to a registry.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let manifest = podman.manifests().get("my-manifest");
+    /// match manifest
+    ///     .push(&ManifestPushOpts::builder("some-registry.addr").all(true).build())
+    ///     .await
+    /// {
+    ///     Ok(id) => println!("{:?}", id),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn push(&self, opts: &opts::ManifestPushOpts) -> Result<models::IdResponse> {
+        let ep = url::construct_ep(
+            &format!("/libpod/manifests/{}/push", &self.id),
+            opts.serialize(),
+        );
+        self.podman.post_json(&ep, Payload::empty()).await
+    }}
 }
 
 impl<'podman> Manifests<'podman> {

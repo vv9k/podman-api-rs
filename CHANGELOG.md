@@ -18,3 +18,4 @@
 * Add `Manifest::inspect`
 * Add `Manifest::add_image`
 * Add `Manifest::remove_image`
+* Add `Manifest::push`
