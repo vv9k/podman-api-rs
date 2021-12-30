@@ -1,7 +1,7 @@
 use crate::{api::ApiResource, Result};
 
 impl_api_ty!(
-    Network => id
+    Network => name
 );
 
 impl<'podman> Network<'podman> {
@@ -26,7 +26,7 @@ impl<'podman> Network<'podman> {
     |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
-            .resource_exists(ApiResource::Networks, &self.id)
+            .resource_exists(ApiResource::Networks, &self.name)
             .await
     }}
 }
