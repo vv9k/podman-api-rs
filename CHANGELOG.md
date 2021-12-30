@@ -19,3 +19,4 @@
 * Add `Manifest::add_image`
 * Add `Manifest::remove_image`
 * Add `Manifest::push`
+* Add `Network::delete` and `Network::force_delete`
