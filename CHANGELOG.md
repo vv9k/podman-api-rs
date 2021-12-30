@@ -15,3 +15,4 @@
 * Add `Podman::play_kubernetes_yaml`
 * Add `Podman::remove_kubernetes_pods`
 * Add `Manifests::create`
+* Add `Manifest::inspect`

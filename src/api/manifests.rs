@@ -29,6 +29,27 @@ impl<'podman> Manifest<'podman> {
             .resource_exists(ApiResource::Manifests, &self.id)
             .await
     }}
+
+    api_doc! {
+    Manifest => InspectLibpod
+    /// Display details about this manifest list.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.manifests().get("my-manifest").inspect().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn inspect(&self) -> Result<models::Schema2List> {
+        self.podman
+            .get_json(&format!("/libpod/manifests/{}/json", &self.id))
+            .await
+    }}
 }
 
 impl<'podman> Manifests<'podman> {
