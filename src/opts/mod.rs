@@ -3,12 +3,14 @@
 mod containers;
 mod exec;
 mod images;
+mod manifests;
 mod pods;
 mod volumes;
 
 pub use containers::*;
 pub use exec::*;
 pub use images::*;
+pub use manifests::*;
 pub use pods::*;
 pub use volumes::*;
 

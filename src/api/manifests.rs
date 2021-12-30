@@ -1,4 +1,4 @@
-use crate::{api::ApiResource, Result};
+use crate::{api::ApiResource, conn::Payload, models, opts, util::url, Result};
 
 impl_api_ty!(
     Manifest => id
@@ -28,5 +28,38 @@ impl<'podman> Manifest<'podman> {
         self.podman
             .resource_exists(ApiResource::Manifests, &self.id)
             .await
+    }}
+}
+
+impl<'podman> Manifests<'podman> {
+    api_doc! {
+    Manifest => CreateLibpod
+    /// Create a manifest list.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .manifests()
+    ///     .create(
+    ///         &ManifestCreateOpts::builder("my-manifest")
+    ///             .image("alpine")
+    ///             .build(),
+    ///     )
+    ///     .await
+    /// {
+    ///     Ok(manifest) => { /* do something with the manifest */ }
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn create(&self, opts: &opts::ManifestCreateOpts) -> Result<Manifest<'_>> {
+        let ep = url::construct_ep("/libpod/manifests/create", opts.serialize());
+        self.podman
+            .post_json(&ep, Payload::empty())
+            .await
+            .map(|resp: models::IdResponse| self.podman.manifests().get(resp.id))
     }}
 }

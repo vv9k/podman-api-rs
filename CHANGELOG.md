@@ -14,3 +14,4 @@
 * Add `generate_kube_yaml` method to `Pod` and `Container`
 * Add `Podman::play_kubernetes_yaml`
 * Add `Podman::remove_kubernetes_pods`
+* Add `Manifests::create`
