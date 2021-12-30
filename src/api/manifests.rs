@@ -1,7 +1,7 @@
 use crate::{api::ApiResource, conn::Payload, models, opts, util::url, Result};
 
 impl_api_ty!(
-    Manifest => id
+    Manifest => name
 );
 
 impl<'podman> Manifest<'podman> {
@@ -26,7 +26,7 @@ impl<'podman> Manifest<'podman> {
     |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
-            .resource_exists(ApiResource::Manifests, &self.id)
+            .resource_exists(ApiResource::Manifests, &self.name)
             .await
     }}
 
@@ -47,7 +47,7 @@ impl<'podman> Manifest<'podman> {
     |
     pub async fn inspect(&self) -> Result<models::Schema2List> {
         self.podman
-            .get_json(&format!("/libpod/manifests/{}/json", &self.id))
+            .get_json(&format!("/libpod/manifests/{}/json", &self.name))
             .await
     }}
 
@@ -73,7 +73,7 @@ impl<'podman> Manifest<'podman> {
     pub async fn add_image(&self, opts: &opts::ManifestImageAddOpts) -> Result<models::IdResponse> {
         self.podman
             .post_json(
-                &format!("/libpod/manifests/{}/add", &self.id),
+                &format!("/libpod/manifests/{}/add", &self.name),
                 Payload::Json(opts.serialize()?),
             )
             .await
@@ -100,7 +100,7 @@ impl<'podman> Manifest<'podman> {
     |
     pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::IdResponse> {
         let ep = url::construct_ep(
-            &format!("/libpod/manifests/{}", &self.id),
+            &format!("/libpod/manifests/{}", &self.name),
             Some(url::encoded_pair("digest", digest.into())),
         );
 
@@ -128,7 +128,7 @@ impl<'podman> Manifest<'podman> {
     |
     pub async fn push(&self, opts: &opts::ManifestPushOpts) -> Result<models::IdResponse> {
         let ep = url::construct_ep(
-            &format!("/libpod/manifests/{}/push", &self.id),
+            &format!("/libpod/manifests/{}/push", &self.name),
             opts.serialize(),
         );
         self.podman.post_json(&ep, Payload::empty()).await
