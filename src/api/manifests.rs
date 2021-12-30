@@ -78,6 +78,34 @@ impl<'podman> Manifest<'podman> {
             )
             .await
     }}
+
+    api_doc! {
+    Manifest => DeleteLibpod
+    /// Remove an image digest from this manifest list.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///   .manifests()
+    ///   .get("my-manifest")
+    ///   .remove_image("sha256:a1801b843b1bfaf77c501e7a6d3f709401a1e0c83863037fa3aab063a7fdb9dc")
+    ///   .await {
+    ///     Ok(id) => println!("{:?}", id),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::IdResponse> {
+        let ep = url::construct_ep(
+            &format!("/libpod/manifests/{}", &self.id),
+            Some(url::encoded_pair("digest", digest.into())),
+        );
+
+        self.podman.delete_json(&ep).await
+    }}
 }
 
 impl<'podman> Manifests<'podman> {

@@ -17,3 +17,4 @@
 * Add `Manifests::create`
 * Add `Manifest::inspect`
 * Add `Manifest::add_image`
+* Add `Manifest::remove_image`
