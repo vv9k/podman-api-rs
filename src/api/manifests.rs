@@ -50,6 +50,34 @@ impl<'podman> Manifest<'podman> {
             .get_json(&format!("/libpod/manifests/{}/json", &self.id))
             .await
     }}
+
+    api_doc! {
+    Manifest => AddLibpod
+    /// Add an image to this manifest list.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// let manifest = podman.manifests().get("my-manifest");
+    /// match manifest
+    ///     .add_image(&ManifestImageAddOpts::builder().images(["centos"]).build())
+    ///     .await
+    /// {
+    ///     Ok(id) => println!("{:?}", id),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn add_image(&self, opts: &opts::ManifestImageAddOpts) -> Result<models::IdResponse> {
+        self.podman
+            .post_json(
+                &format!("/libpod/manifests/{}/add", &self.id),
+                Payload::Json(opts.serialize()?),
+            )
+            .await
+    }}
 }
 
 impl<'podman> Manifests<'podman> {

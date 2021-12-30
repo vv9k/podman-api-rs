@@ -16,3 +16,4 @@
 * Add `Podman::remove_kubernetes_pods`
 * Add `Manifests::create`
 * Add `Manifest::inspect`
+* Add `Manifest::add_image`

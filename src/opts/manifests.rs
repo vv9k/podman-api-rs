@@ -18,3 +18,42 @@ impl ManifestCreateOptsBuilder {
         image => "image"
     );
 }
+
+impl_opts_builder!(json =>
+    /// Adjust how an image is added to a manifest list.
+    ManifestImageAdd
+);
+
+impl ManifestImageAddOptsBuilder {
+    impl_field!(
+        all: bool => "all"
+    );
+
+    impl_vec_field!(
+        annotation => "annotation"
+    );
+
+    impl_str_field!(
+        arch => "arch"
+    );
+
+    impl_vec_field!(
+        features => "features"
+    );
+
+    impl_vec_field!(
+        images => "images"
+    );
+
+    impl_str_field!(
+        os => "os"
+    );
+
+    impl_str_field!(
+        os_version => "os_version"
+    );
+
+    impl_str_field!(
+        variant => "variant"
+    );
+}
