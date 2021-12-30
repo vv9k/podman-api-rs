@@ -251,6 +251,85 @@ macro_rules! impl_opts_builder {
     };
 }
 
+macro_rules! impl_opts_required_builder {
+    ($(#[doc = $docs:expr])* $name:ident $ty:expr, $(#[doc = $param_docs:expr])* $param:ident => $param_key:literal) => {
+        paste::item! {
+            $(
+                #[doc= $docs]
+            )*
+            #[derive(serde::Serialize, Debug, Default, Clone)]
+            pub struct [< $name Opts >] {
+                params: std::collections::HashMap<&'static str, $ty>,
+            }
+            impl [< $name Opts >] {
+                #[doc = concat!("Returns a new instance of a builder for ", stringify!($name), "Opts.")]
+                $(
+                    #[doc= $param_docs]
+                )*
+                pub fn builder($param: impl Into<$ty>) -> [< $name OptsBuilder >] {
+                    [< $name OptsBuilder >]::new($param)
+                }
+            }
+
+            #[doc = concat!("A builder struct for ", stringify!($name), "Opts.")]
+            #[derive(Debug, Clone)]
+            pub struct [< $name OptsBuilder >] {
+                params: std::collections::HashMap<&'static str, $ty>,
+            }
+
+            impl [< $name OptsBuilder >] {
+                #[doc = concat!("A builder struct for ", stringify!($name), "Opts.")]
+                $(
+                    #[doc= $param_docs]
+                )*
+                pub fn new($param: impl Into<$ty>) -> Self {
+                    Self {
+                        params: [($param_key, $param.into())].into()
+                    }
+                }
+
+                #[doc = concat!("Finish building ", stringify!($name), "Opts.")]
+                pub fn build(self) -> [< $name Opts >] {
+                    [< $name Opts >] {
+                        params: self.params,
+                    }
+                }
+            }
+       }
+    };
+    (json => $(#[doc = $docs:expr])* $name:ident, $(#[doc = $param_docs:expr])* $param:ident => $param_key:literal) => {
+        impl_opts_required_builder!($(#[doc = $docs])* $name serde_json::Value, $(#[doc = $param_docs])* $param => $param_key);
+
+        paste::item! {
+            impl [< $name Opts >] {
+                /// Serialize options as a JSON String. Returns an error if the options will fail
+                /// to serialize.
+                pub fn serialize(&self) -> crate::Result<String> {
+                    serde_json::to_string(&self.params).map_err(crate::Error::from)
+                }
+            }
+        }
+    };
+    (url => $(#[doc = $docs:expr])* $name:ident, $(#[doc = $param_docs:expr])* $param:ident => $param_key:literal) => {
+        impl_opts_required_builder!($(#[doc = $docs])* $name String, $(#[doc = $param_docs])* $param => $param_key);
+
+        paste::item! {
+            impl [< $name  Opts >] {
+                /// Serialize options as a URL query String. Returns None if no options are defined.
+                pub fn serialize(&self) -> Option<String> {
+                    if self.params.is_empty() {
+                        None
+                    } else {
+                        Some(
+                            crate::util::url::encoded_pairs(&self.params)
+                        )
+                    }
+                }
+            }
+        }
+    };
+}
+
 macro_rules! api_url {
     () => {
         concat!("https://docs.podman.io/en/", crate::version!() , "/_static/api.html")
