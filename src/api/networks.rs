@@ -1,4 +1,4 @@
-use crate::{api::ApiResource, models, opts, util::url, Result};
+use crate::{api::ApiResource, conn::Payload, models, opts, util::url, Result};
 
 impl_api_ty!(
     Network => name
@@ -73,6 +73,32 @@ impl<'podman> Network<'podman> {
     pub async fn exists(&self) -> Result<bool> {
         self.podman
             .resource_exists(ApiResource::Networks, &self.name)
+            .await
+    }}
+
+impl<'podman> Networks<'podman> {
+    api_doc! {
+    Network => CreateLibpod
+    /// Quick way to determine if a network exists by name or id.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .networks()
+    ///     .create(&NetworkCreateOpts::builder().name("test-network").build())
+    ///     .await
+    /// {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn create(&self, opts: &opts::NetworkCreateOpts) -> Result<models::NetworkCreateReport> {
+        self.podman
+            .post_json("/libpod/networks/create", Payload::Json(opts.serialize()?))
             .await
     }}
 }
