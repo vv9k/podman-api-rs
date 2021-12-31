@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 macro_rules! impl_vec_field {
     ($(#[doc = $docs:expr])* $name:ident => $api_name:literal) => {
         paste::item! {
