@@ -119,3 +119,20 @@ impl_opts_builder!(url =>
     /// Adjust how unused networks are removed.
     NetworkPrune
 );
+
+impl_opts_builder!(json =>
+    /// Adjust how a container is disconnected from a network.
+    NetworkDisconnect
+);
+
+impl NetworkDisconnectOptsBuilder {
+    impl_str_field!(
+        /// Name or ID of the container to disconnect.
+        container => "Container"
+    );
+
+    impl_field!(
+        /// Force disconnect the container.
+        force: bool => "Force"
+    );
+}

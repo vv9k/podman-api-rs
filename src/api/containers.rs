@@ -744,7 +744,7 @@ impl<'podman> Container<'podman> {
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     /// match podman
-    ///     .pods()
+    ///     .containers()
     ///     .get("fc93f220e3e")
     ///     .generate_systemd_units(&Default::default())
     ///     .await
@@ -774,7 +774,7 @@ impl<'podman> Container<'podman> {
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     /// match podman
-    ///     .pods()
+    ///     .containers()
     ///     .get("fc93f220e3e")
     ///     .generate_kube_yaml(false)
     ///     .await
@@ -786,6 +786,32 @@ impl<'podman> Container<'podman> {
     |
     pub async fn generate_kube_yaml(&self, service: bool) -> Result<String> {
         self.podman.generate_kube_yaml(service, &self.id).await
+    }}
+
+    api_doc! {
+    Network => DisconnectLibpod
+    /// Disconnect this container from a network.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("fc93f220e3e").disconnect("my-network", true).await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn disconnect(&self, network: impl Into<crate::Id>, force: bool) -> Result<()> {
+        let network = self.podman.networks().get(network.into());
+        network
+            .disconnect_container(
+                &opts::NetworkDisconnectOpts::builder()
+                    .container(self.id.as_ref())
+                    .force(force)
+                    .build(),
+            )
+            .await
     }}
 }
 

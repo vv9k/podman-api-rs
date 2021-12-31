@@ -96,6 +96,40 @@ impl<'podman> Network<'podman> {
             .get_json(&format!("/libpod/networks/{}/json", &self.name))
             .await
     }}
+
+    api_doc! {
+    Network => DisconnectLibpod
+    /// Disconnect a container from this network.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .networks()
+    ///     .get("some-network")
+    ///     .disconnect_container(
+    ///         &NetworkDisconnectOpts::builder()
+    ///             .container("containerid")
+    ///             .force(true)
+    ///             .build()
+    ///     )
+    ///     .await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn disconnect_container(&self, opts: &opts::NetworkDisconnectOpts) -> Result<()> {
+        self.podman
+            .post(
+                &format!("/libpod/networks/{}/disconnect", &self.name),
+                Payload::Json(opts.serialize()?),
+            )
+            .await
+            .map(|_| ())
+    }}
 }
 
 impl<'podman> Networks<'podman> {
