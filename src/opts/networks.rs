@@ -1,3 +1,5 @@
+use crate::api::Filter;
+
 impl_opts_builder!(json =>
     /// Adjust how a network is created.
     NetworkCreate
@@ -57,4 +59,45 @@ impl NetworkCreateOptsBuilder {
     );
 
     // #TODO: subnets
+}
+
+#[derive(Debug)]
+/// Used to filter listed network configurations by one of the variants.
+pub enum NetworkListFilter {
+    /// Matches network name (accepts regex).
+    Name(String),
+    /// Matches for full or partial ID.
+    Id(crate::Id),
+    /// Only bridge is supported.
+    Driver(String),
+    /// Matches networks based on the presence of a key label.
+    LabelKey(String),
+    /// Matches networks based on the presence of a key-value label.
+    LabelKeyVal(String, String),
+    /// Matches all networks that were create before the given timestamp.
+    // TODO: use DateTime
+    Until(String),
+}
+
+impl Filter for NetworkListFilter {
+    fn query_key_val(&self) -> (&'static str, String) {
+        use NetworkListFilter::*;
+        match &self {
+            Name(name) => ("name", name.clone()),
+            Id(id) => ("id", id.to_string()),
+            Driver(driver) => ("driver", driver.clone()),
+            LabelKey(key) => ("label", key.clone()),
+            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
+            Until(until) => ("until", until.clone()),
+        }
+    }
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how networks are listed.
+    NetworkList
+);
+
+impl NetworkListOptsBuilder {
+    impl_filter_func!(NetworkListFilter);
 }

@@ -22,3 +22,4 @@
 * Add `Network::delete` and `Network::force_delete`
 * Add `Networks::create`
 * Add `Network::inspect`
+* Add `Networks::list`

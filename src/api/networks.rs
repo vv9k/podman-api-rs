@@ -85,7 +85,7 @@ impl<'podman> Network<'podman> {
     /// ```no_run
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.containers().get("some-network").inspect().await {
+    /// match podman.networks().get("some-network").inspect().await {
     ///     Ok(info) => println!("{:?}", info),
     ///     Err(e) => eprintln!("{}", e),
     /// }
@@ -122,5 +122,28 @@ impl<'podman> Networks<'podman> {
         self.podman
             .post_json("/libpod/networks/create", Payload::Json(opts.serialize()?))
             .await
+    }}
+
+    api_doc! {
+    Network => ListLibpod
+    /// List network configurations.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.networks().list(&Default::default()).await {
+    ///     Ok(networks) => println!("{:?}", networks),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn list(
+        &self,
+        opts: &opts::NetworkListOpts,
+    ) -> Result<Vec<models::NetworkListReport>> {
+        let ep = url::construct_ep("/libpod/networks/json", opts.serialize());
+        self.podman.get_json(&ep).await
     }}
 }
