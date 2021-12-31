@@ -21,3 +21,4 @@
 * Add `Manifest::push`
 * Add `Network::delete` and `Network::force_delete`
 * Add `Networks::create`
+* Add `Network::inspect`

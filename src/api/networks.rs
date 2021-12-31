@@ -76,6 +76,28 @@ impl<'podman> Network<'podman> {
             .await
     }}
 
+    api_doc! {
+    Network => InspectLibpod
+    /// Display low level configuration for this CNI network.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().get("some-network").inspect().await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn inspect(&self) -> Result<models::NetworkConfigList> {
+        self.podman
+            .get_json(&format!("/libpod/networks/{}/json", &self.name))
+            .await
+    }}
+}
+
 impl<'podman> Networks<'podman> {
     api_doc! {
     Network => CreateLibpod
