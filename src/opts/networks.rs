@@ -101,3 +101,21 @@ impl_opts_builder!(url =>
 impl NetworkListOptsBuilder {
     impl_filter_func!(NetworkListFilter);
 }
+
+#[derive(Debug)]
+/// Used to filter unused networks to remove.
+pub enum NetworkPruneFilter {
+    // TODO: label!=key=val
+    /// Matches networks based on the presence of a key label.
+    LabelKey(String),
+    /// Matches networks based on the presence of a key-value label.
+    LabelKeyVal(String, String),
+    /// Matches all networks that were create before the given timestamp.
+    // TODO: use DateTime
+    Until(String),
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how unused networks are removed.
+    NetworkPrune
+);

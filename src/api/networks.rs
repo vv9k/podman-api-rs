@@ -146,4 +146,27 @@ impl<'podman> Networks<'podman> {
         let ep = url::construct_ep("/libpod/networks/json", opts.serialize());
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Network => PruneLibpod
+    /// List network configurations.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.networks().list(&Default::default()).await {
+    ///     Ok(networks) => println!("{:?}", networks),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn prune(
+        &self,
+        opts: &opts::NetworkPruneOpts,
+    ) -> Result<Vec<models::NetworkPruneReport>> {
+        let ep = url::construct_ep("/libpod/networks/prune", opts.serialize());
+        self.podman.post_json(&ep, Payload::empty()).await
+    }}
 }

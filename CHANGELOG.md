@@ -23,3 +23,5 @@
 * Add `Networks::create`
 * Add `Network::inspect`
 * Add `Networks::list`
+* Add `Networks::prune`
+
