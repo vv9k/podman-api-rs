@@ -25,4 +25,5 @@
 * Add `Networks::list`
 * Add `Networks::prune`
 * Add `Network::disconnect_container` and `Container::disconnect`
+* Add `Network::connect_container` and `Container::connect`
 

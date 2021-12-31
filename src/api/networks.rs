@@ -130,6 +130,40 @@ impl<'podman> Network<'podman> {
             .await
             .map(|_| ())
     }}
+
+    api_doc! {
+    Network => ConnectLibpod
+    /// Connect a container to this network.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .networks()
+    ///     .get("some-network")
+    ///     .connect_container(
+    ///         &NetworkConnectOpts::builder()
+    ///             .container("containerid")
+    ///             .interface_name("eno128")
+    ///             .build()
+    ///     )
+    ///     .await {
+    ///     Ok(info) => println!("{:?}", info),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn connect_container(&self, opts: &opts::NetworkConnectOpts) -> Result<()> {
+        self.podman
+            .post(
+                &format!("/libpod/networks/{}/connect", &self.name),
+                Payload::Json(opts.serialize()?),
+            )
+            .await
+            .map(|_| ())
+    }}
 }
 
 impl<'podman> Networks<'podman> {

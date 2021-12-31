@@ -136,3 +136,60 @@ impl NetworkDisconnectOptsBuilder {
         force: bool => "Force"
     );
 }
+
+impl_opts_builder!(json =>
+    /// Adjust how a container is connected to a network.
+    NetworkConnect
+);
+
+impl NetworkConnectOptsBuilder {
+    impl_vec_field!(
+        /// Aliases contains a list of names which the dns server should resolve to this container.
+        /// Should only be set when DNSEnabled is true on the Network. If aliases are set but there
+        /// is no dns support for this network the network interface implementation should ignore
+        /// this and NOT error.
+        aliases => "aliases"
+    );
+
+    impl_str_field!(
+        container => "container"
+    );
+
+    impl_str_field!(
+        /// Interface name for this container. Required in the backend. Optional in the frontend.
+        /// Will be filled with ethX (where X is a integer) when empty.
+        interface_name => "interface_name"
+    );
+
+    /// Static IPs for the container.
+    pub fn static_ips<I, A>(mut self, ips: I) -> Self
+    where
+        I: IntoIterator<Item = A>,
+        A: IntoIterator<Item = u8>,
+    {
+        let ips: Vec<Vec<_>> = ips.into_iter().map(|a| a.into_iter().collect()).collect();
+        self.params.insert("static_ips", serde_json::json!(ips));
+        self
+    }
+
+    /// Static mac for the container.
+    pub fn static_mac<I>(mut self, mac: I) -> Self
+    where
+        I: IntoIterator<Item = u8>,
+    {
+        let mac: Vec<_> = mac.into_iter().collect();
+        self.params.insert("static_mac", serde_json::json!(mac));
+        self
+    }
+}
+
+impl NetworkConnectOpts {
+    pub(crate) fn for_container(&self, container: &crate::Id) -> Self {
+        let mut new = self.clone();
+        new.params.insert(
+            "container",
+            serde_json::Value::String(container.to_string()),
+        );
+        new
+    }
+}

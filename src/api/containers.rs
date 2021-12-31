@@ -789,6 +789,30 @@ impl<'podman> Container<'podman> {
     }}
 
     api_doc! {
+    Network => ConnectLibpod
+    /// Connect this container to a network
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// if let Err(e) = podman.containers().get("fc93f220e3e").connect("my-network", true).await {
+    ///     eprintln!("{}", e);
+    /// }
+    /// ```
+    |
+    pub async fn connect(
+        &self,
+        network: impl Into<crate::Id>,
+        opts: &opts::NetworkConnectOpts,
+    ) -> Result<()> {
+        let network = self.podman.networks().get(network.into());
+        let opts = opts.for_container(&self.id);
+        network.connect_container(&opts).await
+    }}
+
+    api_doc! {
     Network => DisconnectLibpod
     /// Disconnect this container from a network.
     ///
