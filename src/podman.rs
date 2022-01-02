@@ -826,9 +826,10 @@ mod tests {
         d.unwrap();
 
         #[cfg(unix)]
-        let d = Podman::new("unix://127.0.0.1:80");
-        d.unwrap();
-
+        {
+            let d = Podman::new("unix://127.0.0.1:80");
+            d.unwrap();
+        }
         #[cfg(not(unix))]
         {
             let d = Podman::new("unix://127.0.0.1:80");
