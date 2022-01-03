@@ -32,3 +32,4 @@
 * Add `Images::search`
 * Add `Images::export`
 * Add `Containers::prune`
+* Add `Container::healtcheck`
