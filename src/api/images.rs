@@ -523,4 +523,33 @@ impl<'podman> Images<'podman> {
         let ep = url::construct_ep("/libpod/images/prune", opts.serialize());
         self.podman.post_json(&ep, Payload::empty()).await
     }}
+
+    api_doc! {
+    Image => SearchLibpod
+    /// Search registries for images.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .images()
+    ///     .search(
+    ///         &ImageSearchOpts::builder()
+    ///             .list_tags(true)
+    ///             .build()
+    ///     ).await {
+    ///         Ok(images) => println!("{:?}", images),
+    ///         Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn search(
+        &self,
+        opts: &opts::ImageSearchOpts,
+    ) -> Result<Vec<models::LibpodImageSearchResponse>> {
+        let ep = url::construct_ep("/libpod/images/search", opts.serialize());
+        self.podman.get_json(&ep).await
+    }}
 }

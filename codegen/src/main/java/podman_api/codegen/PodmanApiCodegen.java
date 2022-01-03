@@ -21,6 +21,7 @@ public class PodmanApiCodegen extends DefaultCodegenConfig {
     {
       put("InlineResponse2001", "DockerImageBuildResponse");
       put("InlineResponse2003", "LibpodPodTopResponse");
+      put("InlineResponse2008", "LibpodImageSearchResponse");
       put("InlineResponse2009", "LibpodImageBuildResponse");
       put("InlineResponse20010", "LibpodContainerHealthcheckResponse");
       put("InlineResponse20011", "LibpodContainerInspectResponse");

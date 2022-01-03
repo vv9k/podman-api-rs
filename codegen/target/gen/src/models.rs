@@ -2631,7 +2631,7 @@ pub struct InlineResponse2007 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2008 {
+pub struct LibpodImageSearchResponse {
     /// Automated indicates if the image was created by an automated build.
     #[serde(rename = "Automated")]
     #[serde(skip_serializing_if = "Option::is_none")]

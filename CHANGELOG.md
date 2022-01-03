@@ -29,3 +29,4 @@
 * Fix build on Windows
 * Add `Image::push`
 * Add `Images::prune`
+* Add `Images::search`

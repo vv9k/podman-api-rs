@@ -712,3 +712,55 @@ impl ImagePruneOptsBuilder {
         external => "external"
     );
 }
+
+#[derive(Debug)]
+/// Used to filter searched images.
+pub enum ImageSearchFilter {
+    IsAutomated(bool),
+    IsOfficial(bool),
+    /// Matches images that has at least 'number' stars.
+    Stars(usize),
+}
+
+impl Filter for ImageSearchFilter {
+    fn query_key_val(&self) -> (&'static str, String) {
+        use ImageSearchFilter::*;
+        match &self {
+            IsAutomated(is_automated) => ("is-automated", is_automated.to_string()),
+            IsOfficial(is_official) => ("is-official", is_official.to_string()),
+            Stars(stars) => ("stars", stars.to_string()),
+        }
+    }
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how to search for images in registries.
+    ImageSearch
+);
+
+impl ImageSearchOptsBuilder {
+    impl_filter_func!(
+        /// Filters to process on the images list.
+        ImageSearchFilter
+    );
+
+    impl_url_field!(
+        /// Maximum number of results.
+        limit: usize => "limit"
+    );
+
+    impl_url_bool_field!(
+        /// List the available tags in the repository.
+        list_tags => "listTags"
+    );
+
+    impl_url_str_field!(
+        /// Term to search for.
+        term => "term"
+    );
+
+    impl_url_bool_field!(
+        /// Skip TLS verification for registries.
+        tls_verify => "tlsVerify"
+    );
+}
