@@ -764,3 +764,30 @@ impl ImageSearchOptsBuilder {
         tls_verify => "tlsVerify"
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how multiple images are exported.
+    ImagesExport
+);
+
+impl ImagesExportOptsBuilder {
+    impl_url_bool_field!(
+        /// Use compression on image.
+        compress => "compress"
+    );
+
+    impl_url_str_field!(
+        /// Format for exported image (only docker-archive is supported).
+        format => "format"
+    );
+
+    impl_url_bool_field!(
+        /// Accept uncompressed layers when copying OCI images.
+        oci_accept_uncompressed_layers => "ociAcceptUncompressedLayers"
+    );
+
+    impl_url_vec_field!(
+        /// References to images to export.
+        references => "references"
+    );
+}

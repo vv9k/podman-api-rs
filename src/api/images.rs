@@ -552,4 +552,30 @@ impl<'podman> Images<'podman> {
         let ep = url::construct_ep("/libpod/images/search", opts.serialize());
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Image => ExportLibpod
+    /// Export multiple images into a single object.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .images()
+    ///     .export(
+    ///         &ImageExportOpts::builder()
+    ///             .references(["alpine", "ubuntu"])
+    ///             .build()
+    ///     ).await {
+    ///         Ok(images) => { /* ... */ },
+    ///         Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn export(&self, opts: &opts::ImagesExportOpts) -> Result<Vec<u8>> {
+        let ep = url::construct_ep("/libpod/images/export", opts.serialize());
+        self.podman.get_json(&ep).await
+    }}
 }
