@@ -601,3 +601,62 @@ impl ImagesRemoveOptsBuilder {
         images => "images"
     );
 }
+
+#[derive(Default, Debug)]
+/// Adjust how an image is pushed to a registry.
+pub struct ImagePushOpts {
+    auth: Option<RegistryAuth>,
+    params: HashMap<&'static str, String>,
+}
+
+impl ImagePushOpts {
+    /// Return a new instance of a builder for ImagePushOpts.
+    pub fn builder() -> ImagePushOptsBuilder {
+        ImagePushOptsBuilder::default()
+    }
+
+    /// Serialize ImagePushOpts as a string. Returns None if no Opts are defined.
+    pub fn serialize(&self) -> Option<String> {
+        if self.params.is_empty() {
+            None
+        } else {
+            Some(crate::util::url::encoded_pairs(
+                self.params.iter().map(|(k, v)| (k, v)),
+            ))
+        }
+    }
+
+    pub(crate) fn auth_header(&self) -> Option<String> {
+        self.auth.clone().map(|a| a.serialize())
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct ImagePushOptsBuilder {
+    auth: Option<RegistryAuth>,
+    params: HashMap<&'static str, String>,
+}
+
+impl ImagePushOptsBuilder {
+    impl_url_str_field!(
+        /// Allows for pushing the image to a different destination than the image refers to.
+        destinations => "destinations"
+    );
+
+    impl_url_bool_field!(
+        /// Require TLS verification.
+        tls_verify => "tlsVerify"
+    );
+
+    pub fn auth(&mut self, auth: RegistryAuth) -> &mut Self {
+        self.auth = Some(auth);
+        self
+    }
+
+    pub fn build(self) -> PullOpts {
+        PullOpts {
+            auth: self.auth,
+            params: self.params,
+        }
+    }
+}

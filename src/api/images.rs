@@ -262,6 +262,48 @@ impl<'podman> Image<'podman> {
         );
         self.podman.get_json(&ep).await
     }}
+
+    api_doc! {
+    Image => PushLibpod
+    /// Push this image to a container registry.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.images().get("alpine").push(
+    ///     &ImagePushOpts::builder()
+    ///         .destinations("my-destination")
+    ///         .tls_verify(true)
+    ///         .auth(Some(
+    ///             RegistryAuth::builder()
+    ///                 .username("test")
+    ///                 .password("test")
+    ///                 .server_address("https://my-registry")
+    ///                 .build(),
+    ///         ))
+    ///         .build(),
+    /// ) {
+    ///     Ok(s) => println!("{}", s),
+    ///     Err(e) => eprintln!("{}", e),
+    /// };
+    /// ```
+    |
+    pub async fn push(&self, opts: &opts::ImagePushOpts) -> Result<String> {
+        let headers = opts
+            .auth_header()
+            .map(|a| Headers::single(crate::conn::AUTH_HEADER, a));
+
+        let ep = url::construct_ep(
+            format!("/libpod/images/{}/push", &self.id),
+            opts.serialize(),
+        );
+
+        self.podman
+            .post_headers(&ep, Payload::empty(), headers)
+            .await
+    }}
 }
 
 impl<'podman> Images<'podman> {

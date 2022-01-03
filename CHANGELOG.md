@@ -27,4 +27,4 @@
 * Add `Network::disconnect_container` and `Container::disconnect`
 * Add `Network::connect_container` and `Container::connect`
 * Fix build on Windows
-
+* Add `Image::push`

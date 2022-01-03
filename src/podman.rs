@@ -583,7 +583,7 @@ impl Podman {
         &self,
         endpoint: &str,
         body: Payload<B>,
-        headers: Headers,
+        headers: Option<Headers>,
     ) -> Result<String>
     where
         B: Into<Body>,
@@ -593,7 +593,7 @@ impl Podman {
                 Method::POST,
                 self.version.make_endpoint(endpoint),
                 body,
-                Some(headers),
+                headers,
             )
             .await
     }
