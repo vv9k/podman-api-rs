@@ -494,4 +494,33 @@ impl<'podman> Images<'podman> {
         let ep = url::construct_ep("/libpod/images/remove", opts.serialize());
         self.podman.delete_json(&ep).await
     }}
+
+    api_doc! {
+    Image => PruneLibpod
+    /// Remove images that are not being used by a container.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman
+    ///     .images()
+    ///     .prune(
+    ///         &ImagePruneOpts::builder()
+    ///             .all(true)
+    ///             .build()
+    ///     ).await {
+    ///         Ok(report) => println!("{:?}", report),
+    ///         Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn prune(
+        &self,
+        opts: &opts::ImagePruneOpts,
+    ) -> Result<Vec<models::ContainersPruneReport>> {
+        let ep = url::construct_ep("/libpod/images/prune", opts.serialize());
+        self.podman.post_json(&ep, Payload::empty()).await
+    }}
 }

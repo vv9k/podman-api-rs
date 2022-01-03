@@ -28,3 +28,4 @@
 * Add `Network::connect_container` and `Container::connect`
 * Fix build on Windows
 * Add `Image::push`
+* Add `Images::prune`

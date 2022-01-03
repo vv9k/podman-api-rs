@@ -660,3 +660,55 @@ impl ImagePushOptsBuilder {
         }
     }
 }
+
+#[derive(Debug)]
+/// Used to filter removed images.
+pub enum ImagePruneFilter {
+    /// When set to true, prune only unused and untagged images. When set to false, all unused
+    /// images are pruned.
+    Dangling(bool),
+    /// Prune images created before this timestamp. The <timestamp> can be Unix timestamps, date
+    /// formatted timestamps, or Go duration strings (e.g. 10m, 1h30m) computed relative to the
+    /// daemon machine’s time.
+    // #TODO: DateTime
+    Until(String),
+    /// Image that contains key label.
+    LabelKey(String),
+    /// Image that contains key-value label.
+    LabelKeyVal(String, String),
+}
+
+impl Filter for ImagePruneFilter {
+    fn query_key_val(&self) -> (&'static str, String) {
+        use ImagePruneFilter::*;
+        match &self {
+            Dangling(dangling) => ("dangling", dangling.to_string()),
+            Until(until) => ("until", until.to_string()),
+            LabelKey(key) => ("label", key.clone()),
+            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
+        }
+    }
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how unused images are removed.
+    ImagePrune
+);
+
+impl ImagePruneOptsBuilder {
+    impl_filter_func!(
+        /// Filters to apply to image pruning.
+        ImagePruneFilter
+    );
+
+    impl_url_bool_field!(
+        /// Remove all images not in use by containers, not just dangling ones.
+        all => "all"
+    );
+
+    impl_url_bool_field!(
+        /// Remove images even when they are used by external containers (e.g, by build
+        /// containers).
+        external => "external"
+    );
+}
