@@ -217,15 +217,15 @@ impl<'podman> Networks<'podman> {
 
     api_doc! {
     Network => PruneLibpod
-    /// List network configurations.
+    /// Delete unused networks.
     ///
     /// Examples:
     ///
     /// ```no_run
     /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().list(&Default::default()).await {
-    ///     Ok(networks) => println!("{:?}", networks),
+    /// match podman.networks().prune(&Default::default()).await {
+    ///     Ok(report) => println!("{:?}", report),
     ///     Err(e) => eprintln!("{}", e),
     /// }
     /// ```
