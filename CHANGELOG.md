@@ -31,3 +31,4 @@
 * Add `Images::prune`
 * Add `Images::search`
 * Add `Images::export`
+* Add `Containers::prune`

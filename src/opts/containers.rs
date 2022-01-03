@@ -1012,3 +1012,40 @@ impl ContainerTopOptsBuilder {
         ps_args => "ps_args"
     );
 }
+
+#[derive(Debug)]
+/// Used to filter removed images.
+pub enum ContainerPruneFilter {
+    /// Prune containers created before this timestamp. The <timestamp> can be Unix timestamps, date
+    /// formatted timestamps, or Go duration strings (e.g. 10m, 1h30m) computed relative to the
+    /// daemon machine’s time.
+    // #TODO: DateTime
+    Until(String),
+    /// Container that contains key label.
+    LabelKey(String),
+    /// Container that contains key-value label.
+    LabelKeyVal(String, String),
+}
+
+impl Filter for ContainerPruneFilter {
+    fn query_key_val(&self) -> (&'static str, String) {
+        use ContainerPruneFilter::*;
+        match &self {
+            Until(until) => ("until", until.to_string()),
+            LabelKey(key) => ("label", key.clone()),
+            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
+        }
+    }
+}
+
+impl_opts_builder!(url =>
+    /// Adjust how stopped containers are removed.
+    ContainerPrune
+);
+
+impl ContainerPruneOptsBuilder {
+    impl_filter_func!(
+        /// Filters to process on the prune list.
+        ContainerPruneFilter
+    );
+}

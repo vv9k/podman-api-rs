@@ -984,4 +984,27 @@ impl<'podman> Containers<'podman> {
     pub async fn list_mounted(&self) -> Result<serde_json::Value> {
         self.podman.get_json("/libpod/containers/showmounted").await
     }}
+
+    api_doc! {
+    Container => PruneLibpod
+    /// Remove containers not in use.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    /// match podman.containers().prune(&Default::default()).await {
+    ///     Ok(report) => println!("{:?}", report),
+    ///     Err(e) => eprintln!("{}", e),
+    /// }
+    /// ```
+    |
+    pub async fn prune(
+        &self,
+        opts: &opts::ContainerPruneOpts,
+    ) -> Result<Vec<models::ContainersPruneReport>> {
+        let ep = url::construct_ep("/libpod/containers/prune", opts.serialize());
+        self.podman.post_json(&ep, Payload::empty()).await
+    }}
 }
