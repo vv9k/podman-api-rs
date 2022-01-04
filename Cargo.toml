@@ -14,6 +14,8 @@ keywords = ["podman", "api", "containers", "docker", "unix"]
 [dependencies]
 #podman-api-stubs = "0.1.0"
 podman-api-stubs = { path = "./codegen/target/gen" }
+containers-api-conn = "0.1.0"
+#containers-api-conn = { path = "../containers-api-conn" }
 
 log = "0.4"
 thiserror = "1"
@@ -29,19 +31,10 @@ chrono = { version="0.4", optional=true, features=["serde"] }
 serde = { version="1", features=["derive"] }
 serde_json = "1"
 
-mime = "0.3"
 url = "2.1"
+futures_codec = "0.4"
 tokio = "1"
 futures-util = "0.3"
-futures_codec = "0.4"
-http = "0.2"
-pin-project = "1"
-hyper = { version="0.14", features=["client", "http1", "tcp", "stream"] }
-hyper-openssl = { version="0.9", optional=true }
-openssl = { version="0.10", optional=true }
-
-[target.'cfg(unix)'.dependencies]
-hyperlocal = { version="0.8" }
 
 [dev-dependencies]
 env_logger = "0.8"
@@ -50,8 +43,8 @@ pretty_assertions = "0.7"
 
 [features]
 default = ["chrono"]
-tls = ["openssl", "hyper-openssl"]
-vendored-ssl = ["tls", "openssl/vendored"]
+tls = ["containers-api-conn/tls"]
+vendored-ssl = ["containers-api-conn/vendored-ssl"]
 
 
 # docs.rs-specific configuration

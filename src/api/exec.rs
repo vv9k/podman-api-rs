@@ -6,7 +6,7 @@ use crate::{
 };
 
 use futures_util::future::TryFutureExt;
-use futures_util::stream::Stream;
+use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(Exec => id);
 
@@ -45,12 +45,19 @@ impl<'podman> Exec<'podman> {
     pub fn start(
         &'podman self,
         opts: &'podman opts::ExecStartOpts,
-    ) -> impl Stream<Item = Result<tty::TtyChunk>> + 'podman {
+    ) -> impl Stream<Item = crate::conn::Result<tty::TtyChunk>> + 'podman {
         let ep = format!("/libpod/exec/{}/start", &self.id);
         Box::pin(
             async move {
-                let payload = Payload::Json(opts.serialize()?);
-                let stream = Box::pin(self.podman.stream_post(ep, payload, Headers::none()));
+                let payload = Payload::Json(
+                    opts.serialize()
+                        .map_err(|e| crate::conn::Error::Any(Box::new(e)))?,
+                );
+                let stream = Box::pin(
+                    self.podman
+                        .stream_post(ep, payload, Headers::none())
+                        .map_err(|e| crate::conn::Error::Any(Box::new(e))),
+                );
 
                 Ok(tty::decode(stream))
             }

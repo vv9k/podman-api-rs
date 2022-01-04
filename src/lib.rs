@@ -8,9 +8,14 @@ mod podman;
 mod util;
 
 pub mod api;
-pub mod conn;
 pub mod models;
 pub mod opts;
+
+/// Connection related items.
+pub mod conn {
+    pub(crate) use containers_api_conn::*;
+    pub use containers_api_conn::{Error, Multiplexer, TtyChunk};
+}
 
 pub use api::ApiVersion;
 pub use id::Id;
@@ -28,12 +33,9 @@ pub(crate) use _version as version;
 /// Common result type used throughout this crate
 pub type Result<T> = std::result::Result<T, Error>;
 
+use containers_api_conn::hyper::StatusCode;
 use futures_util::io::Error as IoError;
-use hyper::{self, StatusCode};
-#[cfg(feature = "tls")]
-use openssl::error::ErrorStack;
 use serde_json::Error as SerdeError;
-use std::string::FromUtf8Error;
 use thiserror::Error as ThisError;
 
 #[derive(Debug, ThisError)]
@@ -42,31 +44,18 @@ pub enum Error {
     #[error(transparent)]
     SerdeJsonError(#[from] SerdeError),
     #[error(transparent)]
-    Hyper(#[from] hyper::Error),
-    #[error(transparent)]
-    Http(#[from] hyper::http::Error),
-    #[error(transparent)]
     #[allow(clippy::upper_case_acronyms)]
     IO(#[from] IoError),
-    #[error(transparent)]
-    Encoding(#[from] FromUtf8Error),
     #[error("The response is invalid - {0}")]
     InvalidResponse(String),
     #[error("error {code} - {message}")]
     Fault { code: StatusCode, message: String },
-    #[error("The HTTP connection was not upgraded by the podman host")]
-    ConnectionNotUpgraded,
-    #[cfg(feature = "tls")]
-    #[error(transparent)]
-    ErrorStack(#[from] ErrorStack),
     #[error("Provided scheme `{0}` is not supported")]
     UnsupportedScheme(String),
     #[error("Provided URI is missing authority part after scheme")]
     MissingAuthority,
     #[error("Failed to parse url - {0}")]
     InvalidUrl(url::ParseError),
-    #[error("Failed to parse uri - {0}")]
-    InvalidUri(http::uri::InvalidUri),
     #[error("Invalid port - {0}")]
     InvalidPort(String),
     #[error("Invalid protocol - {0}")]
@@ -75,4 +64,6 @@ pub enum Error {
     MalformedVersion(String),
     #[error("Failed to serialize opts - {0}")]
     OptsSerialization(String),
+    #[error(transparent)]
+    Error(#[from] containers_api_conn::Error),
 }

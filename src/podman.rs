@@ -13,12 +13,12 @@ use crate::conn::get_https_connector;
 #[cfg(unix)]
 use crate::conn::get_unix_connector;
 
+use crate::conn::hyper::{body::Bytes, Body, Client, Method, Response};
 use futures_util::{
     io::{AsyncRead, AsyncWrite},
     stream::Stream,
     TryStreamExt,
 };
-use hyper::{body::Bytes, Body, Client, Method, Response};
 use log::trace;
 use serde::de::DeserializeOwned;
 
@@ -501,7 +501,7 @@ impl Podman {
             Ok(_) => Ok(true),
             Err(e) => match e {
                 crate::Error::Fault {
-                    code: http::StatusCode::NOT_FOUND,
+                    code: crate::conn::http::StatusCode::NOT_FOUND,
                     message: _,
                 } => Ok(false),
                 e => Err(e),
@@ -529,7 +529,7 @@ impl Podman {
         );
 
         let body = self.get(&ep).await.map(|b| b.into_body())?;
-        transport::body_to_string(body).await
+        transport::body_to_string(body).await.map_err(Error::from)
     }
 
     //####################################################################################################
@@ -547,6 +547,7 @@ impl Podman {
                 Headers::none(),
             )
             .await
+            .map_err(Error::from)
     }
 
     pub(crate) async fn get_json<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
@@ -576,6 +577,7 @@ impl Podman {
                 Headers::none(),
             )
             .await
+            .map_err(Error::from)
     }
 
     #[allow(dead_code)]
@@ -596,6 +598,7 @@ impl Podman {
                 headers,
             )
             .await
+            .map_err(Error::from)
     }
 
     #[allow(dead_code)]
@@ -611,6 +614,7 @@ impl Podman {
                 Headers::none(),
             )
             .await
+            .map_err(Error::from)
     }
 
     pub(crate) async fn post_json<B, T>(
@@ -670,6 +674,7 @@ impl Podman {
                 Headers::none(),
             )
             .await
+            .map_err(Error::from)
     }
 
     pub(crate) async fn delete_json<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
@@ -697,6 +702,7 @@ impl Podman {
                 Headers::none(),
             )
             .await
+            .map_err(Error::from)
     }
 
     /// Send a streaming post request.
@@ -711,12 +717,14 @@ impl Podman {
     where
         B: Into<Body> + 'a,
     {
-        self.transport.stream_chunks(
-            Method::POST,
-            self.version.make_endpoint(endpoint),
-            body,
-            headers,
-        )
+        self.transport
+            .stream_chunks(
+                Method::POST,
+                self.version.make_endpoint(endpoint),
+                body,
+                headers,
+            )
+            .map_err(Error::from)
     }
 
     #[allow(dead_code)]
@@ -730,12 +738,14 @@ impl Podman {
     where
         B: Into<Body> + 'a,
     {
-        self.transport.stream_json_chunks(
-            Method::POST,
-            self.version.make_endpoint(endpoint),
-            body,
-            headers,
-        )
+        self.transport
+            .stream_json_chunks(
+                Method::POST,
+                self.version.make_endpoint(endpoint),
+                body,
+                headers,
+            )
+            .map_err(Error::from)
     }
 
     #[allow(dead_code)]
@@ -771,12 +781,14 @@ impl Podman {
         &'a self,
         endpoint: impl AsRef<str> + Unpin + 'a,
     ) -> impl Stream<Item = Result<Bytes>> + 'a {
-        self.transport.stream_chunks(
-            Method::GET,
-            self.version.make_endpoint(endpoint),
-            Payload::empty(),
-            Headers::none(),
-        )
+        self.transport
+            .stream_chunks(
+                Method::GET,
+                self.version.make_endpoint(endpoint),
+                Payload::empty(),
+                Headers::none(),
+            )
+            .map_err(Error::from)
     }
 
     pub(crate) fn stream_get_json<'a, T>(
@@ -812,6 +824,7 @@ impl Podman {
         self.transport
             .stream_upgrade(Method::POST, self.version.make_endpoint(endpoint), body)
             .await
+            .map_err(Error::from)
     }
 }
 

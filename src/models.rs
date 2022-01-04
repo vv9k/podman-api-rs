@@ -10,7 +10,7 @@ use {
     chrono::{DateTime, Utc},
 };
 
-use hyper::header::HeaderMap;
+use crate::conn::hyper::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::string::ToString;
