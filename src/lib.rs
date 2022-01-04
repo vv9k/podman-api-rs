@@ -14,7 +14,7 @@ pub mod opts;
 /// Connection related items.
 pub mod conn {
     pub(crate) use containers_api_conn::*;
-    pub use containers_api_conn::{Error, Multiplexer, TtyChunk, Transport};
+    pub use containers_api_conn::{Error, Multiplexer, Transport, TtyChunk};
 }
 
 pub use api::ApiVersion;
