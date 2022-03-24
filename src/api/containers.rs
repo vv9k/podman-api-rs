@@ -315,31 +315,35 @@ impl<'podman> Container<'podman> {
     ///
     /// ```no_run
     /// use futures_util::StreamExt;
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ContainerCheckpointOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// let mut container_stream = podman.containers().get("79c93f220e3e").checkpoint(
-    ///     &ContainerCheckpointOpts::builder()
-    ///         .leave_running(true)
-    ///         .print_stats(true)
-    ///         .build(),
-    /// );
+    ///     let mut container_stream = podman.containers().get("79c93f220e3e").checkpoint(
+    ///         &ContainerCheckpointOpts::builder()
+    ///             .leave_running(true)
+    ///             .print_stats(true)
+    ///             .build(),
+    ///     );
     ///
-    /// while let Some(chunk) = container_stream.next().await {
-    ///     println!("{:?}", chunk);
-    /// }
+    ///     while let Some(chunk) = container_stream.next().await {
+    ///         println!("{:?}", chunk);
+    ///     }
+    /// };
     /// ```
     |
-    pub async fn checkpoint(
+    pub fn checkpoint(
         &self,
         opts: &opts::ContainerCheckpointOpts,
-    ) -> impl Stream<Item = Result<Vec<u8>>> + 'podman {
+    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + 'podman {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/checkpoint", &self.id),
             opts.serialize(),
         );
-        self.podman
+        Box::pin(self.podman
             .stream_post(ep, Payload::empty(), Headers::none())
-            .map_ok(|c| c.to_vec())
+            .map_ok(|c| c.to_vec()))
     }}
 
     api_doc! {

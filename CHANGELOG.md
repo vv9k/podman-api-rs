@@ -1,3 +1,7 @@
+# 0.2.1
+---
+* Fix `Container::checkpoint` endpoint and doc example
+
 # 0.2.0
 ---
 
