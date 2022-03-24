@@ -3,6 +3,7 @@
 * Fix `Container::checkpoint` endpoint and doc example
 * Fix return type of `ImagePushOptsBuilder::build` to `ImagePushOpts`
 * Fix `ImagePushOptsBuilder::auth` method to take builder by value rather than by mutable reference
+* Fix `Pod::top_stream` - it shouldn't be async
 
 # 0.2.0
 ---
