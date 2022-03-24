@@ -1049,3 +1049,55 @@ impl ContainerPruneOptsBuilder {
         ContainerPruneFilter
     );
 }
+
+impl_opts_builder!(url =>
+    /// Adjust how a container is restored.
+    ContainerRestore
+);
+
+impl ContainerRestoreOptsBuilder {
+    impl_url_bool_field!(
+        /// Do not include root file-system changes when exporting.
+        ignore_root_fs => "ignoreRootFS"
+    );
+
+    impl_url_bool_field!(
+        /// Ignore IP address if set statically.
+        ignore_static_ip => "ignoreStaticIP"
+    );
+
+    impl_url_bool_field!(
+        /// Ignore MAC address if set statically.
+        ignore_static_mac => "ignoreStaticMac"
+    );
+
+    impl_url_bool_field!(
+        /// Import the restore from a checkpoint tar.gz.
+        import => "import"
+    );
+
+    impl_url_bool_field!(
+        /// Keep all temporary checkpoint files.
+        keep => "keep"
+    );
+
+    impl_url_bool_field!(
+        /// Leave the container running after writing checkpoint to disk.
+        leave_running => "leaveRunning"
+    );
+
+    impl_url_str_field!(
+        /// The name of the container when restored from a tar. can only be used with import.
+        name => "name"
+    );
+
+    impl_url_bool_field!(
+        /// Add restore statistics to the response.
+        print_stats => "printStats"
+    );
+
+    impl_url_bool_field!(
+        /// Checkpoint a container with established TCP connections.
+        tcp_established => "tcpEstablished"
+    );
+}
