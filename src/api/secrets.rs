@@ -12,12 +12,15 @@ impl<'podman> Secret<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.secrets().get("79c93f220e3e").inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.secrets().get("79c93f220e3e").inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::SecretInfoReport> {
@@ -33,11 +36,14 @@ impl<'podman> Secret<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.secrets().delete().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.secrets().get("79c93f220e3e").delete().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn delete(&self) -> Result<()> {
@@ -56,12 +62,15 @@ impl<'podman> Secrets<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.secrets().list().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.secrets().list().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn list(&self) -> Result<Vec<models::SecretInfoReport>> {
@@ -77,12 +86,19 @@ impl<'podman> Secrets<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::SecretCreateOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.secrets().create().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.secrets().create(
+    ///         &SecretCreateOpts::builder("my-secret").build(),
+    ///         "secret-value"
+    ///     ).await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn create(
