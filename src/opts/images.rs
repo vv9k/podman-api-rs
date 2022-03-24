@@ -648,7 +648,7 @@ impl ImagePushOptsBuilder {
         tls_verify => "tlsVerify"
     );
 
-    pub fn auth(&mut self, auth: RegistryAuth) -> &mut Self {
+    pub fn auth(mut self, auth: RegistryAuth) -> Self {
         self.auth = Some(auth);
         self
     }
