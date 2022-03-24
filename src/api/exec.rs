@@ -22,24 +22,28 @@ impl<'podman> Exec<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// use futures_util::StreamExt;
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
-    /// let container = podman.containers().get("451b27c6b9d3");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures_util::StreamExt;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///     let container = podman.containers().get("451b27c6b9d3");
     ///
-    /// let exec = container
-    ///     .create_exec(
-    ///         &podman_api::opts::ExecCreateOpts::builder()
-    ///             .command(["cat", "/some/path/in/container"])
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap();
+    ///     let exec = container
+    ///         .create_exec(
+    ///             &podman_api::opts::ExecCreateOpts::builder()
+    ///                 .command(["cat", "/some/path/in/container"])
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///         .unwrap();
     ///
-    /// let stream = exec.start();
+    ///     let opts = Default::default();
+    ///     let mut stream = exec.start(&opts);
     ///
-    /// while let Some(chunk) = stream.next().await {
-    ///     println!("{:?}", chunk.unwrap());
-    /// }
+    ///     while let Some(chunk) = stream.next().await {
+    ///         println!("{:?}", chunk.unwrap());
+    ///     }
+    /// };
     /// ```
     |
     pub fn start(
@@ -72,23 +76,26 @@ impl<'podman> Exec<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// use futures_util::StreamExt;
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
-    /// let container = podman.containers().get("451b27c6b9d3");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures_util::StreamExt;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///     let container = podman.containers().get("451b27c6b9d3");
     ///
-    /// let exec = container
-    ///     .create_exec(
-    ///         &podman_api::opts::ExecCreateOpts::builder()
-    ///             .command(["cat", "/some/path/in/container"])
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap();
+    ///     let exec = container
+    ///         .create_exec(
+    ///             &podman_api::opts::ExecCreateOpts::builder()
+    ///                 .command(["cat", "/some/path/in/container"])
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///         .unwrap();
     ///
-    /// match exec.inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e)
-    /// }
+    ///     match exec.inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e)
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(
@@ -107,21 +114,24 @@ impl<'podman> Exec<'podman> {
     ///
     /// ```no_run
     /// use futures_util::StreamExt;
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
-    /// let container = podman.containers().get("451b27c6b9d3");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///     let container = podman.containers().get("451b27c6b9d3");
     ///
-    /// let exec = container
-    ///     .create_exec(
-    ///         &podman_api::opts::ExecCreateOpts::builder()
-    ///             .command(["cat", "/some/path/in/container"])
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap();
+    ///     let exec = container
+    ///         .create_exec(
+    ///             &podman_api::opts::ExecCreateOpts::builder()
+    ///                 .command(["cat", "/some/path/in/container"])
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///         .unwrap();
     ///
-    /// if let Err(e) = exec.resize(1280, 720).await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = exec.resize(1280, 720).await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn resize(&self, width: usize, heigth: usize) -> Result<()> {
