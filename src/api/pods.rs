@@ -18,11 +18,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").start().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").start().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn start(&self) -> Result<models::PodStartReport> {
@@ -46,11 +49,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").stop().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").stop().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn stop(&self) -> Result<models::PodStopReport> {
@@ -64,11 +70,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").stop_with_timeout(10).await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").stop_with_timeout(10).await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn stop_with_timeout(&self, t: usize) -> Result<models::PodStopReport> {
@@ -82,12 +91,15 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.pods().get("79c93f220e3e").inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.pods().get("79c93f220e3e").inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::LibpodPodInspectResponse> {
@@ -103,11 +115,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").send_signal("SIGINT").await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").send_signal("SIGINT").await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn send_signal(&self, signal: impl Into<String>) -> Result<models::PodKillReport> {
@@ -125,11 +140,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").kill().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").kill().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn kill(&self) -> Result<models::PodKillReport> {
@@ -143,11 +161,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").pause().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").pause().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn pause(&self) -> Result<models::PodPauseReport> {
@@ -166,11 +187,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").unpause().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").unpause().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn unpause(&self) -> Result<models::PodUnpauseReport> {
@@ -189,11 +213,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").restart().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").restart().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn restart(&self) -> Result<models::PodRestartReport> {
@@ -216,11 +243,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").delete().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").delete().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn delete(&self) -> Result<models::PodRmReport> {
@@ -234,11 +264,14 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.pods().get("79c93f220e3e").remove().await {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.pods().get("79c93f220e3e").remove().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn remove(&self) -> Result<models::PodRmReport> {
@@ -252,16 +285,19 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.pods().get("79c93f220e3e").exists().await {
-    ///     Ok(exists) => if exists {
-    ///         println!("pod exists!");
-    ///     } else {
-    ///         println!("pod doesn't exists!");
-    ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e);
-    /// }
+    ///     match podman.pods().get("79c93f220e3e").exists().await {
+    ///         Ok(exists) => if exists {
+    ///             println!("pod exists!");
+    ///         } else {
+    ///             println!("pod doesn't exists!");
+    ///         },
+    ///         Err(e) => eprintln!("check failed: {}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
@@ -275,12 +311,15 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.pods().get("79c93f220e3e").top(&Default::default()).await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.pods().get("79c93f220e3e").top(&Default::default()).await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn top(&self, opts: &opts::PodTopOpts) -> Result<models::LibpodPodTopResponse> {
@@ -330,17 +369,20 @@ impl<'podman> Pod<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .pods()
-    ///     .get("ea03584c0fd6")
-    ///     .generate_systemd_units(&Default::default())
-    ///     .await
-    /// {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .pods()
+    ///         .get("ea03584c0fd6")
+    ///         .generate_systemd_units(&Default::default())
+    ///         .await
+    ///     {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn generate_systemd_units(
@@ -359,20 +401,25 @@ impl<'podman> Pods<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::{PodListOpts, PodListFilter};
+    ///     use podman_api::models::PodStatus;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// for pod in podman
-    ///     .pods()
-    ///     .list(
-    ///         &PodListOpts::builder()
-    ///             .filter([PodListFilter::Status(PodStatus::Degraded)])
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap()
-    /// {
-    ///     println!("{:?}", pod);
-    /// }
+    ///     for pod in podman
+    ///         .pods()
+    ///         .list(
+    ///             &PodListOpts::builder()
+    ///                 .filter([PodListFilter::Status(PodStatus::Degraded)])
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///         .unwrap()
+    ///     {
+    ///         println!("{:?}", pod);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn list(&self, opts: &opts::PodListOpts) -> Result<Vec<models::ListPodsReport>> {
@@ -387,12 +434,15 @@ impl<'podman> Pods<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.pods().prune().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.pods().prune().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn prune(&self) -> Result<Vec<models::PodPruneReport>> {
@@ -440,17 +490,20 @@ impl<'podman> Pods<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::PodCreateOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match self
-    ///     .podman
-    ///     .containers()
-    ///     .create(&PodCreateOpts::builder().name("my-pod").build())
-    ///     .await
-    /// {
-    ///     Ok(pod) => { /* do something with the pod */ }
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .pods()
+    ///         .create(&PodCreateOpts::builder().name("my-pod").build())
+    ///         .await
+    ///     {
+    ///         Ok(pod) => { /* do something with the pod */ }
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn create(&self, opts: &opts::PodCreateOpts) -> Result<Pod<'_>> {
