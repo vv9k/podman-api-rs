@@ -13,12 +13,15 @@ impl<'podman> Network<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().get("some-network").delete().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.networks().get("some-network").delete().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn delete(&self) -> Result<models::NetworkRmReport> {
@@ -35,12 +38,15 @@ impl<'podman> Network<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().get("some-network").force_delete().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.networks().get("some-network").force_delete().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn force_delete(&self) -> Result<models::NetworkRmReport> {
@@ -58,16 +64,19 @@ impl<'podman> Network<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().get("some-network").exists().await {
-    ///     Ok(exists) => if exists {
-    ///         println!("network exists!");
-    ///     } else {
-    ///         println!("network doesn't exists!");
-    ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e),
-    /// }
+    ///     match podman.networks().get("some-network").exists().await {
+    ///         Ok(exists) => if exists {
+    ///             println!("network exists!");
+    ///         } else {
+    ///             println!("network doesn't exists!");
+    ///         },
+    ///         Err(e) => eprintln!("check failed: {}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
@@ -83,12 +92,15 @@ impl<'podman> Network<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().get("some-network").inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.networks().get("some-network").inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::NetworkConfigList> {
@@ -104,21 +116,25 @@ impl<'podman> Network<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::NetworkDisconnectOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .networks()
-    ///     .get("some-network")
-    ///     .disconnect_container(
-    ///         &NetworkDisconnectOpts::builder()
-    ///             .container("containerid")
-    ///             .force(true)
-    ///             .build()
-    ///     )
-    ///     .await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .networks()
+    ///         .get("some-network")
+    ///         .disconnect_container(
+    ///             &NetworkDisconnectOpts::builder()
+    ///                 .container("containerid")
+    ///                 .force(true)
+    ///                 .build()
+    ///         )
+    ///         .await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn disconnect_container(&self, opts: &opts::NetworkDisconnectOpts) -> Result<()> {
@@ -138,21 +154,25 @@ impl<'podman> Network<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::NetworkConnectOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .networks()
-    ///     .get("some-network")
-    ///     .connect_container(
-    ///         &NetworkConnectOpts::builder()
-    ///             .container("containerid")
-    ///             .interface_name("eno128")
-    ///             .build()
-    ///     )
-    ///     .await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .networks()
+    ///         .get("some-network")
+    ///         .connect_container(
+    ///             &NetworkConnectOpts::builder()
+    ///                 .container("containerid")
+    ///                 .interface_name("eno128")
+    ///                 .build()
+    ///         )
+    ///         .await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn connect_container(&self, opts: &opts::NetworkConnectOpts) -> Result<()> {
@@ -174,16 +194,20 @@ impl<'podman> Networks<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::NetworkCreateOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .networks()
-    ///     .create(&NetworkCreateOpts::builder().name("test-network").build())
-    ///     .await
-    /// {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .networks()
+    ///         .create(&NetworkCreateOpts::builder().name("test-network").build())
+    ///         .await
+    ///     {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn create(&self, opts: &opts::NetworkCreateOpts) -> Result<models::NetworkCreateReport> {
@@ -199,12 +223,15 @@ impl<'podman> Networks<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().list(&Default::default()).await {
-    ///     Ok(networks) => println!("{:?}", networks),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.networks().list(&Default::default()).await {
+    ///         Ok(networks) => println!("{:?}", networks),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn list(
@@ -222,12 +249,15 @@ impl<'podman> Networks<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.networks().prune(&Default::default()).await {
-    ///     Ok(report) => println!("{:?}", report),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.networks().prune(&Default::default()).await {
+    ///         Ok(report) => println!("{:?}", report),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn prune(
