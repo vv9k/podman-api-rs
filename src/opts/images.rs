@@ -653,8 +653,8 @@ impl ImagePushOptsBuilder {
         self
     }
 
-    pub fn build(self) -> PullOpts {
-        PullOpts {
+    pub fn build(self) -> ImagePushOpts {
+        ImagePushOpts {
             auth: self.auth,
             params: self.params,
         }

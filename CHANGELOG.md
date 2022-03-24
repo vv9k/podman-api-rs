@@ -1,6 +1,7 @@
 # 0.2.1
 ---
 * Fix `Container::checkpoint` endpoint and doc example
+* Fix return type of `ImagePushOptsBuilder::build` to `ImagePushOpts`
 
 # 0.2.0
 ---
