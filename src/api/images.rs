@@ -20,12 +20,15 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.images().get("debian").inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.images().get("debian").inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::LibpodImageInspectResponse> {
@@ -41,12 +44,15 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.images().get("debian").history().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.images().get("debian").history().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn history(&self) -> Result<models::HistoryResponseItem> {
@@ -62,16 +68,19 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.images().get("debian").exists().await {
-    ///     Ok(exists) => if exists {
-    ///         println!("image exists!");
-    ///     } else {
-    ///         println!("image doesn't exists!");
-    ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e),
-    /// }
+    ///     match podman.images().get("debian").exists().await {
+    ///         Ok(exists) => if exists {
+    ///             println!("image exists!");
+    ///         } else {
+    ///             println!("image doesn't exists!");
+    ///         },
+    ///         Err(e) => eprintln!("check failed: {}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
@@ -88,11 +97,14 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.images().get("debian").delete().await
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.images().get("debian").delete().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn delete(&self) -> Result<()> {
@@ -107,11 +119,14 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.images().get("debian").remove().await
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.images().get("debian").remove().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn remove(&self) -> Result<()> {
@@ -129,22 +144,25 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImageTagOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman
-    ///     .images()
-    ///     .get("debian")
-    ///     .tag(
-    ///         &ImageTagOpts::builder()
-    ///             .repo("my.custom.repo/debian")
-    ///             .tag("1.0.0")
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap()
-    /// {
-    ///     println!("{:?}", image);
-    /// }
+    ///     if let Err(e) = podman
+    ///         .images()
+    ///         .get("debian")
+    ///         .tag(
+    ///             &ImageTagOpts::builder()
+    ///                 .repo("my.custom.repo/debian")
+    ///                 .tag("1.0.0")
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///     {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn tag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
@@ -163,22 +181,25 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImageTagOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman
-    ///     .images()
-    ///     .get("debian")
-    ///     .untag(
-    ///         &ImageTagOpts::builder()
-    ///             .repo("my.custom.repo/debian")
-    ///             .tag("1.0.0")
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap()
-    /// {
-    ///     println!("{:?}", image);
-    /// }
+    ///     if let Err(e) = podman
+    ///         .images()
+    ///         .get("debian")
+    ///         .untag(
+    ///             &ImageTagOpts::builder()
+    ///                 .repo("my.custom.repo/debian")
+    ///                 .tag("1.0.0")
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///     {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn untag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
@@ -208,17 +229,20 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .images()
-    ///     .get("79c93f220e3e")
-    ///     .changes(&Default::default())
-    ///     .await
-    /// {
-    ///     Ok(changes) => println!("{:?}", changes),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .images()
+    ///         .get("79c93f220e3e")
+    ///         .changes(&Default::default())
+    ///         .await
+    ///     {
+    ///         Ok(changes) => println!("{:?}", changes),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn changes(
@@ -239,17 +263,20 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .images()
-    ///     .get("79c93f220e3e")
-    ///     .tree(&Default::default())
-    ///     .await
-    /// {
-    ///     Ok(tree) => println!("{:?}", tree),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .images()
+    ///         .get("79c93f220e3e")
+    ///         .tree(&Default::default())
+    ///         .await
+    ///     {
+    ///         Ok(tree) => println!("{:?}", tree),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn tree(
@@ -270,23 +297,27 @@ impl<'podman> Image<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::{RegistryAuth, ImagePushOpts};
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.images().get("alpine").push(
-    ///     &ImagePushOpts::builder()
-    ///         .destinations("my-destination")
-    ///         .tls_verify(true)
-    ///         .auth(Some(
-    ///             RegistryAuth::builder()
-    ///                 .username("test")
-    ///                 .password("test")
-    ///                 .server_address("https://my-registry")
-    ///                 .build(),
-    ///         ))
-    ///         .build(),
-    /// ) {
-    ///     Ok(s) => println!("{}", s),
-    ///     Err(e) => eprintln!("{}", e),
+    ///     match podman.images().get("alpine").push(
+    ///         &ImagePushOpts::builder()
+    ///             .destinations("my-destination")
+    ///             .tls_verify(true)
+    ///             .auth(
+    ///                 RegistryAuth::builder()
+    ///                     .username("test")
+    ///                     .password("test")
+    ///                     .server_address("https://my-registry")
+    ///                     .build(),
+    ///             )
+    ///             .build(),
+    ///     ).await {
+    ///         Ok(s) => println!("{}", s),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     };
     /// };
     /// ```
     |
@@ -314,20 +345,24 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImageBuildOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman
-    ///     .images()
-    ///     .create(
-    ///         &ImageBuildOpts::builder()
-    ///             .remote("http://some.url.to/Dockerfile")
-    ///             .tag("myimage:1.0.0")
-    ///             .build(),
-    ///     )
-    ///     .await
-    /// {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman
+    ///         .images()
+    ///         .build(
+    ///             &ImageBuildOpts::builder()
+    ///                 .remote("http://some.url.to/Dockerfile")
+    ///                 .tag("myimage:1.0.0")
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///     {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn build(
@@ -350,21 +385,25 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::{ImageListOpts, ImageListFilter};
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// for image in podman
-    ///     .images()
-    ///     .list(
-    ///         &ImageListOpts::builder()
-    ///             .all(true)
-    ///             .filter([ImageListFilter::Dangling(true)])
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap()
-    /// {
-    ///     println!("{:?}", image);
-    /// }
+    ///     for image in podman
+    ///         .images()
+    ///         .list(
+    ///             &ImageListOpts::builder()
+    ///                 .all(true)
+    ///                 .filter([ImageListFilter::Dangling(true)])
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///         .unwrap()
+    ///     {
+    ///         println!("{:?}", image);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn list(&self, opts: &opts::ImageListOpts) -> Result<Vec<models::LibpodImageSummary>> {
@@ -379,19 +418,24 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::PullOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman
-    ///     .images()
-    ///     .pull(
-    ///         &PullOpts::builder()
-    ///             .reference("rockylinux/rockylinux:8")
-    ///             .build(),
-    ///     )
-    ///     .await
-    /// {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman
+    ///         .images()
+    ///         .pull(
+    ///             &PullOpts::builder()
+    ///                 .reference("rockylinux/rockylinux:8")
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///     {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
+    /// ```
     |
     pub async fn pull(
         &self,
@@ -415,14 +459,17 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// let image = std::fs::read("image_archive")?;
+    ///     let image = std::fs::read("image_archive").unwrap();
     ///
-    /// match podman.images().load(&image).await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.images().load(&image).await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn load(&self, image: impl AsRef<[u8]>) -> Result<models::ImageLoadReport> {
@@ -439,19 +486,27 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImageImportOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman
-    ///     .images()
-    ///     .pull(
-    ///         &PullOpts::builder()
-    ///             .reference("rockylinux/rockylinux:8")
-    ///             .build(),
-    ///     )
-    ///     .await
-    /// {
-    ///     eprintln!("{}", e);
-    /// }
+    ///     let image = vec![0, 1];
+    ///
+    ///     if let Err(e) = podman
+    ///         .images()
+    ///         .import(
+    ///             &ImageImportOpts::builder()
+    ///                 .reference("rockylinux/rockylinux:8")
+    ///                 .build(),
+    ///             image
+    ///         )
+    ///         .await
+    ///     {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
+    /// ```
     |
     pub async fn import(
         &self,
@@ -475,16 +530,20 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImagesRemoveOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .images()
-    ///     .remove_multiple(&ImagesRemoveOpts::builder().all(true).force(true).build())
-    ///     .await
-    /// {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .images()
+    ///         .remove(&ImagesRemoveOpts::builder().all(true).force(true).build())
+    ///         .await
+    ///     {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn remove(
@@ -502,18 +561,22 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImagePruneOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .images()
-    ///     .prune(
-    ///         &ImagePruneOpts::builder()
-    ///             .all(true)
-    ///             .build()
-    ///     ).await {
-    ///         Ok(report) => println!("{:?}", report),
-    ///         Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .images()
+    ///         .prune(
+    ///             &ImagePruneOpts::builder()
+    ///                 .all(true)
+    ///                 .build()
+    ///         ).await {
+    ///             Ok(report) => println!("{:?}", report),
+    ///             Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn prune(
@@ -531,18 +594,22 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImageSearchOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .images()
-    ///     .search(
-    ///         &ImageSearchOpts::builder()
-    ///             .list_tags(true)
-    ///             .build()
-    ///     ).await {
-    ///         Ok(images) => println!("{:?}", images),
-    ///         Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .images()
+    ///         .search(
+    ///             &ImageSearchOpts::builder()
+    ///                 .list_tags(true)
+    ///                 .build()
+    ///         ).await {
+    ///             Ok(images) => println!("{:?}", images),
+    ///             Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn search(
@@ -560,18 +627,22 @@ impl<'podman> Images<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ImagesExportOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .images()
-    ///     .export(
-    ///         &ImageExportOpts::builder()
-    ///             .references(["alpine", "ubuntu"])
-    ///             .build()
-    ///     ).await {
-    ///         Ok(images) => { /* ... */ },
-    ///         Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .images()
+    ///         .export(
+    ///             &ImagesExportOpts::builder()
+    ///                 .references(["alpine", "ubuntu"])
+    ///                 .build()
+    ///         ).await {
+    ///             Ok(images) => { /* ... */ },
+    ///             Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn export(&self, opts: &opts::ImagesExportOpts) -> Result<Vec<u8>> {
