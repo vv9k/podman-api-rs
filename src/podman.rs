@@ -297,12 +297,15 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.info().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.info().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn info(&self) -> Result<models::Info> {
@@ -316,12 +319,15 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.ping().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.ping().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn ping(&self) -> Result<models::LibpodPingInfo> {
@@ -337,12 +343,15 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.version().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.version().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn version(&self) -> Result<models::LibpodVersionResponse> {
@@ -356,12 +365,15 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.data_usage().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.data_usage().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn data_usage(&self) -> Result<models::LibpodDataUsageResponse> {
@@ -375,12 +387,15 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.prune().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.prune().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn prune(&self) -> Result<models::LibpodSystemPruneResponse> {
@@ -396,17 +411,20 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// use futures_util::StreamExt;
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures_util::StreamExt;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// let events = podman.events(&Default::default());
+    ///     let mut events = podman.events(&Default::default());
     ///
-    /// while let Some(event) = events.next().await {
-    ///     match event {
-    ///         Ok(event) => println!("{:?}", event),
-    ///         Err(e) => eprintln!("{}", e),
+    ///     while let Some(event) = events.next().await {
+    ///         match event {
+    ///             Ok(event) => println!("{:?}", event),
+    ///             Err(e) => eprintln!("{}", e),
+    ///         }
     ///     }
-    /// }
+    /// };
     /// ```
     pub fn events<'libpod>(
         &'libpod self,
@@ -435,31 +453,35 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
     ///
-    /// let yaml = r#"
-    /// apiVersion: v1
-    /// kind: Pod
-    /// metadata:
-    ///   name: youthfulwescoff
-    /// spec:
-    ///   containers:
-    ///   - image: docker.io/library/alpine:latest
-    ///     name: youthfulwescoff
-    ///     securityContext:
-    ///       capabilities:
-    ///         drop:
-    ///         - CAP_MKNOD
-    ///         - CAP_NET_RAW
-    ///         - CAP_AUDIT_WRITE
-    ///     stdin: true
-    ///     tty: true
-    /// "#;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.play_kubernetes_yaml(&Default::default(), yaml).await {
-    ///     Ok(report) => println!("{:?}", report),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     let yaml = r#"
+    ///     apiVersion: v1
+    ///     kind: Pod
+    ///     metadata:
+    ///       name: youthfulwescoff
+    ///     spec:
+    ///       containers:
+    ///       - image: docker.io/library/alpine:latest
+    ///         name: youthfulwescoff
+    ///         securityContext:
+    ///           capabilities:
+    ///             drop:
+    ///             - CAP_MKNOD
+    ///             - CAP_NET_RAW
+    ///             - CAP_AUDIT_WRITE
+    ///         stdin: true
+    ///         tty: true
+    ///     "#;
+    ///
+    ///     match podman.play_kubernetes_yaml(&Default::default(), yaml).await {
+    ///         Ok(report) => println!("{:?}", report),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn play_kubernetes_yaml(
@@ -479,12 +501,15 @@ impl Podman {
     /// Example:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.remove_kubernetes_pods().await {
-    ///     Ok(report) => println!("{:?}", report),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.remove_kubernetes_pods().await {
+    ///         Ok(report) => println!("{:?}", report),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn remove_kubernetes_pods(&self) -> Result<models::PlayKubeReport> {
