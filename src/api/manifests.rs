@@ -12,16 +12,19 @@ impl<'podman> Manifest<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.manifests().get("some-manifest").exists().await {
-    ///     Ok(exists) => if exists {
-    ///         println!("manifest exists!");
-    ///     } else {
-    ///         println!("manifest doesn't exists!");
-    ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e),
-    /// }
+    ///     match podman.manifests().get("some-manifest").exists().await {
+    ///         Ok(exists) => if exists {
+    ///             println!("manifest exists!");
+    ///         } else {
+    ///             println!("manifest doesn't exists!");
+    ///         },
+    ///         Err(e) => eprintln!("check failed: {}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
@@ -37,12 +40,15 @@ impl<'podman> Manifest<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.manifests().get("my-manifest").inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.manifests().get("my-manifest").inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::Schema2List> {
@@ -58,16 +64,20 @@ impl<'podman> Manifest<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ManifestImageAddOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// let manifest = podman.manifests().get("my-manifest");
-    /// match manifest
-    ///     .add_image(&ManifestImageAddOpts::builder().images(["centos"]).build())
-    ///     .await
-    /// {
-    ///     Ok(id) => println!("{:?}", id),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     let manifest = podman.manifests().get("my-manifest");
+    ///     match manifest
+    ///         .add_image(&ManifestImageAddOpts::builder().images(["centos"]).build())
+    ///         .await
+    ///     {
+    ///         Ok(id) => println!("{:?}", id),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn add_image(&self, opts: &opts::ManifestImageAddOpts) -> Result<models::IdResponse> {
@@ -86,16 +96,19 @@ impl<'podman> Manifest<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///   .manifests()
-    ///   .get("my-manifest")
-    ///   .remove_image("sha256:a1801b843b1bfaf77c501e7a6d3f709401a1e0c83863037fa3aab063a7fdb9dc")
-    ///   .await {
-    ///     Ok(id) => println!("{:?}", id),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///       .manifests()
+    ///       .get("my-manifest")
+    ///       .remove_image("sha256:a1801b843b1bfaf77c501e7a6d3f709401a1e0c83863037fa3aab063a7fdb9dc")
+    ///       .await {
+    ///         Ok(id) => println!("{:?}", id),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::IdResponse> {
@@ -114,16 +127,20 @@ impl<'podman> Manifest<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ManifestPushOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// let manifest = podman.manifests().get("my-manifest");
-    /// match manifest
-    ///     .push(&ManifestPushOpts::builder("some-registry.addr").all(true).build())
-    ///     .await
-    /// {
-    ///     Ok(id) => println!("{:?}", id),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     let manifest = podman.manifests().get("my-manifest");
+    ///     match manifest
+    ///         .push(&ManifestPushOpts::builder("some-registry.addr").all(true).build())
+    ///         .await
+    ///     {
+    ///         Ok(id) => println!("{:?}", id),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn push(&self, opts: &opts::ManifestPushOpts) -> Result<models::IdResponse> {
@@ -143,20 +160,24 @@ impl<'podman> Manifests<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ManifestCreateOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .manifests()
-    ///     .create(
-    ///         &ManifestCreateOpts::builder("my-manifest")
-    ///             .image("alpine")
-    ///             .build(),
-    ///     )
-    ///     .await
-    /// {
-    ///     Ok(manifest) => { /* do something with the manifest */ }
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .manifests()
+    ///         .create(
+    ///             &ManifestCreateOpts::builder("my-manifest")
+    ///                 .image("alpine")
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///     {
+    ///         Ok(manifest) => { /* do something with the manifest */ }
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn create(&self, opts: &opts::ManifestCreateOpts) -> Result<Manifest<'_>> {
