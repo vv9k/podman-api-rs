@@ -33,3 +33,4 @@
 * Add `Images::export`
 * Add `Containers::prune`
 * Add `Container::healtcheck`
+* Fix return value of `Podman::info`
