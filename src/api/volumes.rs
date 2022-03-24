@@ -12,16 +12,19 @@ impl<'podman> Volume<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.volumes().get("some_vol").exists().await {
-    ///     Ok(exists) => if exists {
-    ///         println!("volume exists!");
-    ///     } else {
-    ///         println!("volume doesn't exists!");
-    ///     },
-    ///     Err(e) => eprintln!("check failed: {}", e),
-    /// }
+    ///     match podman.volumes().get("some_vol").exists().await {
+    ///         Ok(exists) => if exists {
+    ///             println!("volume exists!");
+    ///         } else {
+    ///             println!("volume doesn't exists!");
+    ///         },
+    ///         Err(e) => eprintln!("check failed: {}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn exists(&self) -> Result<bool> {
@@ -37,12 +40,15 @@ impl<'podman> Volume<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.volumes().get("my-vol").inspect().await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.volumes().get("my-vol").inspect().await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn inspect(&self) -> Result<models::LibpodVolumeInspectResponse> {
@@ -59,11 +65,14 @@ impl<'podman> Volume<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.volumes().get("my-vol").delete().await
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.volumes().get("my-vol").delete().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn delete(&self) -> Result<()> {
@@ -78,11 +87,14 @@ impl<'podman> Volume<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// if let Err(e) = podman.volumes().get("my-vol").remove().await
-    ///     eprintln!("{}", e);
-    /// }
+    ///     if let Err(e) = podman.volumes().get("my-vol").remove().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn remove(&self) -> Result<()> {
@@ -102,21 +114,25 @@ impl<'podman> Volumes<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::VolumeCreateOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman
-    ///     .volumes()
-    ///     .create(
-    ///         &VolumeCreateOpts::builder()
-    ///             .driver("my-driver")
-    ///             .name("my-vol")
-    ///             .build(),
-    ///     )
-    ///     .await
-    /// {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman
+    ///         .volumes()
+    ///         .create(
+    ///             &VolumeCreateOpts::builder()
+    ///                 .driver("my-driver")
+    ///                 .name("my-vol")
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///     {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn create(
@@ -138,20 +154,25 @@ impl<'podman> Volumes<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::{VolumeListOpts, VolumeListFilter};
     ///
-    /// for volume in podman
-    ///     .volumes()
-    ///     .list(
-    ///         &VolumeListOpts::builder()
-    ///             .filter([VolumeListFilter::Driver("my-sd")])
-    ///             .build(),
-    ///     )
-    ///     .await
-    ///     .unwrap()
-    /// {
-    ///     println!("{:?}", volume);
-    /// }
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     for volume in podman
+    ///         .volumes()
+    ///         .list(
+    ///             &VolumeListOpts::builder()
+    ///                 .filter([VolumeListFilter::Driver("my-sd".into())])
+    ///                 .build(),
+    ///         )
+    ///         .await
+    ///         .unwrap()
+    ///     {
+    ///         println!("{:?}", volume);
+    ///     }
+    /// };
     /// ```
     |
     pub async fn list(&self, opts: &opts::VolumeListOpts) -> Result<Vec<models::Volume>> {
@@ -166,12 +187,15 @@ impl<'podman> Volumes<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// match podman.volumes().prune(&Default::default()).await {
-    ///     Ok(info) => println!("{:?}", info),
-    ///     Err(e) => eprintln!("{}", e),
-    /// }
+    ///     match podman.volumes().prune(&Default::default()).await {
+    ///         Ok(info) => println!("{:?}", info),
+    ///         Err(e) => eprintln!("{}", e),
+    ///     }
+    /// };
     /// ```
     |
     pub async fn prune(&self, opts: &opts::VolumePruneOpts) -> Result<Vec<models::PruneReport>> {
