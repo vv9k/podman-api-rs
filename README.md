@@ -11,7 +11,7 @@ Add the following to your `Cargo.toml` file
 
 ```toml
 [dependencies]
-podman-api = "0.1"
+podman-api = "0.2"
 ```
 
 ## SSL Connection
@@ -23,7 +23,7 @@ To enable HTTPS connection to docker add a `tls` flag to `Cargo.toml`.
 By default only `chrono` feature is enabled. To disable it use:
 
 ```toml
-podman-api = { version = "0.1", default-features = false }
+podman-api = { version = "0.2", default-features = false }
 ```
 
 ## Examples
