@@ -406,27 +406,31 @@ impl<'podman> Pods<'podman> {
     /// Examples:
     ///
     /// ```no_run
-    /// use futures_util::StreamExt;
-    /// let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::PodStatsOpts;
+    ///     use futures_util::StreamExt;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    /// let stream = podman.pods().stats(&PodStatsOpts::builder().all(true).build())
-    /// while let Some(chunk) = stream.next().await {
-    ///     match chunk{
-    ///         Ok(chunk) => println!("{:?}", chunk),
-    ///         Err(e) => eprintln!("{}", e),
+    ///     let mut stream = podman.pods().stats(&PodStatsOpts::builder().all(true).build());
+    ///     while let Some(chunk) = stream.next().await {
+    ///         match chunk{
+    ///             Ok(chunk) => println!("{:?}", chunk),
+    ///             Err(e) => eprintln!("{}", e),
+    ///         }
     ///     }
-    /// }
+    /// };
     /// ```
     |
-    pub async fn stats(
+    pub fn stats(
         &self,
         opts: &opts::PodStatsOpts,
-    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + 'podman {
+    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + 'podman {
         let ep = url::construct_ep(
             "/libpod/pods/stats",
             opts.serialize(),
         );
-        self.podman.stream_get_json(ep)
+        Box::pin(self.podman.stream_get_json(ep))
     }}
 
     api_doc! {
