@@ -5755,7 +5755,7 @@ pub struct PortBinding {
 }
 
 /// PortMap is a collection of PortBinding indexed by Port
-pub type PortMap = HashMap<String, String>;
+pub type PortMap = HashMap<String, Option<Vec<PortBinding>>>;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PortMapping {
