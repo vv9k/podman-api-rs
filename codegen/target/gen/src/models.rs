@@ -3124,7 +3124,7 @@ pub struct InspectContainerHostConfig {
     /// PortBindings contains the container's port bindings. It is formatted as map[string][]InspectHostPort. The string key here is formatted as <integer port number>/<protocol> and represents the container port. A single container port may be bound to multiple host ports (on different IPs).
     #[serde(rename = "PortBindings")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub port_bindings: Option<HashMap<String, Vec<InspectHostPort>>>,
+    pub port_bindings: Option<HashMap<String, Option<Vec<InspectHostPort>>>>,
     /// Privileged indicates whether the container is running with elevated privileges. This has a very specific meaning in the Docker sense, so it's very difficult to decode from the spec and config, and so is stored as an annotation.
     #[serde(rename = "Privileged")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3456,7 +3456,7 @@ pub struct InspectPodInfraConfig {
     /// PortBindings are ports that will be forwarded to the infra container and then shared with the pod.
     #[serde(rename = "PortBindings")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub port_bindings: Option<HashMap<String, Vec<InspectHostPort>>>,
+    pub port_bindings: Option<HashMap<String, Option<Vec<InspectHostPort>>>>,
     #[serde(rename = "StaticIP")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub static_ip: Option<Ip>,
