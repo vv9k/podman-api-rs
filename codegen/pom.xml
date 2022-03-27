@@ -4,7 +4,7 @@
     <groupId>podman-api</groupId>
     <name>podman-api</name>
     <artifactId>podman-api-codegen</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1</version>
     <build>
         <plugins>
             <plugin>
@@ -23,7 +23,7 @@
                             <templateDirectory>${project.basedir}/src/main/resources/podman-api</templateDirectory>
                             <configOptions>
                                 <packageName>podman-api-stubs</packageName>
-                                <packageVersion>0.2.0</packageVersion>
+                                <packageVersion>0.2.1</packageVersion>
                             </configOptions>
                         </configuration>
                     </execution>
@@ -65,7 +65,7 @@
         <swagger-codegen-generators-version>1.0.30</swagger-codegen-generators-version>
         <maven-plugin-version>1.0.0</maven-plugin-version>
         <junit-version>4.13.1</junit-version>
-        <podman-api-codegen-version>0.2.0</podman-api-codegen-version>
+        <podman-api-codegen-version>0.2.1</podman-api-codegen-version>
         <libpod-api-version>v3.4</libpod-api-version>
         <swagger-spec-url>https://storage.googleapis.com/libpod-master-releases</swagger-spec-url>
     </properties>
