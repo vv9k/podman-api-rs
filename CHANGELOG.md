@@ -1,5 +1,6 @@
 # 0.2.2
 * Fix `port_bindings` field of `InspectContainerHostConfig` and `InspectPodInfraConfig`. The value in the hashmap can be null.
+* Fix `PortMap` type signature.
 
 # 0.2.1
 ---
