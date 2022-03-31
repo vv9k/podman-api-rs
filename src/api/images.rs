@@ -582,7 +582,7 @@ impl<'podman> Images<'podman> {
     pub async fn prune(
         &self,
         opts: &opts::ImagePruneOpts,
-    ) -> Result<Vec<models::PruneReport>> {
+    ) -> Result<Option<Vec<models::PruneReport>>> {
         let ep = url::construct_ep("/libpod/images/prune", opts.serialize());
         self.podman.post_json(&ep, Payload::empty()).await
     }}
