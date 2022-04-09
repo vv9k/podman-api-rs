@@ -1,4 +1,4 @@
-# 
+# 0.2.3 
 * Fix `Images::prune` return type.
 
 # 0.2.2
@@ -6,7 +6,6 @@
 * Fix `PortMap` type signature.
 
 # 0.2.1
----
 * Fix `Container::checkpoint` endpoint and doc example
 * Fix return type of `ImagePushOptsBuilder::build` to `ImagePushOpts`
 * Fix `ImagePushOptsBuilder::auth` method to take builder by value rather than by mutable reference
@@ -14,8 +13,6 @@
 * Fix `Pod::stats` - it shouldn't be async
 
 # 0.2.0
----
-
 * Add `Container::attach` method
 * Add `Container::changes` method
 * Add `Container::logs` method
