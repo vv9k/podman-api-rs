@@ -16,6 +16,20 @@ macro_rules! impl_vec_field {
             }
         }
     };
+    ($(#[doc = $docs:expr])* $name:ident: $ty:ty => $api_name:literal) => {
+        paste::item! {
+            $(
+                #[doc= $docs]
+            )*
+            pub fn [< $name  >]<I>(mut self, $name: I)-> Self
+            where
+                I: IntoIterator<Item = $ty>,
+            {
+                self.params.insert($api_name, serde_json::json!($name.into_iter().collect::<Vec<_>>()));
+                self
+            }
+        }
+    };
 }
 
 macro_rules! impl_field {
