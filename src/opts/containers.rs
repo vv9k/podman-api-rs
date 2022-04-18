@@ -622,7 +622,11 @@ impl ContainerCreateOptsBuilder {
         pod => "pod"
     );
 
-    // TODO: portmappings
+    impl_vec_field!(
+        /// Set of ports to map into the container. Only available if NetNS is set to bridge or
+        /// slirp.
+        portmappings: models::PortMapping => "portmappings"
+    );
 
     impl_field!(
         /// Whether the container is privileged. Privileged does the following: Adds all devices on
