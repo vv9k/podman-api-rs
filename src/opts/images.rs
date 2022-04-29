@@ -498,7 +498,7 @@ impl PullOptsBuilder {
 
     impl_url_str_field!(
         /// Mandatory reference to the image.
-        reference => "referene"
+        reference => "reference"
     );
 
     impl_url_bool_field!(
