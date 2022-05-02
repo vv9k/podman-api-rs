@@ -9,7 +9,7 @@ macro_rules! impl_vec_field {
             pub fn [< $name  >]<I, S>(mut self, $name: I)-> Self
             where
                 I: IntoIterator<Item = S>,
-                S: AsRef<str> + serde::Serialize
+                S: serde::Serialize
             {
                 self.params.insert($api_name, serde_json::json!($name.into_iter().collect::<Vec<_>>()));
                 self
@@ -53,9 +53,9 @@ macro_rules! impl_str_field {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name >](mut self, $name: impl AsRef<str> + serde::Serialize)-> Self
+            pub fn [< $name >](mut self, $name: impl serde::Serialize)-> Self
             {
-                self.params.insert($api_name, serde_json::json!($name.as_ref()));
+                self.params.insert($api_name, serde_json::json!($name));
                 self
             }
         }
@@ -169,8 +169,8 @@ macro_rules! impl_map_field {
             pub fn [< $name  >]<I, K, V>(mut self, $name: I)-> Self
             where
                 I: IntoIterator<Item = (K, V)>,
-                K: AsRef<str> + serde::Serialize + Eq + std::hash::Hash,
-                V: AsRef<str> + serde::Serialize
+                K: serde::Serialize + Eq + std::hash::Hash,
+                V: serde::Serialize
             {
                 self.params.insert($api_name, $ret);
                 self
