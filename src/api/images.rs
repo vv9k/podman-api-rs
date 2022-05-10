@@ -3,7 +3,7 @@ use crate::{
     conn::{Headers, Payload},
     models, opts,
     util::url,
-    Result,
+    Error, Result,
 };
 
 use futures_util::stream::{Stream, TryStreamExt};
@@ -419,37 +419,58 @@ impl<'podman> Images<'podman> {
     ///
     /// ```no_run
     /// async {
-    ///     use podman_api::Podman;
-    ///     use podman_api::opts::PullOpts;
+    ///     use futures_util::{StreamExt, TryStreamExt};
+    ///     use crate::Error;
+    ///     use crate::Podman;
+    ///     use crate::opts::PullOpts;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     if let Err(e) = podman
+    ///     let events = podman
     ///         .images()
     ///         .pull(
     ///             &PullOpts::builder()
-    ///                 .reference("rockylinux/rockylinux:8")
+    ///                 .reference("docker.io/library/alpine")
     ///                 .build(),
-    ///         )
-    ///         .await
-    ///     {
+    ///             )
+    ///             .map(|report| {
+    ///                 report.and_then(|report| match report.error {
+    ///                     Some(error) => Err(Error::InvalidResponse(error)),
+    ///                     None => Ok(report),
+    ///                 })
+    ///             })
+    ///             .try_collect::<Vec<_>>()
+    ///             .await;
+    ///
+    ///     if let Err(e) = events {
     ///         eprintln!("{}", e);
     ///     }
     /// };
     /// ```
     |
-    pub async fn pull(
+    pub fn pull(
         &self,
         opts: &opts::PullOpts,
-    ) -> Result<models::LibpodImagesPullReport> {
-        let headers = opts
-            .auth_header()
-            .map(|a| Headers::single(crate::conn::AUTH_HEADER, a));
+    ) -> impl Stream<Item = Result<models::LibpodImagesPullReport>> + Unpin + 'podman  {
+        let ep = url::construct_ep("/libpod/images/pull", opts.serialize());
+        let reader = Box::pin(
+            self.podman
+                .stream_post(
+                    ep,
+                    Payload::empty(),
+                    opts.auth_header()
+                        .map(|a| Headers::single(crate::conn::AUTH_HEADER, a)),
+                )
+                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)),
+        )
+        .into_async_read();
 
-        self.podman.post_json_headers(
-            url::construct_ep("/libpod/images/pull", opts.serialize()),
-            Payload::empty(),
-            headers,
-        ).await
+        Box::pin(
+            futures_codec::FramedRead::new(reader, futures_codec::LinesCodec)
+                .map_err(Error::IO)
+                .and_then(|s: String| async move {
+                    serde_json::from_str(&s).map_err(Error::SerdeJsonError)
+                }),
+        )
     }}
 
     api_doc! {
