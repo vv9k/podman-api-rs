@@ -1,6 +1,7 @@
 #
 * Add `portmappings` to `ContainerCreateOptsBuilder` [#117](https://github.com/vv9k/podman-api-rs/pull/117)
 * Fix typo `referene` in `PullOptsBuilder` [#119](https://github.com/vv9k/podman-api-rs/pull/119)
+* Make Images::pull return a stream [#121](https://github.com/vv9k/podman-api-rs/pull/121)
 
 
 # 0.2.3 
