@@ -2,10 +2,11 @@ use crate::{
     api::ApiResource,
     conn::{Headers, Payload},
     models, opts,
-    util::url,
+    util::{tarball, url},
     Error, Result,
 };
 
+use futures_util::future::TryFutureExt;
 use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(
@@ -365,17 +366,25 @@ impl Images {
     /// };
     /// ```
     |
-    pub async fn build(
-        &self,
-        opts: &opts::ImageBuildOpts,
-    ) -> Result<models::LibpodImageBuildResponse> {
+    pub fn build<'podman>(
+        &'podman self,
+        opts: &'podman opts::ImageBuildOpts,
+    ) -> impl Stream <Item = Result<models::LibpodImageBuildResponse>> + Unpin + 'podman {
         let ep = url::construct_ep("/libpod/build", opts.serialize());
-        self.podman
-            .post_json(
-                &ep,
-                Payload::empty(),
-            )
-            .await
+        let mut bytes = Vec::default();
+
+        Box::pin(
+            async move {
+                let path = opts.get_param("path").ok_or_else(|| Error::OptsSerialization("expected a path to build context".into()))?;
+                tarball::dir(&mut bytes, &path)?;
+
+                let value_stream =
+                    self.podman.stream_post_into(ep, Payload::Tar(bytes), Headers::none());
+
+                Ok(value_stream)
+            }
+            .try_flatten_stream(),
+        )
     }}
 
     api_doc! {

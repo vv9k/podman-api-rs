@@ -37,6 +37,7 @@ tokio = "1"
 futures-util = "0.3"
 
 tar = "0.4"
+flate2 = "1"
 
 [dev-dependencies]
 env_logger = "0.8"

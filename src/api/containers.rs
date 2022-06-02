@@ -1038,7 +1038,7 @@ impl Container {
     ///
     ///     let bytes = vec![];
     ///     let src_path = std::path::PathBuf::from("/tmp/dir");
-    ///     
+    ///
     ///     let mut ar = tar::Builder::new(Vec::new());
     ///     let mut header = tar::Header::new_gnu();
     ///     header.set_size(bytes.len() as u64);
@@ -1052,7 +1052,7 @@ impl Container {
     ///         bytes,
     ///     )?;
     ///     let data = ar.into_inner()?;
-    ///     
+    ///
     ///     podman.copy_to("/", data.into()).await.map(|_| ())
     /// };
     /// ```
@@ -1089,12 +1089,12 @@ impl Container {
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     ///     use std::{fs::File, io::Read};
-    ///     
+    ///
     ///     let mut file = File::open("/some/important/file")?;
     ///     let mut bytes = Vec::new();
     ///     file.read_to_end(&mut bytes)
     ///         .expect("Cannot read file on the localhost.");
-    ///     
+    ///
     ///     if let Err(e) = podman
     ///         .containers()
     ///         .get(&id)

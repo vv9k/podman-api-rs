@@ -285,6 +285,10 @@ macro_rules! impl_opts_required_builder {
                 pub fn builder($param: impl Into<$ty>) -> [< $name OptsBuilder >] {
                     [< $name OptsBuilder >]::new($param)
                 }
+
+                pub fn get_param(&self, key: &str) -> Option<&$ty> {
+                    self.params.get(key)
+                }
             }
 
             #[doc = concat!("A builder struct for ", stringify!($name), "Opts.")]

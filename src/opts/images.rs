@@ -3,9 +3,13 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;
 
-impl_opts_builder!(url =>
+impl_opts_required_builder!(url =>
     /// Adjust how an image is built.
-    ImageBuild
+    ImageBuild,
+    ///
+    /// Parameters:
+    /// * path - Path to a build context directory
+    path => "path"
 );
 
 #[derive(Debug, Clone, PartialEq, Eq)]
