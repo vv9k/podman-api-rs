@@ -12,7 +12,7 @@ impl_api_ty!(
     Image => id
 );
 
-impl<'podman> Image<'podman> {
+impl Image {
     api_doc! {
     Image => InspectLibpod
     /// Obtain low-level information about this image.
@@ -217,7 +217,7 @@ impl<'podman> Image<'podman> {
     pub fn export(
         &self,
         opts: &opts::ImageExportOpts,
-    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + 'podman {
+    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
         let ep = url::construct_ep(format!("/libpod/images/{}/get", &self.id), opts.serialize());
         Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
     }}
@@ -337,7 +337,7 @@ impl<'podman> Image<'podman> {
     }}
 }
 
-impl<'podman> Images<'podman> {
+impl Images {
     api_doc! {
     Image => BuildLibpod
     /// Build an image from the given Dockerfile(s)
@@ -450,7 +450,7 @@ impl<'podman> Images<'podman> {
     pub fn pull(
         &self,
         opts: &opts::PullOpts,
-    ) -> impl Stream<Item = Result<models::LibpodImagesPullReport>> + Unpin + 'podman  {
+    ) -> impl Stream<Item = Result<models::LibpodImagesPullReport>> + Unpin + '_ {
         let ep = url::construct_ep("/libpod/images/pull", opts.serialize());
         let reader = Box::pin(
             self.podman

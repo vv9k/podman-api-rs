@@ -4,7 +4,7 @@ impl_api_ty!(
     Secret => id
 );
 
-impl<'podman> Secret<'podman> {
+impl Secret {
     api_doc! {
     Secret => InspectLibpod
     /// Inspect this secret returning detailed information about it.
@@ -54,7 +54,7 @@ impl<'podman> Secret<'podman> {
     }}
 }
 
-impl<'podman> Secrets<'podman> {
+impl Secrets {
     api_doc! {
     Secret => ListLibpod
     /// List available secrets.
@@ -105,7 +105,7 @@ impl<'podman> Secrets<'podman> {
         &self,
         opts: &opts::SecretCreateOpts,
         secret: impl Into<String>,
-    ) -> Result<Secret<'_>> {
+    ) -> Result<Secret> {
         let ep = url::construct_ep("/libpod/secrets/create", opts.serialize());
         self.podman
             .post_json(
@@ -114,7 +114,7 @@ impl<'podman> Secrets<'podman> {
             )
             .await
             .map(|resp: models::LibpodSecretCreateResponse| {
-                Secret::new(self.podman, resp.ID.unwrap_or_default())
+                Secret::new(self.podman.clone(), resp.ID.unwrap_or_default())
             })
     }}
 }

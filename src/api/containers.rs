@@ -12,7 +12,7 @@ impl_api_ty!(
     Container => id
 );
 
-impl<'podman> Container<'podman> {
+impl Container {
     api_doc! {
     Container => StartLibpod
     /// Start this container.
@@ -376,7 +376,7 @@ impl<'podman> Container<'podman> {
     pub fn checkpoint(
         &self,
         opts: &opts::ContainerCheckpointOpts,
-    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + 'podman {
+    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/checkpoint", &self.id),
             opts.serialize(),
@@ -450,13 +450,13 @@ impl<'podman> Container<'podman> {
     /// };
     /// ```
     |
-    pub async fn create_exec(&self, opts: &opts::ExecCreateOpts) -> Result<Exec<'_>> {
+    pub async fn create_exec(&self, opts: &opts::ExecCreateOpts) -> Result<Exec> {
         let ep = format!("/libpod/containers/{}/exec", self.id);
 
         self.podman
             .post_json(&ep, Payload::Json(opts.serialize()?))
             .await
-            .map(|resp: models::IdResponse| Exec::new(self.podman, resp.id))
+            .map(|resp: models::IdResponse| Exec::new(self.podman.clone(), resp.id))
     }}
 
     api_doc! {
@@ -608,7 +608,7 @@ impl<'podman> Container<'podman> {
     pub async fn attach(
         &self,
         opts: &opts::ContainerAttachOpts,
-    ) -> Result<tty::Multiplexer<'podman>> {
+    ) -> Result<tty::Multiplexer<'_>> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/attach", &self.id),
             opts.stream().serialize(),
@@ -686,7 +686,7 @@ impl<'podman> Container<'podman> {
     pub fn logs(
         &self,
         opts: &opts::ContainerLogsOpts,
-    ) -> impl Stream<Item = Result<Vec<u8>>> + 'podman {
+    ) -> impl Stream<Item = Result<Vec<u8>>> + '_  {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/logs", &self.id),
             opts.serialize(),
@@ -752,13 +752,14 @@ impl<'podman> Container<'podman> {
     pub fn stats_stream(
         &self,
         interval: Option<usize>,
-    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>> + 'podman {
-        self.podman.containers().stats_stream(
-            &opts::ContainerStatsOpts::builder()
+    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>>  + '_ {
+        let opts = opts::ContainerStatsOpts::builder()
                 .containers([self.id.to_string()])
                 .interval(interval.unwrap_or(5))
-                .build(),
-        )
+                .build();
+        let ep = url::construct_ep("/libpod/containers/stats", opts.stream().serialize());
+
+        Box::pin(self.podman.stream_get_json(ep))
     }}
 
     api_doc! {
@@ -820,7 +821,7 @@ impl<'podman> Container<'podman> {
     pub fn top_stream(
         &self,
         opts: &opts::ContainerTopOpts,
-    ) -> impl Stream<Item = Result<models::ContainerTopOkBody>> + 'podman {
+    ) -> impl Stream<Item = Result<models::ContainerTopOkBody>> + '_ {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/top", &self.id),
             opts.stream().serialize(),
@@ -976,7 +977,7 @@ impl<'podman> Container<'podman> {
     }}
 }
 
-impl<'podman> Containers<'podman> {
+impl Containers {
     api_doc! {
     Container => CreateLibpod
     /// Create a container with specified options.
@@ -1111,7 +1112,7 @@ impl<'podman> Containers<'podman> {
     pub fn stats_stream(
         &self,
         opts: &opts::ContainerStatsOpts,
-    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>> + 'podman {
+    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>> + '_ {
         let ep = url::construct_ep("/libpod/containers/stats", opts.stream().serialize());
 
         Box::pin(self.podman.stream_get_json(ep))

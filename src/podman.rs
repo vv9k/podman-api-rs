@@ -224,64 +224,64 @@ impl Podman {
     containers
     /// Returns a handle to podman containers that can be used to operate on them.
     |
-    pub fn containers(&self) -> api::Containers<'_> {
-        api::Containers::new(self)
+    pub fn containers(&self) -> api::Containers {
+        api::Containers::new(self.clone())
     }}
 
     api_doc! {
     exec
     /// Returns a handle to podman execs that can be used to operate on them.
     |
-    pub fn execs(&self) -> api::Execs<'_> {
-        api::Execs::new(self)
+    pub fn execs(&self) -> api::Execs {
+        api::Execs::new(self.clone())
     }}
 
     api_doc! {
     images
     /// Returns a handle to podman images that can be used to operate on them.
     |
-    pub fn images(&self) -> api::Images<'_> {
-        api::Images::new(self)
+    pub fn images(&self) -> api::Images {
+        api::Images::new(self.clone())
     }}
 
     api_doc! {
     manifests
     /// Returns a handle to podman manifests that can be used to operate on them.
     |
-    pub fn manifests(&self) -> api::Manifests<'_> {
-        api::Manifests::new(self)
+    pub fn manifests(&self) -> api::Manifests {
+        api::Manifests::new(self.clone())
     }}
 
     api_doc! {
     networks
     /// Returns a handle to podman networks that can be used to operate on them.
     |
-    pub fn networks(&self) -> api::Networks<'_> {
-        api::Networks::new(self)
+    pub fn networks(&self) -> api::Networks {
+        api::Networks::new(self.clone())
     }}
 
     api_doc! {
     pods
     /// Returns a handle to podman pods that can be used to operate on them.
     |
-    pub fn pods(&self) -> api::Pods<'_> {
-        api::Pods::new(self)
+    pub fn pods(&self) -> api::Pods {
+        api::Pods::new(self.clone())
     }}
 
     api_doc! {
     volumes
     /// Returns a handle to podman volumes that can be used to operate on them.
     |
-    pub fn volumes(&self) -> api::Volumes<'_> {
-        api::Volumes::new(self)
+    pub fn volumes(&self) -> api::Volumes {
+        api::Volumes::new(self.clone())
     }}
 
     api_doc! {
     secrets
     /// Returns a handle to podman secrets that can be used to operate on them.
     |
-    pub fn secrets(&self) -> api::Secrets<'_> {
-        api::Secrets::new(self)
+    pub fn secrets(&self) -> api::Secrets {
+        api::Secrets::new(self.clone())
     }}
 
     //####################################################################################################

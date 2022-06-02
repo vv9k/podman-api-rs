@@ -4,7 +4,7 @@ impl_api_ty!(
     Volume => name
 );
 
-impl<'podman> Volume<'podman> {
+impl Volume {
     api_doc! {
     Volume => ExistsLibpod
     /// Quick way to determine if this volume exists.
@@ -106,7 +106,7 @@ impl<'podman> Volume<'podman> {
     }}
 }
 
-impl<'podman> Volumes<'podman> {
+impl Volumes {
     api_doc! {
     Volume => CreateLibpod
     /// Create a volume with specified options.

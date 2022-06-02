@@ -4,7 +4,7 @@ impl_api_ty!(
     Manifest => name
 );
 
-impl<'podman> Manifest<'podman> {
+impl Manifest {
     api_doc! {
     Manifest => ExistsLibpod
     /// Quick way to determine if a manifest exists by name or id.
@@ -152,7 +152,7 @@ impl<'podman> Manifest<'podman> {
     }}
 }
 
-impl<'podman> Manifests<'podman> {
+impl Manifests {
     api_doc! {
     Manifest => CreateLibpod
     /// Create a manifest list.
@@ -180,7 +180,7 @@ impl<'podman> Manifests<'podman> {
     /// };
     /// ```
     |
-    pub async fn create(&self, opts: &opts::ManifestCreateOpts) -> Result<Manifest<'_>> {
+    pub async fn create(&self, opts: &opts::ManifestCreateOpts) -> Result<Manifest> {
         let ep = url::construct_ep("/libpod/manifests/create", opts.serialize());
         self.podman
             .post_json(&ep, Payload::empty())

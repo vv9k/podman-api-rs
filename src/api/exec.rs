@@ -10,7 +10,7 @@ use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(Exec => id);
 
-impl<'podman> Exec<'podman> {
+impl Exec {
     api_doc! {
     Exec => StartLibpod
     /// Starts a previously set up exec instance. If `detach` is true, this endpoint returns
@@ -46,10 +46,10 @@ impl<'podman> Exec<'podman> {
     /// };
     /// ```
     |
-    pub fn start(
-        &'podman self,
-        opts: &'podman opts::ExecStartOpts,
-    ) -> impl Stream<Item = crate::conn::Result<tty::TtyChunk>> + 'podman {
+    pub fn start<'exec>(
+        &'exec self,
+        opts: &'exec opts::ExecStartOpts,
+    ) -> impl Stream<Item = crate::conn::Result<tty::TtyChunk>> + 'exec {
         let ep = format!("/libpod/exec/{}/start", &self.id);
         Box::pin(
             async move {

@@ -6,7 +6,7 @@ impl_api_ty!(
     Pod => id
 );
 
-impl<'podman> Pod<'podman> {
+impl Pod {
     api_doc! {
     Pod => StartLibpod
     /// Start this pod.
@@ -354,7 +354,7 @@ impl<'podman> Pod<'podman> {
     pub fn top_stream(
         &self,
         opts: &opts::PodTopOpts,
-    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + 'podman {
+    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + '_ {
         let ep = url::construct_ep(
             format!("/libpod/pods/{}/top", &self.id),
             opts.stream().serialize(),
@@ -393,7 +393,7 @@ impl<'podman> Pod<'podman> {
     }}
 }
 
-impl<'podman> Pods<'podman> {
+impl Pods {
     api_doc! {
     Pod => ListLibpod
     /// Returns a list of pods.
@@ -475,7 +475,7 @@ impl<'podman> Pods<'podman> {
     pub fn stats(
         &self,
         opts: &opts::PodStatsOpts,
-    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + 'podman {
+    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + '_ {
         let ep = url::construct_ep(
             "/libpod/pods/stats",
             opts.serialize(),
@@ -506,13 +506,13 @@ impl<'podman> Pods<'podman> {
     /// };
     /// ```
     |
-    pub async fn create(&self, opts: &opts::PodCreateOpts) -> Result<Pod<'_>> {
+    pub async fn create(&self, opts: &opts::PodCreateOpts) -> Result<Pod> {
         self.podman
             .post_json(
                 &"/libpod/containers/create",
                 Payload::Json(opts.serialize()?),
             )
             .await
-            .map(|resp: models::IdResponse| Pod::new(self.podman, resp.id))
+            .map(|resp: models::IdResponse| Pod::new(self.podman.clone(), resp.id))
     }}
 }

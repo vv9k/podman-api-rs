@@ -4,7 +4,7 @@ impl_api_ty!(
     Network => name
 );
 
-impl<'podman> Network<'podman> {
+impl Network {
     api_doc! {
     Network => DeleteLibpod
     /// Delete this container. To delete this network forcefully use
@@ -186,7 +186,7 @@ impl<'podman> Network<'podman> {
     }}
 }
 
-impl<'podman> Networks<'podman> {
+impl Networks {
     api_doc! {
     Network => CreateLibpod
     /// Quick way to determine if a network exists by name or id.

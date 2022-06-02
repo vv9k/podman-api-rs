@@ -398,14 +398,14 @@ macro_rules! impl_api_ty {
         paste::item! {
             #[doc = concat!("Interface for accessing and manipulating Podman ", stringify!($name), ".\n", $($docs,)* "\n", api_url!($name))]
             #[derive(Debug)]
-            pub struct [< $name >]<'podman> {
-                podman: &'podman crate::Podman,
+            pub struct [< $name >] {
+                podman: crate::Podman,
                 $name_field: crate::Id,
             }
 
-            impl<'podman> [< $name >]<'podman> {
+            impl [< $name >] {
                 #[doc = concat!("Exports an interface exposing operations against a ", stringify!($name), " instance.")]
-                pub fn new(podman: &'podman crate::Podman, $name_field: impl Into<crate::Id>) -> Self
+                pub fn new(podman: crate::Podman, $name_field: impl Into<crate::Id>) -> Self
                 {
                     [< $name >] {
                         podman,
@@ -423,20 +423,20 @@ macro_rules! impl_api_ty {
 
             #[doc = concat!("Handle for Podman ", stringify!($name), "s.")]
             #[derive(Debug)]
-            pub struct [< $name s >]<'podman> {
-                podman: &'podman crate::Podman,
+            pub struct [< $name s >] {
+                podman: crate::Podman,
             }
 
-            impl<'podman> [< $name s >]<'podman> {
+            impl [< $name s >] {
                 #[doc = concat!("Exports an interface for interacting with Podman ", stringify!($name), "s.")]
-                pub fn new(podman: &'podman crate::Podman) -> Self {
+                pub fn new(podman: crate::Podman) -> Self {
                     [< $name s >] { podman }
                 }
 
                 #[doc = concat!("Returns a reference to a set of operations available to a specific ", stringify!($name), ".")]
-                pub fn get(&self, $name_field: impl Into<crate::Id>) -> [< $name >]<'podman>
+                pub fn get(&self, $name_field: impl Into<crate::Id>) -> [< $name >]
                 {
-                    [< $name >]::new(self.podman, $name_field)
+                    [< $name >]::new(self.podman.clone(), $name_field)
                 }
             }
 
