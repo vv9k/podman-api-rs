@@ -36,6 +36,8 @@ futures_codec = "0.4"
 tokio = "1"
 futures-util = "0.3"
 
+tar = "0.4"
+
 [dev-dependencies]
 env_logger = "0.8"
 # Required for examples to run

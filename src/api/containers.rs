@@ -7,6 +7,7 @@ use crate::{
 };
 
 use futures_util::stream::{Stream, TryStreamExt};
+use std::path::Path;
 
 impl_api_ty!(
     Container => id
@@ -974,6 +975,155 @@ impl Container {
         self.podman
             .get_json(&format!("/libpod/containers/{}/healtcheck", &self.id))
             .await
+    }}
+
+    api_doc! {
+    Container => Archive
+    /// Copy a file/folder from the container.  The resulting stream is a tarball of the extracted
+    /// files.
+    ///
+    /// If `path` is not an absolute path, it is relative to the container’s root directory. The
+    /// resource specified by `path` must exist. To assert that the resource is expected to be a
+    /// directory, `path` should end in `/` or `/`. (assuming a path separator of `/`). If `path`
+    /// ends in `/.`  then this indicates that only the contents of the path directory should be
+    /// copied.  A symlink is always resolved to its target.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures::TryStreamExt;
+    ///     use tar::Archive;
+    ///
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     let bytes = podman
+    ///          .containers()
+    ///          .get("fc93f220e3e")
+    ///          .copy_from("/tmp/dir")
+    ///          .try_concat()
+    ///          .await?;
+    ///
+    ///      let mut archive = Archive::new(&bytes[..]);
+    ///      archive.unpack(&local_path)?;
+    /// };
+    /// ```
+    |
+    pub fn copy_from(&self, path: &Path) -> impl Stream<Item = Result<Vec<u8>>> + '_ {
+        self.podman
+            .stream_get(format!(
+                "/containers/{}/archive?{}",
+                self.id,
+                url::encoded_pair("path", path.to_string_lossy())
+            ))
+            .map_ok(|c| c.to_vec())
+    }}
+
+    api_doc! {
+    PutContainer => Archive
+    /// Copy a tarball (see `body`) to the container.
+    ///
+    /// The tarball will be copied to the container and extracted at the given location (see `path`).
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures::TryStreamExt;
+    ///     use tar::Archive;
+    ///
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     let bytes = vec![];
+    ///     let src_path = std::path::PathBuf::from("/tmp/dir");
+    ///     
+    ///     let mut ar = tar::Builder::new(Vec::new());
+    ///     let mut header = tar::Header::new_gnu();
+    ///     header.set_size(bytes.len() as u64);
+    ///     header.set_mode(0o0644);
+    ///     ar.append_data(
+    ///         &mut header,
+    ///         path,
+    ///             .iter()
+    ///             .skip(1)
+    ///             .collect::<std::path::PathBuf>(),
+    ///         bytes,
+    ///     )?;
+    ///     let data = ar.into_inner()?;
+    ///     
+    ///     podman.copy_to("/", data.into()).await.map(|_| ())
+    /// };
+    /// ```
+    |
+    pub async fn copy_to(&self, path: impl AsRef<Path>, body: containers_api_conn::hyper::Body) -> Result<()> {
+        self.podman
+            .put(
+                &format!(
+                    "/containers/{}/archive?{}",
+                    self.id,
+                    url::encoded_pair("path", path.as_ref().to_string_lossy())
+                ),
+                Payload::XTar(body),
+            )
+            .await
+            .map(|_| ())
+    }}
+
+    api_doc! {
+    PutContainer => Archive
+    /// Copy a byte slice as file into (see `bytes`) the container.
+    ///
+    /// The file will be copied at the given location (see `path`) and will be owned by root
+    /// with access mask 644.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures::TryStreamExt;
+    ///     use tar::Archive;
+    ///
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     use std::{fs::File, io::Read};
+    ///     
+    ///     let mut file = File::open("/some/important/file")?;
+    ///     let mut bytes = Vec::new();
+    ///     file.read_to_end(&mut bytes)
+    ///         .expect("Cannot read file on the localhost.");
+    ///     
+    ///     if let Err(e) = podman
+    ///         .containers()
+    ///         .get(&id)
+    ///         .copy_file_into("/tmp/", &bytes)
+    ///         .await
+    ///     {
+    ///         eprintln!("Error: {}", e)
+    ///     }
+    /// };
+    /// ```
+    |
+    pub async fn copy_file_into<P: AsRef<Path>>(&self, path: P, bytes: &[u8]) -> Result<()> {
+        let path = path.as_ref();
+
+        let mut ar = tar::Builder::new(Vec::new());
+        let mut header = tar::Header::new_gnu();
+        header.set_size(bytes.len() as u64);
+        header.set_mode(0o0644);
+        ar.append_data(
+            &mut header,
+            path.to_path_buf()
+                .iter()
+                .skip(1)
+                .collect::<std::path::PathBuf>(),
+            bytes,
+        )?;
+        let data = ar.into_inner()?;
+
+        self.copy_to(Path::new("/"), data.into()).await.map(|_| ())
     }}
 }
 

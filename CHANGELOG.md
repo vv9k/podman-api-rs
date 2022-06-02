@@ -4,6 +4,7 @@
 * Make Images::pull return a stream [#121](https://github.com/vv9k/podman-api-rs/pull/121)
 * *BREAKING* All API structs no longer have a `'podman` lifetime. This change makes it easier to create self working objects without
   the lifetime hell and according to hyper client documentation it is cheap to clone and cloning is the recommended way to share a client.
+* Add `Container::copy_to`, `Container::copy_file_into` and `Container::copy_from` methods to manipulate file transfers to and from the container.
 
 
 # 0.2.3 
