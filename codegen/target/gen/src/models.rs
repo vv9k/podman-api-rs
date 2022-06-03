@@ -3381,7 +3381,7 @@ pub struct InspectNetworkSettings {
     pub networks: Option<HashMap<String, InspectAdditionalNetwork>>,
     #[serde(rename = "Ports")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub ports: Option<HashMap<String, Vec<InspectHostPort>>>,
+    pub ports: Option<HashMap<String, Option<Vec<InspectHostPort>>>>,
     #[serde(rename = "SandboxID")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sandbox_id: Option<String>,

@@ -6,7 +6,7 @@
   the lifetime hell and according to hyper client documentation it is cheap to clone and cloning is the recommended way to share a client.
 * Add `Container::copy_to`, `Container::copy_file_into` and `Container::copy_from` methods to manipulate file transfers to and from the container.
 * Actually implement `Images::build` endpoint
-
+* Fix `InspectNetworkSettings::ports` type signature
 
 # 0.2.3 
 * Fix `Images::prune` return type.
