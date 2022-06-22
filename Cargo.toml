@@ -1,6 +1,6 @@
 [package]
 name = "podman-api"
-version = "0.2.3"
+version = "0.3.0"
 edition = "2021"
 
 authors = ["Wojciech Kępka <wojciech@wkepka.dev>"]
@@ -12,7 +12,7 @@ repository = "https://github.com/vv9k/podman-api-rs"
 keywords = ["podman", "api", "containers", "docker", "unix"]
 
 [dependencies]
-podman-api-stubs = "0.2"
+podman-api-stubs = "0.3"
 #podman-api-stubs = { path = "./codegen/target/gen" }
 containers-api-conn = "0.1"
 #containers-api-conn = { path = "../containers-api-conn" }
