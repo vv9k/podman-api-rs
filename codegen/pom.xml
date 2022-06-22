@@ -65,7 +65,7 @@
         <swagger-codegen-generators-version>1.0.30</swagger-codegen-generators-version>
         <maven-plugin-version>1.0.0</maven-plugin-version>
         <junit-version>4.13.1</junit-version>
-        <podman-api-codegen-version>0.2.1</podman-api-codegen-version>
+        <podman-api-codegen-version>0.3.0</podman-api-codegen-version>
         <libpod-api-version>v3.4</libpod-api-version>
         <swagger-spec-url>https://storage.googleapis.com/libpod-master-releases</swagger-spec-url>
     </properties>
