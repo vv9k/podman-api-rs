@@ -5,6 +5,8 @@
 
 > Rust interface to Podman
 
+Current version of this crate targets libpod API version v3.4
+
 # Usage
 
 Add the following to your `Cargo.toml` file
