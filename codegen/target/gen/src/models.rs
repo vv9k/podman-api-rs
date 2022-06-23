@@ -28,15 +28,14 @@ fn deserialize_nonoptional_map<'de, D: Deserializer<'de>, T: DeserializeOwned>(
     Deserialize::deserialize(d).map(|x: Option<_>| x.unwrap_or_default())
 }
 
-/// Address represents an IP address
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Address {
     #[serde(rename = "Addr")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub addr: Option<String>,
-    #[serde(rename = "PrefixLen")]
+    #[serde(rename = "PrefixLength")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub prefix_len: Option<i64>,
+    pub prefix_length: Option<i64>,
 }
 
 /// AuthConfig contains authorization information for connecting to a Registry
@@ -277,6 +276,10 @@ pub struct ContainerBasicConfig {
     #[serde(rename = "hostname")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hostname: Option<String>,
+    /// HostUses is a list of host usernames or UIDs to add to the container etc/passwd file
+    #[serde(rename = "hostusers")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hostusers: Option<Vec<String>>,
     /// EnvHTTPProxy indicates that the http host proxy environment variables should be added to container Optional.
     #[serde(rename = "httpproxy")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -292,6 +295,10 @@ pub struct ContainerBasicConfig {
     #[serde(rename = "log_configuration")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub log_configuration: Option<LogConfig>,
+    /// Passwd is a container run option that determines if we are validating users/groups before running the container
+    #[serde(rename = "manage_password")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub manage_password: Option<bool>,
     /// Name is the name the container will be given. If no name is provided, one will be randomly generated. Optional.
     #[serde(rename = "name")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -304,6 +311,10 @@ pub struct ContainerBasicConfig {
     #[serde(rename = "oci_runtime")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub oci_runtime: Option<String>,
+    /// PasswdEntry specifies arbitrary data to append to a file.
+    #[serde(rename = "passwd_entry")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub passwd_entry: Option<String>,
     #[serde(rename = "personality")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub personality: Option<LinuxPersonality>,
@@ -369,6 +380,14 @@ pub struct ContainerBasicConfig {
     #[serde(rename = "timezone")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timezone: Option<String>,
+    /// UnsetEnv unsets the specified default environment variables from the image or from buildin or containers.conf Optional.
+    #[serde(rename = "unsetenv")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unsetenv: Option<Vec<String>>,
+    /// UnsetEnvAll unsetall default environment variables from the image or from buildin or containers.conf UnsetEnvAll unsets all default environment variables from the image or from buildin Optional.
+    #[serde(rename = "unsetenvall")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unsetenvall: Option<bool>,
     #[serde(rename = "utsns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub utsns: Option<Namespace>,
@@ -377,7 +396,7 @@ pub struct ContainerBasicConfig {
 /// ContainerCgroupConfig contains configuration information about a container's cgroups.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ContainerCgroupConfig {
-    /// CgroupParent is the container's CGroup parent. If not set, the default for the current cgroup driver will be used. Optional.
+    /// CgroupParent is the container's Cgroup parent. If not set, the default for the current cgroup driver will be used. Optional.
     #[serde(rename = "cgroup_parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_parent: Option<String>,
@@ -424,11 +443,11 @@ pub struct ContainerHealthCheckConfig {
 /// ContainerNetworkConfig contains information on a container's network configuration.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ContainerNetworkConfig {
-    /// Aliases are a list of network-scoped aliases for container Optional
-    #[serde(rename = "aliases")]
+    /// Map of networks names or ids that the container should join. You can request additional settings for each network, you can set network aliases, static ips, static mac address  and the network interface name for this container on the specific network. If the map is empty and the bridge network mode is set the container will be joined to the default network.
+    #[serde(rename = "Networks")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aliases: Option<HashMap<String, Vec<String>>>,
-    /// CNINetworks is a list of CNI networks to join the container to. If this list is empty, the default CNI network will be joined instead. If at least one entry is present, we will not join the default network (unless it is part of this list). Only available if NetNS is set to bridge. Optional.
+    pub networks: Option<HashMap<String, PerNetworkOptions>>,
+    /// CNINetworks is a list of CNI networks to join the container to. If this list is empty, the default CNI network will be joined instead. If at least one entry is present, we will not join the default network (unless it is part of this list). Only available if NetNS is set to bridge. Optional. Deprecated: as of podman 4.0 use \"Networks\" instead.
     #[serde(rename = "cni_networks")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cni_networks: Option<Vec<String>>,
@@ -444,7 +463,7 @@ pub struct ContainerNetworkConfig {
     #[serde(rename = "dns_server")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dns_server: Option<Vec<Ip>>,
-    /// Expose is a number of ports that will be forwarded to the container if PublishExposedPorts is set. Expose is a map of uint16 (port number) to a string representing protocol. Allowed protocols are \"tcp\", \"udp\", and \"sctp\", or some combination of the three separated by commas. If protocol is set to \"\" we will assume TCP. Only available if NetNS is set to Bridge or Slirp, and PublishExposedPorts is set. Optional.
+    /// Expose is a number of ports that will be forwarded to the container if PublishExposedPorts is set. Expose is a map of uint16 (port number) to a string representing protocol i.e map[uint16]string. Allowed protocols are \"tcp\", \"udp\", and \"sctp\", or some combination of the three separated by commas. If protocol is set to \"\" we will assume TCP. Only available if NetNS is set to Bridge or Slirp, and PublishExposedPorts is set. Optional.
     #[serde(rename = "expose")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expose: Option<Value>,
@@ -467,16 +486,7 @@ pub struct ContainerNetworkConfig {
     #[serde(rename = "publish_image_ports")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub publish_image_ports: Option<bool>,
-    #[serde(rename = "static_ip")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ip: Option<Ip>,
-    #[serde(rename = "static_ipv6")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ipv6: Option<Ip>,
-    #[serde(rename = "static_mac")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_mac: Option<HardwareAddr>,
-    /// UseImageHosts indicates that /etc/hosts should not be managed by Podman, and instead sourced from the image. Conflicts with HostAdd.
+    /// UseImageHosts indicates that /etc/hosts should not be managed by Podman, and instead sourced from the image. Conflicts with HostAdd. Do not set omitempty here, if this is false it should be set to not get the server default. Ideally this would be a pointer so we could differentiate between an explicitly false/true and unset (containers.conf default). However specgen is stable so we can not change this right now. TODO (5.0): change to pointer
     #[serde(rename = "use_image_hosts")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub use_image_hosts: Option<bool>,
@@ -685,11 +695,15 @@ pub struct ContainerState {
 /// ContainerStorageConfig contains information on the storage configuration of a container.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ContainerStorageConfig {
+    /// ChrootDirs is an additional set of directories that need to be treated as root directories. Standard bind mounts will be mounted into paths relative to these directories.
+    #[serde(rename = "chroot_directories")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chroot_directories: Option<Vec<String>>,
     /// Create the working directory if it doesn't exist. If unset, it doesn't create it. Optional.
     #[serde(rename = "create_working_dir")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub create_working_dir: Option<bool>,
-    /// DeviceCGroupRule are device cgroup rules that allow containers to use additional types of devices.
+    /// DeviceCgroupRule are device cgroup rules that allow containers to use additional types of devices.
     #[serde(rename = "device_cgroup_rule")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_cgroup_rule: Option<Vec<LinuxDeviceCgroup>>,
@@ -697,6 +711,14 @@ pub struct ContainerStorageConfig {
     #[serde(rename = "devices")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub devices: Option<Vec<LinuxDevice>>,
+    /// DevicesFrom is a way to ensure your container inherits device specific information from another container
+    #[serde(rename = "devices_from")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub devices_from: Option<Vec<String>>,
+    /// HostDeviceList is used to recreate the mounted device on inherited containers
+    #[serde(rename = "host_device_list")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub host_device_list: Option<Vec<LinuxDevice>>,
     /// Image is the image the container will be based on. The image will be used as the container's root filesystem, and its environment vars, volumes, and other configuration will be applied to the container. Conflicts with Rootfs. At least one of Image or Rootfs must be specified.
     #[serde(rename = "image")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -732,6 +754,10 @@ pub struct ContainerStorageConfig {
     #[serde(rename = "rootfs")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rootfs: Option<String>,
+    /// RootfsOverlay tells if rootfs is actually an overlay on top of base path
+    #[serde(rename = "rootfs_overlay")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rootfs_overlay: Option<bool>,
     /// RootfsPropagation is the rootfs propagation mode for the container. If not set, the default of rslave will be used. Optional.
     #[serde(rename = "rootfs_propagation")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -744,6 +770,10 @@ pub struct ContainerStorageConfig {
     #[serde(rename = "shm_size")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shm_size: Option<i64>,
+    /// StorageOpts is the container's storage options Optional.
+    #[serde(rename = "storage_opts")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub storage_opts: Option<HashMap<String, String>>,
     /// Volatile specifies whether the container storage can be optimized at the cost of not syncing all the dirty files in memory.
     #[serde(rename = "volatile")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -908,6 +938,12 @@ pub struct CreateContainerConfig {
     #[serde(rename = "Tty")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tty: Option<bool>,
+    #[serde(rename = "UnsetEnv")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unset_env: Option<Vec<String>>,
+    #[serde(rename = "UnsetEnvAll")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unset_env_all: Option<bool>,
     #[serde(rename = "User")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
@@ -970,23 +1006,6 @@ pub struct DistributionInfo {
     #[serde(rename = "version")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
-}
-
-/// DNS contains values interesting for DNS resolvers
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct Dns {
-    #[serde(rename = "domain")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub domain: Option<String>,
-    #[serde(rename = "nameservers")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub nameservers: Option<Vec<String>>,
-    #[serde(rename = "options")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Vec<String>>,
-    #[serde(rename = "search")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub search: Option<Vec<String>>,
 }
 
 pub type DockerVolumeCreate = VolumeCreateBody;
@@ -1530,6 +1549,9 @@ pub struct HostInfo {
     #[serde(rename = "memTotal")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mem_total: Option<i64>,
+    #[serde(rename = "networkBackend")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub network_backend: Option<String>,
     #[serde(rename = "ociRuntime")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub oci_runtime: Option<OciRuntimeInfo>,
@@ -1860,6 +1882,13 @@ pub struct DockerImageBuildResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct LibpodImageBuildResponse {
+    /// output from build process
+    #[serde(rename = "stream")]
+    pub stream: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct LibpodContainerHealthcheckResponse {
     /// FailingStreak is the number of consecutive failed healthchecks
     #[serde(rename = "FailingStreak")]
@@ -1907,9 +1936,6 @@ pub struct LibpodContainerInspectResponse {
     #[serde(rename = "ExecIDs")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub exec_i_ds: Option<Vec<String>>,
-    #[serde(rename = "ExitCommand")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exit_command: Option<Vec<String>>,
     #[serde(rename = "GraphDriver")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub graph_driver: Option<DriverData>,
@@ -2013,9 +2039,6 @@ pub struct LibpodContainerStats {
     #[serde(rename = "ContainerID")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub container_id: Option<String>,
-    #[serde(rename = "DataPoints")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub data_points: Option<i64>,
     #[serde(rename = "Duration")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration: Option<i64>,
@@ -2052,7 +2075,7 @@ pub struct LibpodContainerStats {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodImageInspectResponse {
+pub struct DockerImageInspectResponse {
     #[serde(rename = "Annotations")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotations: Option<HashMap<String, String>>,
@@ -2133,11 +2156,11 @@ pub struct LibpodImageTreeResponse {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct LibpodPodInspectResponse {
-    /// CgroupParent is the parent of the pod's CGroup.
+    /// CgroupParent is the parent of the pod's Cgroup.
     #[serde(rename = "CgroupParent")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_parent: Option<String>,
-    /// CgroupPath is the path to the pod's CGroup.
+    /// CgroupPath is the path to the pod's Cgroup.
     #[serde(rename = "CgroupPath")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_path: Option<String>,
@@ -2145,7 +2168,7 @@ pub struct LibpodPodInspectResponse {
     #[serde(rename = "Containers")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub containers: Option<Vec<InspectPodContainerInfo>>,
-    /// CreateCgroup is whether this pod will create its own CGroup to group containers under.
+    /// CreateCgroup is whether this pod will create its own Cgroup to group containers under.
     #[serde(rename = "CreateCgroup")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub create_cgroup: Option<bool>,
@@ -2200,6 +2223,38 @@ pub struct LibpodPodInspectResponse {
     #[serde(rename = "State")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<String>,
+    /// CPUPeriod contains the CPU period of the pod
+    #[serde(rename = "cpu_period")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpu_period: Option<i64>,
+    /// CPUQuota contains the CPU quota of the pod
+    #[serde(rename = "cpu_quota")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpu_quota: Option<i64>,
+    /// CPUSetCPUs contains linux specific CPU data for the pod
+    #[serde(rename = "cpuset_cpus")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpuset_cpus: Option<String>,
+    /// BlkioDeviceReadBps contains the Read/Access limit for the pod's devices
+    #[serde(rename = "device_read_bps")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub device_read_bps: Option<Vec<InspectBlkioThrottleDevice>>,
+    /// Devices contains the specified host devices
+    #[serde(rename = "devices")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub devices: Option<Vec<InspectDevice>>,
+    /// Mounts contains volume related information for the pod
+    #[serde(rename = "mounts")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mounts: Option<Vec<InspectMount>>,
+    /// SecurityOpt contains the specified security labels and related SELinux information
+    #[serde(rename = "security_opt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security_opt: Option<Vec<String>>,
+    /// VolumesFrom contains the containers that the pod inherits mounts from
+    #[serde(rename = "volumes_from")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volumes_from: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -2272,54 +2327,6 @@ pub struct LibpodVersionResponse {
     #[serde(rename = "Version")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub version: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodVolumeInspectResponse {
-    /// Anonymous indicates that the volume was created as an anonymous volume for a specific container, and will be be removed when any container using it is removed.
-    #[serde(rename = "Anonymous")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub anonymous: Option<bool>,
-    /// CreatedAt is the date and time the volume was created at. This is not stored for older Libpod volumes; if so, it will be omitted.
-    #[serde(rename = "CreatedAt")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub created_at: Option<DateTime<Utc>>,
-    /// Driver is the driver used to create the volume. If set to \"local\" or \"\", the Local driver (Podman built-in code) is used to service the volume; otherwise, a volume plugin with the given name is used to mount and manage the volume.
-    #[serde(rename = "Driver")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub driver: Option<String>,
-    /// GID is the GID that the volume was created with.
-    #[serde(rename = "GID")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub GID: Option<i64>,
-    /// Labels includes the volume's configured labels, key:value pairs that can be passed during volume creation to provide information for third party tools.
-    #[serde(rename = "Labels")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub labels: Option<HashMap<String, String>>,
-    /// Mountpoint is the path on the host where the volume is mounted.
-    #[serde(rename = "Mountpoint")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mountpoint: Option<String>,
-    /// Name is the name of the volume.
-    #[serde(rename = "Name")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    /// Options is a set of options that were used when creating the volume. For the Local driver, these are mount options that will be used to determine how a local filesystem is mounted; they are handled as parameters to Mount in a manner described in the volume create manpage. For non-local drivers, these are passed as-is to the volume plugin.
-    #[serde(rename = "Options")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<HashMap<String, String>>,
-    /// Scope is unused and provided solely for Docker compatibility. It is unconditionally set to \"local\".
-    #[serde(rename = "Scope")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub scope: Option<String>,
-    /// Status is used to return information on the volume's current state, if the volume was created using a volume plugin (uses a Driver that is not the local driver). Status is provided to us by an external program, so no guarantees are made about its format or contents. Further, it is an optional field, so it may not be set even in cases where a volume plugin is in use.
-    #[serde(rename = "Status")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<HashMap<String, Value>>,
-    /// UID is the UID that the volume was created with.
-    #[serde(rename = "UID")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub UID: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -2405,62 +2412,81 @@ pub struct InlineResponse2002 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodNetworkCreateResponse {
-    #[serde(rename = "Attachable")]
+pub struct LibpodVolumeInspectResponse {
+    /// Anonymous indicates that the volume was created as an anonymous volume for a specific container, and will be be removed when any container using it is removed.
+    #[serde(rename = "Anonymous")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub attachable: Option<bool>,
-    /// Check for networks with duplicate names. Network is primarily keyed based on a random ID and not on the name. Network name is strictly a user-friendly alias to the network which is uniquely identified using ID. And there is no guaranteed way to check for duplicates. Option CheckDuplicate is there to provide a best effort checking of any networks which has the same name but it is not guaranteed to catch all name collisions.
-    #[serde(rename = "CheckDuplicate")]
+    pub anonymous: Option<bool>,
+    /// CreatedAt is the date and time the volume was created at. This is not stored for older Libpod volumes; if so, it will be omitted.
+    #[serde(rename = "CreatedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub check_duplicate: Option<bool>,
-    #[serde(rename = "ConfigFrom")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub config_from: Option<ConfigReference>,
-    #[serde(rename = "ConfigOnly")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub config_only: Option<bool>,
+    pub created_at: Option<DateTime<Utc>>,
+    /// Driver is the driver used to create the volume. If set to \"local\" or \"\", the Local driver (Podman built-in code) is used to service the volume; otherwise, a volume plugin with the given name is used to mount and manage the volume.
     #[serde(rename = "Driver")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub driver: Option<String>,
-    #[serde(rename = "EnableIPv6")]
+    /// GID is the GID that the volume was created with.
+    #[serde(rename = "GID")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub enable_i_pv6: Option<bool>,
-    #[serde(rename = "IPAM")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub IPAM: Option<Ipam>,
-    #[serde(rename = "Ingress")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ingress: Option<bool>,
-    #[serde(rename = "Internal")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub internal: Option<bool>,
+    pub GID: Option<i64>,
+    /// Labels includes the volume's configured labels, key:value pairs that can be passed during volume creation to provide information for third party tools.
     #[serde(rename = "Labels")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, String>>,
+    /// MountCount is the number of times this volume has been mounted.
+    #[serde(rename = "MountCount")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mount_count: Option<i64>,
+    /// Mountpoint is the path on the host where the volume is mounted.
+    #[serde(rename = "Mountpoint")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mountpoint: Option<String>,
+    /// Name is the name of the volume.
+    #[serde(rename = "Name")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// NeedsChown indicates that the next time the volume is mounted into a container, the container will chown the volume to the container process UID/GID.
+    #[serde(rename = "NeedsChown")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub needs_chown: Option<bool>,
+    /// NeedsCopyUp indicates that the next time the volume is mounted into
+    #[serde(rename = "NeedsCopyUp")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub needs_copy_up: Option<bool>,
+    /// Options is a set of options that were used when creating the volume. For the Local driver, these are mount options that will be used to determine how a local filesystem is mounted; they are handled as parameters to Mount in a manner described in the volume create manpage. For non-local drivers, these are passed as-is to the volume plugin.
     #[serde(rename = "Options")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<HashMap<String, String>>,
+    /// Scope is unused and provided solely for Docker compatibility. It is unconditionally set to \"local\".
     #[serde(rename = "Scope")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scope: Option<String>,
+    /// Status is used to return information on the volume's current state, if the volume was created using a volume plugin (uses a Driver that is not the local driver). Status is provided to us by an external program, so no guarantees are made about its format or contents. Further, it is an optional field, so it may not be set even in cases where a volume plugin is in use.
+    #[serde(rename = "Status")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<HashMap<String, Value>>,
+    /// UID is the UID that the volume was created with.
+    #[serde(rename = "UID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub UID: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodNetworksPruneResponse {
+pub struct LibpodNetworkCreateResponse {
     #[serde(rename = "NetworksDeleted")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub networks_deleted: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodVolumeListResponse {
+pub struct LibpodNetworksPruneResponse {
     #[serde(rename = "Volumes")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volumes: Option<Vec<VolumeListOkBody>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct DockerVolumeInfoResponse {
+pub struct LibpodVolumeListResponse {
     /// Date/Time the volume was created.
     #[serde(rename = "CreatedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2495,7 +2521,7 @@ pub struct DockerVolumeInfoResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct DockerVolumePruneResponse {
+pub struct DockerVolumeInfoResponse {
     #[serde(rename = "SpaceReclaimed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub space_reclaimed: Option<i64>,
@@ -2536,6 +2562,53 @@ pub struct InlineResponse2004Error {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct InlineResponse2005 {
+    /// CanRemove is legacy and used purely for compatibility reasons. Will always be set to true, unless the exec session is running.
+    #[serde(rename = "CanRemove")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub can_remove: Option<bool>,
+    /// ContainerID is the ID of the container this exec session is attached to.
+    #[serde(rename = "ContainerID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container_id: Option<String>,
+    /// DetachKeys are the detach keys used by the exec session. If set to \"\" the default keys are being used. Will show \"<none>\" if no detach keys are set.
+    #[serde(rename = "DetachKeys")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub detach_keys: Option<String>,
+    /// ExitCode is the exit code of the exec session. Will be set to 0 if the exec session has not yet exited.
+    #[serde(rename = "ExitCode")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exit_code: Option<i64>,
+    /// ID is the ID of the exec session.
+    #[serde(rename = "ID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ID: Option<String>,
+    /// OpenStderr is whether the container's STDERR stream will be attached. Always set to true if the exec session created a TTY.
+    #[serde(rename = "OpenStderr")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub open_stderr: Option<bool>,
+    /// OpenStdin is whether the container's STDIN stream will be attached to.
+    #[serde(rename = "OpenStdin")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub open_stdin: Option<bool>,
+    /// OpenStdout is whether the container's STDOUT stream will be attached. Always set to true if the exec session created a TTY.
+    #[serde(rename = "OpenStdout")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub open_stdout: Option<bool>,
+    /// Pid is the PID of the exec session's process. Will be set to 0 if the exec session is not running.
+    #[serde(rename = "Pid")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pid: Option<i64>,
+    #[serde(rename = "ProcessConfig")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub process_config: Option<InspectExecProcess>,
+    /// Running is whether the exec session is running.
+    #[serde(rename = "Running")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub running: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct InlineResponse2006 {
     #[serde(rename = "deleted")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deleted: Option<String>,
@@ -2545,7 +2618,7 @@ pub struct InlineResponse2005 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2006 {
+pub struct InlineResponse2007 {
     #[serde(rename = "Comment")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub comment: Option<String>,
@@ -2567,7 +2640,7 @@ pub struct InlineResponse2006 {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct InlineResponse2007 {
+pub struct LibpodImageInspectResponse {
     #[serde(rename = "Architecture")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub architecture: Option<String>,
@@ -2663,22 +2736,14 @@ pub struct LibpodImageSearchResponse {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodImageBuildResponse {
-    /// output from build process
-    #[serde(rename = "stream")]
-    pub stream: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct InlineResponse201 {
     /// ID of the container created
     #[serde(rename = "Id")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub id: Option<String>,
+    pub id: String,
     /// Warnings during container creation
     #[serde(rename = "Warnings")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub warnings: Option<Vec<String>>,
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
+    pub warnings: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -2686,6 +2751,16 @@ pub struct LibpodSecretCreateResponse {
     #[serde(rename = "ID")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ID: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct InlineResponse2012 {
+    #[serde(rename = "Id")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    #[serde(rename = "Warning")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub warning: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -2766,11 +2841,11 @@ pub struct InspectAdditionalNetwork {
     /// SecondaryIPAddresses is a list of extra IP Addresses that the container has been assigned in this network.
     #[serde(rename = "SecondaryIPAddresses")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub secondary_ip_addresses: Option<Vec<String>>,
+    pub secondary_ip_addresses: Option<Vec<Address>>,
     /// SecondaryIPv6Addresses is a list of extra IPv6 Addresses that the container has been assigned in this network.
     #[serde(rename = "SecondaryIPv6Addresses")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub secondary_i_pv6_addresses: Option<Vec<String>>,
+    pub secondary_i_pv6_addresses: Option<Vec<Address>>,
 }
 
 /// InspectBlkioThrottleDevice holds information about a speed cap for a device node. This cap applies to a specific operation (read, write, etc) on the given node.
@@ -2818,6 +2893,10 @@ pub struct InspectContainerConfig {
     #[serde(rename = "AttachStdout")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attach_stdout: Option<bool>,
+    /// ChrootDirs is an additional set of directories that need to be treated as root directories. Standard bind mounts will be mounted into paths relative to these directories.
+    #[serde(rename = "ChrootDirs")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chroot_dirs: Option<Vec<String>>,
     /// Container command
     #[serde(rename = "Cmd")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2861,6 +2940,10 @@ pub struct InspectContainerConfig {
     #[serde(rename = "OpenStdin")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub open_stdin: Option<bool>,
+    /// Passwd determines whether or not podman can add entries to /etc/passwd and /etc/group
+    #[serde(rename = "Passwd")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub passwd: Option<bool>,
     /// Secrets are the secrets mounted in the container
     #[serde(rename = "Secrets")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2938,7 +3021,7 @@ pub struct InspectContainerHostConfig {
     #[serde(rename = "BlkioDeviceWriteIOps")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub blkio_device_write_i_ops: Option<Vec<InspectBlkioThrottleDevice>>,
-    /// BlkioWeight indicates the I/O resources allocated to the container. It is a relative weight in the scheduler for assigning I/O time versus other CGroups.
+    /// BlkioWeight indicates the I/O resources allocated to the container. It is a relative weight in the scheduler for assigning I/O time versus other Cgroups.
     #[serde(rename = "BlkioWeight")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub blkio_weight: Option<i64>,
@@ -2970,11 +3053,11 @@ pub struct InspectContainerHostConfig {
     #[serde(rename = "CgroupMode")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_mode: Option<String>,
-    /// CgroupParent is the CGroup parent of the container. Only set if not default.
+    /// CgroupParent is the Cgroup parent of the container. Only set if not default.
     #[serde(rename = "CgroupParent")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_parent: Option<String>,
-    /// Cgroups contains the container's CGroup mode. Allowed values are \"default\" (container is creating CGroups) and \"disabled\" (container is not creating CGroups). This is Libpod-specific and not included in `docker inspect`.
+    /// Cgroups contains the container's Cgroup mode. Allowed values are \"default\" (container is creating Cgroups) and \"disabled\" (container is not creating Cgroups). This is Libpod-specific and not included in `docker inspect`.
     #[serde(rename = "Cgroups")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroups: Option<String>,
@@ -3010,7 +3093,7 @@ pub struct InspectContainerHostConfig {
     #[serde(rename = "CpuRealtimeRuntime")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cpu_realtime_runtime: Option<i64>,
-    /// CpuShares indicates the CPU resources allocated to the container. It is a relative weight in the scheduler for assigning CPU time versus other CGroups.
+    /// CpuShares indicates the CPU resources allocated to the container. It is a relative weight in the scheduler for assigning CPU time versus other Cgroups.
     #[serde(rename = "CpuShares")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cpu_shares: Option<i64>,
@@ -3050,6 +3133,9 @@ pub struct InspectContainerHostConfig {
     #[serde(rename = "GroupAdd")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub group_add: Option<Vec<String>>,
+    #[serde(rename = "IDMappings")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id_mappings: Option<InspectIdMappings>,
     /// IOMaximumBandwidth is Windows-only and not presently implemented.
     #[serde(rename = "IOMaximumBandwidth")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3148,7 +3234,6 @@ pub struct InspectContainerHostConfig {
     #[serde(rename = "SecurityOpt")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub security_opt: Option<Vec<String>>,
-    /// ShmSize is the size of the container's SHM device.
     #[serde(rename = "ShmSize")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shm_size: Option<i64>,
@@ -3184,9 +3269,18 @@ pub struct InspectContainerState {
     #[serde(rename = "CgroupPath")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_path: Option<String>,
+    #[serde(rename = "CheckpointLog")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checkpoint_log: Option<String>,
+    #[serde(rename = "CheckpointPath")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checkpoint_path: Option<String>,
     #[serde(rename = "Checkpointed")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checkpointed: Option<bool>,
+    #[serde(rename = "CheckpointedAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub checkpointed_at: Option<DateTime<Utc>>,
     #[serde(rename = "ConmonPid")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub conmon_pid: Option<i64>,
@@ -3202,9 +3296,9 @@ pub struct InspectContainerState {
     #[serde(rename = "FinishedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub finished_at: Option<DateTime<Utc>>,
-    #[serde(rename = "Healthcheck")]
+    #[serde(rename = "Health")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub healthcheck: Option<HealthCheckResults>,
+    pub health: Option<HealthCheckResults>,
     #[serde(rename = "OOMKilled")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub oom_killed: Option<bool>,
@@ -3220,6 +3314,15 @@ pub struct InspectContainerState {
     #[serde(rename = "Restarting")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub restarting: Option<bool>,
+    #[serde(rename = "RestoreLog")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub restore_log: Option<String>,
+    #[serde(rename = "Restored")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub restored: Option<bool>,
+    #[serde(rename = "RestoredAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub restored_at: Option<DateTime<Utc>>,
     #[serde(rename = "Running")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub running: Option<bool>,
@@ -3247,6 +3350,31 @@ pub struct InspectDevice {
     pub path_on_host: Option<String>,
 }
 
+/// InspectExecProcess contains information about the process in a given exec session.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct InspectExecProcess {
+    /// Arguments are the arguments to the entrypoint command of the exec session.
+    #[serde(rename = "arguments")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub arguments: Option<Vec<String>>,
+    /// Entrypoint is the entrypoint for the exec session (the command that will be executed in the container).
+    #[serde(rename = "entrypoint")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub entrypoint: Option<String>,
+    /// Privileged is whether the exec session will be started with elevated privileges.
+    #[serde(rename = "privileged")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub privileged: Option<bool>,
+    /// Tty is whether the exec session created a terminal.
+    #[serde(rename = "tty")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tty: Option<bool>,
+    /// User is the user the exec session was started as.
+    #[serde(rename = "user")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user: Option<String>,
+}
+
 /// InspectHostPort provides information on a port on the host that a container's port is bound to.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct InspectHostPort {
@@ -3258,6 +3386,16 @@ pub struct InspectHostPort {
     #[serde(rename = "HostPort")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub host_port: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct InspectIdMappings {
+    #[serde(rename = "GidMap")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gid_map: Option<Vec<String>>,
+    #[serde(rename = "UidMap")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uid_map: Option<Vec<String>>,
 }
 
 /// InspectLogConfig holds information about a container's configured log driver
@@ -3391,11 +3529,11 @@ pub struct InspectNetworkSettings {
     /// SecondaryIPAddresses is a list of extra IP Addresses that the container has been assigned in this network.
     #[serde(rename = "SecondaryIPAddresses")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub secondary_ip_addresses: Option<Vec<String>>,
+    pub secondary_ip_addresses: Option<Vec<Address>>,
     /// SecondaryIPv6Addresses is a list of extra IPv6 Addresses that the container has been assigned in this network.
     #[serde(rename = "SecondaryIPv6Addresses")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub secondary_i_pv6_addresses: Option<Vec<String>>,
+    pub secondary_i_pv6_addresses: Option<Vec<Address>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -3464,6 +3602,18 @@ pub struct InspectPodInfraConfig {
     #[serde(rename = "StaticMAC")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub static_mac: Option<String>,
+    /// CPUPeriod contains the CPU period of the pod
+    #[serde(rename = "cpu_period")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpu_period: Option<i64>,
+    /// CPUQuota contains the CPU quota of the pod
+    #[serde(rename = "cpu_quota")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpu_quota: Option<i64>,
+    /// CPUSetCPUs contains linux specific CPU data for the container
+    #[serde(rename = "cpuset_cpus")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cpuset_cpus: Option<String>,
     /// Pid is the PID namespace mode of the pod's infra container
     #[serde(rename = "pid_ns")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3580,16 +3730,40 @@ pub type IpcMode = String;
 pub type Isolation = String;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct LibpodContainersPruneReport {
-    #[serde(rename = "error")]
+pub struct LeaseRange {
+    /// EndIP last IP in the subnet which should be used to assign ips.
+    #[serde(rename = "end_ip")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<String>,
-    #[serde(rename = "id")]
+    pub end_ip: Option<String>,
+    /// StartIP first IP in the subnet which should be used to assign ips.
+    #[serde(rename = "start_ip")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub start_ip: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct LibpodContainersPruneReport {
+    /// Error which occurred during prune operation (if any). This field is optional and may be omitted if no error occurred.
+    #[serde(rename = "Err")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub err: Option<String>,
+    #[serde(rename = "Id")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
-    #[serde(rename = "space")]
+    #[serde(rename = "Size")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub space: Option<i64>,
+    pub size: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct LibpodContainersRmReport {
+    /// Error which occurred during Rm operation (if any). This field is optional and may be omitted if no error occurred.
+    #[serde(rename = "Err")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub err: Option<String>,
+    #[serde(rename = "Id")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -4010,7 +4184,7 @@ pub struct LinuxWeightDevice {
     pub weight: Option<i64>,
 }
 
-/// Listcontainer describes a container suitable for listing
+/// ListContainer describes a container suitable for listing
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ListContainer {
     /// AutoRemove
@@ -4025,7 +4199,7 @@ pub struct ListContainer {
     #[serde(rename = "Created")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<DateTime<Utc>>,
-    /// Human readable container creation time.
+    /// Human-readable container creation time.
     #[serde(rename = "CreatedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created_at: Option<String>,
@@ -4109,7 +4283,7 @@ pub struct ListContainer {
     pub status: Option<String>,
 }
 
-/// ListContainer Namespaces contains the identifiers of the container's Linux namespaces
+/// ListContainerNamespaces contains the identifiers of the container's Linux namespaces
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct ListContainerNamespaces {
     /// Cgroup namespace
@@ -4200,33 +4374,145 @@ pub struct LogConfig {
     pub _type: Option<String>,
 }
 
+pub type MacAddress = Vec<u8>;
+
+/// ManifestAddOptions provides model for adding digests to manifest list
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct ManifestAddOpts {
+pub struct ManifestAddOptions {
+    /// True when operating on a list to include all images
     #[serde(rename = "all")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub all: Option<bool>,
+    /// Annotation to add to manifest list
     #[serde(rename = "annotation")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub annotation: Option<Vec<String>>,
+    /// Arch overrides the architecture for the image
     #[serde(rename = "arch")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub arch: Option<String>,
+    /// Feature list for the image
     #[serde(rename = "features")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<Vec<String>>,
+    /// Images is an optional list of images to add to manifest list
     #[serde(rename = "images")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<Vec<String>>,
+    /// OS overrides the operating system for the image
     #[serde(rename = "os")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub os: Option<String>,
+    /// OS features for the image
+    #[serde(rename = "os_features")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os_features: Option<Vec<String>>,
+    /// OSVersion overrides the operating system for the image
     #[serde(rename = "os_version")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub os_version: Option<String>,
+    /// Variant for the image
     #[serde(rename = "variant")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub variant: Option<String>,
 }
+
+/// ManifestAnnotateOptions provides model for annotating manifest list
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct ManifestAnnotateOptions {
+    /// Annotation to add to manifest list
+    #[serde(rename = "annotation")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation: Option<Vec<String>>,
+    /// Arch overrides the architecture for the image
+    #[serde(rename = "arch")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub arch: Option<String>,
+    /// Feature list for the image
+    #[serde(rename = "features")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub features: Option<Vec<String>>,
+    /// OS overrides the operating system for the image
+    #[serde(rename = "os")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os: Option<String>,
+    /// OS features for the image
+    #[serde(rename = "os_features")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os_features: Option<Vec<String>>,
+    /// OSVersion overrides the operating system for the image
+    #[serde(rename = "os_version")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os_version: Option<String>,
+    /// Variant for the image
+    #[serde(rename = "variant")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub variant: Option<String>,
+}
+
+/// swagger 2.0 does not support oneOf for schema validation.  Operation \"update\" uses all fields. Operation \"remove\" uses fields: Operation and Images Operation \"annotate\" uses fields: Operation and Annotations
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct ManifestModifyOptions {
+    /// True when operating on a list to include all images
+    #[serde(rename = "all")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub all: Option<bool>,
+    /// Annotation to add to manifest list
+    #[serde(rename = "annotation")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub annotation: Option<Vec<String>>,
+    /// Arch overrides the architecture for the image
+    #[serde(rename = "arch")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub arch: Option<String>,
+    /// Feature list for the image
+    #[serde(rename = "features")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub features: Option<Vec<String>>,
+    /// Images is an optional list of images to add to manifest list
+    #[serde(rename = "images")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<String>>,
+    #[serde(rename = "operation")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub operation: Option<String>,
+    /// OS overrides the operating system for the image
+    #[serde(rename = "os")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os: Option<String>,
+    /// OS features for the image
+    #[serde(rename = "os_features")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os_features: Option<Vec<String>>,
+    /// OSVersion overrides the operating system for the image
+    #[serde(rename = "os_version")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os_version: Option<String>,
+    /// Variant for the image
+    #[serde(rename = "variant")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub variant: Option<String>,
+}
+
+/// ManifestModifyReport provides the model for removed digests and changed manifest
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct ManifestModifyReport {
+    /// Manifest List ID
+    #[serde(rename = "Id")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+    /// Errors associated with operation
+    #[serde(rename = "errors")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub errors: Option<Vec<String>>,
+    /// Images to removed from manifest list, otherwise not provided.
+    #[serde(rename = "images")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<String>>,
+}
+
+/// ManifestRemoveOptions provides the model for removing digests from a manifest
+pub type ManifestRemoveOptions = Value;
 
 pub type ModelType = String;
 
@@ -4494,36 +4780,9 @@ pub struct Namespace {
 
 pub type NamespaceMode = String;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetConf {
-    #[serde(rename = "capabilities")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub capabilities: Option<HashMap<String, bool>>,
-    #[serde(rename = "cniVersion")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cni_version: Option<String>,
-    #[serde(rename = "dns")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dns: Option<Dns>,
-    #[serde(rename = "ipam")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ipam: Option<Ipam>,
-    #[serde(rename = "name")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    #[serde(rename = "prevResult")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub prev_result: Option<HashMap<String, Value>>,
-    #[serde(rename = "type")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub _type: Option<String>,
-}
-
+/// NetOptions reflect the shared network options between pods and containers
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct NetOptions {
-    #[serde(rename = "cni_networks")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cni_networks: Option<Vec<String>>,
     #[serde(rename = "dns_option")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dns_option: Option<Vec<String>>,
@@ -4546,6 +4805,9 @@ pub struct NetOptions {
     #[serde(rename = "network_options")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_options: Option<HashMap<String, Vec<String>>>,
+    #[serde(rename = "networks")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub networks: Option<HashMap<String, PerNetworkOptions>>,
     #[serde(rename = "no_manage_hosts")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_manage_hosts: Option<bool>,
@@ -4555,41 +4817,80 @@ pub struct NetOptions {
     #[serde(rename = "portmappings")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub portmappings: Option<Vec<PortMapping>>,
-    #[serde(rename = "static_ip")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ip: Option<Ip>,
-    #[serde(rename = "static_mac")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_mac: Option<HardwareAddr>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkConfig {
-    #[serde(rename = "Bytes")]
+pub struct Network {
+    /// Created contains the timestamp when this network was created.
+    #[serde(rename = "created")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bytes: Option<Vec<i64>>,
-    #[serde(rename = "Network")]
+    pub created: Option<DateTime<Utc>>,
+    /// DNSEnabled is whether name resolution is active for container on this Network.
+    #[serde(rename = "dns_enabled")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub network: Option<NetConf>,
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkConfigList {
-    #[serde(rename = "Bytes")]
+    pub dns_enabled: Option<bool>,
+    /// Driver for this Network, e.g. bridge, macvlan...
+    #[serde(rename = "driver")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bytes: Option<Vec<i64>>,
-    #[serde(rename = "CNIVersion")]
+    pub driver: Option<String>,
+    /// ID of the Network.
+    #[serde(rename = "id")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub cni_version: Option<String>,
-    #[serde(rename = "DisableCheck")]
+    pub id: Option<String>,
+    /// Internal is whether the Network should not have external routes to public or other Networks.
+    #[serde(rename = "internal")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub disable_check: Option<bool>,
-    #[serde(rename = "Name")]
+    pub internal: Option<bool>,
+    /// IPAMOptions contains options used for the ip assignment.
+    #[serde(rename = "ipam_options")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ipam_options: Option<HashMap<String, String>>,
+    /// IPv6Enabled if set to true an ipv6 subnet should be created for this net.
+    #[serde(rename = "ipv6_enabled")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ipv6_enabled: Option<bool>,
+    /// Labels is a set of key-value labels that have been applied to the Network.
+    #[serde(rename = "labels")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub labels: Option<HashMap<String, String>>,
+    /// Name of the Network.
+    #[serde(rename = "name")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    #[serde(rename = "Plugins")]
+    /// NetworkInterface is the network interface name on the host.
+    #[serde(rename = "network_interface")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub plugins: Option<Vec<NetworkConfig>>,
+    pub network_interface: Option<String>,
+    /// Options is a set of key-value options that have been applied to the Network.
+    #[serde(rename = "options")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<HashMap<String, String>>,
+    /// Subnets to use for this network.
+    #[serde(rename = "subnets")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subnets: Option<Vec<Subnet>>,
+}
+
+/// Network disconnect
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct NetworkCompatConnectRequest {
+    #[serde(rename = "Container")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container: Option<String>,
+    #[serde(rename = "EndpointConfig")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub endpoint_config: Option<EndpointSettings>,
+}
+
+/// Network disconnect
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct NetworkCompatDisconnectRequest {
+    #[serde(rename = "Container")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container: Option<String>,
+    #[serde(rename = "Force")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub force: Option<bool>,
 }
 
 /// NetworkConnect represents the data to be used to connect a container to the network
@@ -4603,23 +4904,50 @@ pub struct NetworkConnect {
     pub endpoint_config: Option<EndpointSettings>,
 }
 
-/// Network disconnect
+/// NetworkConnectOptions describes options for connecting a container to a network
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkConnectRequest {
-    #[serde(rename = "Body")]
+pub struct NetworkConnectOptions {
+    /// Aliases contains a list of names which the dns server should resolve to this container. Should only be set when DNSEnabled is true on the Network. If aliases are set but there is no dns support for this network the network interface implementation should ignore this and NOT error. Optional.
+    #[serde(rename = "aliases")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub body: Option<NetworkConnectRequestBody>,
-}
-
-/// in:body
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkConnectRequestBody {
-    #[serde(rename = "Container")]
+    pub aliases: Option<Vec<String>>,
+    #[serde(rename = "container")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub container: Option<String>,
-    #[serde(rename = "EndpointConfig")]
+    /// InterfaceName for this container. Required in the backend. Optional in the frontend. Will be filled with ethX (where X is a integer) when empty.
+    #[serde(rename = "interface_name")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub endpoint_config: Option<EndpointSettings>,
+    pub interface_name: Option<String>,
+    /// StaticIPs for this container. Optional.
+    #[serde(rename = "static_ips")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub static_ips: Option<Vec<Ip>>,
+    #[serde(rename = "static_mac")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub static_mac: Option<MacAddress>,
+}
+
+/// Network connect
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct NetworkConnectRequest {
+    /// Aliases contains a list of names which the dns server should resolve to this container. Should only be set when DNSEnabled is true on the Network. If aliases are set but there is no dns support for this network the network interface implementation should ignore this and NOT error. Optional.
+    #[serde(rename = "aliases")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub aliases: Option<Vec<String>>,
+    #[serde(rename = "container")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container: Option<String>,
+    /// InterfaceName for this container. Required in the backend. Optional in the frontend. Will be filled with ethX (where X is a integer) when empty.
+    #[serde(rename = "interface_name")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interface_name: Option<String>,
+    /// StaticIPs for this container. Optional.
+    #[serde(rename = "static_ips")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub static_ips: Option<Vec<Ip>>,
+    #[serde(rename = "static_mac")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub static_mac: Option<MacAddress>,
 }
 
 /// NetworkCreate is the expected body of the \"create network\" http request message
@@ -4664,48 +4992,57 @@ pub struct NetworkCreate {
     pub scope: Option<String>,
 }
 
-/// NetworkCreateOptions describes options to create a network
+/// Network create
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkCreateOptions {
-    #[serde(rename = "DisableDNS")]
+pub struct NetworkCreateLibpod {
+    /// Created contains the timestamp when this network was created.
+    #[serde(rename = "created")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub disable_dns: Option<bool>,
-    #[serde(rename = "Driver")]
+    pub created: Option<DateTime<Utc>>,
+    /// DNSEnabled is whether name resolution is active for container on this Network.
+    #[serde(rename = "dns_enabled")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dns_enabled: Option<bool>,
+    /// Driver for this Network, e.g. bridge, macvlan...
+    #[serde(rename = "driver")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub driver: Option<String>,
-    #[serde(rename = "Gateway")]
+    /// ID of the Network.
+    #[serde(rename = "id")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub gateway: Option<Ip>,
-    #[serde(rename = "IPv6")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub i_pv6: Option<bool>,
-    #[serde(rename = "Internal")]
+    pub id: Option<String>,
+    /// Internal is whether the Network should not have external routes to public or other Networks.
+    #[serde(rename = "internal")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub internal: Option<bool>,
-    #[serde(rename = "Labels")]
+    /// IPAMOptions contains options used for the ip assignment.
+    #[serde(rename = "ipam_options")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ipam_options: Option<HashMap<String, String>>,
+    /// IPv6Enabled if set to true an ipv6 subnet should be created for this net.
+    #[serde(rename = "ipv6_enabled")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ipv6_enabled: Option<bool>,
+    /// Labels is a set of key-value labels that have been applied to the Network.
+    #[serde(rename = "labels")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, String>>,
-    #[serde(rename = "MacVLAN")]
+    /// Name of the Network.
+    #[serde(rename = "name")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub mac_vlan: Option<String>,
-    /// Mapping of driver options and values.
-    #[serde(rename = "Options")]
+    pub name: Option<String>,
+    /// NetworkInterface is the network interface name on the host.
+    #[serde(rename = "network_interface")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub network_interface: Option<String>,
+    /// Options is a set of key-value options that have been applied to the Network.
+    #[serde(rename = "options")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<HashMap<String, String>>,
-    #[serde(rename = "Range")]
+    /// Subnets to use for this network.
+    #[serde(rename = "subnets")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub range: Option<IpNet>,
-    #[serde(rename = "Subnet")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub subnet: Option<IpNet>,
-}
-
-/// NetworkCreateReport describes a created network for the cli
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkCreateReport {
-    #[serde(rename = "Filename")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub filename: Option<String>,
+    pub subnets: Option<Vec<Subnet>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -4761,48 +5098,6 @@ pub struct NetworkDisconnect {
     #[serde(rename = "Force")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub force: Option<bool>,
-}
-
-/// Network disconnect
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkDisconnectRequest {
-    #[serde(rename = "Body")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub body: Option<NetworkDisconnectRequestBody>,
-}
-
-/// in:body
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkDisconnectRequestBody {
-    #[serde(rename = "Container")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub container: Option<String>,
-    #[serde(rename = "Force")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub force: Option<bool>,
-}
-
-/// NetworkListReport describes the results from listing networks
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-pub struct NetworkListReport {
-    #[serde(rename = "Bytes")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bytes: Option<Vec<i64>>,
-    #[serde(rename = "CNIVersion")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cni_version: Option<String>,
-    #[serde(rename = "DisableCheck")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub disable_check: Option<bool>,
-    #[serde(rename = "Labels")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub labels: Option<HashMap<String, String>>,
-    #[serde(rename = "Name")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    #[serde(rename = "Plugins")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub plugins: Option<Vec<NetworkConfig>>,
 }
 
 pub type NetworkMode = String;
@@ -4995,6 +5290,25 @@ pub struct PeerInfo {
     #[serde(rename = "Name")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct PerNetworkOptions {
+    /// Aliases contains a list of names which the dns server should resolve to this container. Should only be set when DNSEnabled is true on the Network. If aliases are set but there is no dns support for this network the network interface implementation should ignore this and NOT error. Optional.
+    #[serde(rename = "aliases")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub aliases: Option<Vec<String>>,
+    /// InterfaceName for this container. Required in the backend. Optional in the frontend. Will be filled with ethX (where X is a integer) when empty.
+    #[serde(rename = "interface_name")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interface_name: Option<String>,
+    /// StaticIPs for this container. Optional.
+    #[serde(rename = "static_ips")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub static_ips: Option<Vec<Ip>>,
+    #[serde(rename = "static_mac")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub static_mac: Option<MacAddress>,
 }
 
 pub type PidMode = String;
@@ -5358,14 +5672,25 @@ pub struct PodBasicConfig {
     #[serde(rename = "pidns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pidns: Option<Namespace>,
-    /// PodCreateCommand is the command used to create this pod. This will be shown in the output of Inspect() on the pod, and may also be used by some tools that wish to recreate the pod (e.g. `podman generate systemd --new`). Optional.
     #[serde(rename = "pod_create_command")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pod_create_command: Option<Vec<String>>,
+    /// Devices contains user specified Devices to be added to the Pod
+    #[serde(rename = "pod_devices")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pod_devices: Option<Vec<String>>,
+    /// PodCreateCommand is the command used to create this pod. This will be shown in the output of Inspect() on the pod, and may also be used by some tools that wish to recreate the pod (e.g. `podman generate systemd --new`). Optional. ShareParent determines if all containers in the pod will share the pod's cgroup as the cgroup parent
+    #[serde(rename = "share_parent")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub share_parent: Option<bool>,
     /// SharedNamespaces instructs the pod to share a set of namespaces. Shared namespaces will be joined (by default) by every container which joins the pod. If not set and NoInfra is false, the pod will set a default set of namespaces to share. Conflicts with NoInfra=true. Optional.
     #[serde(rename = "shared_namespaces")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shared_namespaces: Option<Vec<String>>,
+    /// Sysctl sets kernel parameters for the pod
+    #[serde(rename = "sysctl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sysctl: Option<HashMap<String, String>>,
     #[serde(rename = "userns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub userns: Option<Namespace>,
@@ -5374,7 +5699,7 @@ pub struct PodBasicConfig {
 /// This will be expanded in future updates to pods.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PodCgroupConfig {
-    /// CgroupParent is the parent for the CGroup that the pod will create. This pod cgroup will, in turn, be the default cgroup parent for all containers in the pod. Optional.
+    /// CgroupParent is the parent for the Cgroup that the pod will create. This pod cgroup will, in turn, be the default cgroup parent for all containers in the pod. Optional.
     #[serde(rename = "cgroup_parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_parent: Option<String>,
@@ -5414,57 +5739,75 @@ pub struct PodCreateConfig {
     pub share: Option<String>,
 }
 
-/// PodCreateOptions provides all possible options for creating a pod and its infra container
+/// The JSON tags below are made to match the respective field in ContainerCreateOptions for the purpose of mapping.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PodCreateOptions {
-    #[serde(rename = "CGroupParent")]
+    #[serde(rename = "cgroup_parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub c_group_parent: Option<String>,
-    #[serde(rename = "Cpus")]
+    pub cgroup_parent: Option<String>,
+    #[serde(rename = "container_command")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container_command: Option<String>,
+    #[serde(rename = "container_conmon_pidfile")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container_conmon_pidfile: Option<String>,
+    #[serde(rename = "container_name")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub container_name: Option<String>,
+    #[serde(rename = "cpus")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cpus: Option<f32>,
-    #[serde(rename = "CpusetCpus")]
+    #[serde(rename = "cpuset_cpus")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cpuset_cpus: Option<String>,
-    #[serde(rename = "CreateCommand")]
+    #[serde(rename = "create_command")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub create_command: Option<Vec<String>>,
-    #[serde(rename = "Hostname")]
+    #[serde(rename = "device_read_bps")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub device_read_bps: Option<Vec<String>>,
+    #[serde(rename = "devices")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub devices: Option<Vec<String>>,
+    #[serde(rename = "hostname")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hostname: Option<String>,
-    #[serde(rename = "Infra")]
+    #[serde(rename = "infra")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub infra: Option<bool>,
-    #[serde(rename = "InfraCommand")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub infra_command: Option<String>,
-    #[serde(rename = "InfraConmonPidFile")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub infra_conmon_pid_file: Option<String>,
-    #[serde(rename = "InfraImage")]
+    #[serde(rename = "infra_image")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub infra_image: Option<String>,
-    #[serde(rename = "InfraName")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub infra_name: Option<String>,
-    #[serde(rename = "Labels")]
+    #[serde(rename = "labels")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, String>>,
-    #[serde(rename = "Name")]
+    #[serde(rename = "name")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    #[serde(rename = "Net")]
+    #[serde(rename = "net")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub net: Option<NetOptions>,
-    #[serde(rename = "Pid")]
+    #[serde(rename = "pid")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pid: Option<String>,
-    #[serde(rename = "Share")]
+    #[serde(rename = "security_opt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security_opt: Option<Vec<String>>,
+    #[serde(rename = "share")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub share: Option<Vec<String>>,
-    #[serde(rename = "Userns")]
+    #[serde(rename = "share_parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub userns: Option<Namespace>,
+    pub share_parent: Option<bool>,
+    #[serde(rename = "sysctl")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sysctl: Option<Vec<String>>,
+    #[serde(rename = "volume")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volume: Option<Vec<String>>,
+    #[serde(rename = "volumes_from")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volumes_from: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -5479,7 +5822,11 @@ pub struct PodKillReport {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PodNetworkConfig {
-    /// CNINetworks is a list of CNI networks that the infra container will join. As, by default, containers share their network with the infra container, these networks will effectively be joined by the entire pod. Only available when NetNS is set to Bridge, the default for root. Optional.
+    /// Map of networks names to ids the container should join to. You can request additional settings for each network, you can set network aliases, static ips, static mac address  and the network interface name for this container on the specific network. If the map is empty and the bridge network mode is set the container will be joined to the default network.
+    #[serde(rename = "Networks")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub networks: Option<HashMap<String, PerNetworkOptions>>,
+    /// CNINetworks is a list of CNI networks to join the container to. If this list is empty, the default CNI network will be joined instead. If at least one entry is present, we will not join the default network (unless it is part of this list). Only available if NetNS is set to bridge. Optional. Deprecated: as of podman 4.0 use \"Networks\" instead.
     #[serde(rename = "cni_networks")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cni_networks: Option<Vec<String>>,
@@ -5518,12 +5865,6 @@ pub struct PodNetworkConfig {
     #[serde(rename = "portmappings")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub portmappings: Option<Vec<PortMapping>>,
-    #[serde(rename = "static_ip")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ip: Option<Ip>,
-    #[serde(rename = "static_mac")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_mac: Option<HardwareAddr>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -5559,6 +5900,10 @@ pub struct PodResourceConfig {
     #[serde(rename = "resource_limits")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_limits: Option<LinuxResources>,
+    /// ThrottleReadBpsDevice contains the rate at which the devices in the pod can be read from/accessed
+    #[serde(rename = "throttleReadBpsDevice")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub throttle_read_bps_device: Option<HashMap<String, LinuxThrottleDevice>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -5581,14 +5926,25 @@ pub struct PodRmReport {
     pub id: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct PodSecurityConfig {
+    #[serde(rename = "security_opt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security_opt: Option<Vec<String>>,
+}
+
 /// PodSpecGenerator describes options to create a pod
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct PodSpecGenerator {
-    /// CgroupParent is the parent for the CGroup that the pod will create. This pod cgroup will, in turn, be the default cgroup parent for all containers in the pod. Optional.
+    /// Map of networks names to ids the container should join to. You can request additional settings for each network, you can set network aliases, static ips, static mac address  and the network interface name for this container on the specific network. If the map is empty and the bridge network mode is set the container will be joined to the default network.
+    #[serde(rename = "Networks")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub networks: Option<HashMap<String, PerNetworkOptions>>,
+    /// CgroupParent is the parent for the Cgroup that the pod will create. This pod cgroup will, in turn, be the default cgroup parent for all containers in the pod. Optional.
     #[serde(rename = "cgroup_parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_parent: Option<String>,
-    /// CNINetworks is a list of CNI networks that the infra container will join. As, by default, containers share their network with the infra container, these networks will effectively be joined by the entire pod. Only available when NetNS is set to Bridge, the default for root. Optional.
+    /// CNINetworks is a list of CNI networks to join the container to. If this list is empty, the default CNI network will be joined instead. If at least one entry is present, we will not join the default network (unless it is part of this list). Only available if NetNS is set to bridge. Optional. Deprecated: as of podman 4.0 use \"Networks\" instead.
     #[serde(rename = "cni_networks")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cni_networks: Option<Vec<String>>,
@@ -5620,6 +5976,10 @@ pub struct PodSpecGenerator {
     #[serde(rename = "hostname")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hostname: Option<String>,
+    /// Image volumes bind-mount a container-image mount into the pod's infra container. Optional.
+    #[serde(rename = "image_volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_volumes: Option<Vec<ImageVolume>>,
     /// InfraCommand sets the command that will be used to start the infra container. If not set, the default set in the Libpod configuration file will be used. Conflicts with NoInfra=true. Optional.
     #[serde(rename = "infra_command")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -5640,6 +6000,10 @@ pub struct PodSpecGenerator {
     #[serde(rename = "labels")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, String>>,
+    /// Mounts are mounts that will be added to the pod. These will supersede Image Volumes and VolumesFrom volumes where there are conflicts. Optional.
+    #[serde(rename = "mounts")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mounts: Option<Vec<Mount>>,
     /// Name is the name of the pod. If not provided, a name will be generated when the pod is created. Optional.
     #[serde(rename = "name")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -5663,13 +6027,20 @@ pub struct PodSpecGenerator {
     #[serde(rename = "no_manage_resolv_conf")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_manage_resolv_conf: Option<bool>,
+    /// Overlay volumes are named volumes that will be added to the pod. Optional.
+    #[serde(rename = "overlay_volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub overlay_volumes: Option<Vec<OverlayVolume>>,
     #[serde(rename = "pidns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pidns: Option<Namespace>,
-    /// PodCreateCommand is the command used to create this pod. This will be shown in the output of Inspect() on the pod, and may also be used by some tools that wish to recreate the pod (e.g. `podman generate systemd --new`). Optional.
     #[serde(rename = "pod_create_command")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pod_create_command: Option<Vec<String>>,
+    /// Devices contains user specified Devices to be added to the Pod
+    #[serde(rename = "pod_devices")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pod_devices: Option<Vec<String>>,
     /// PortMappings is a set of ports to map into the infra container. As, by default, containers share their network with the infra container, this will forward the ports to the entire pod. Only available if NetNS is set to Bridge or Slirp. Optional.
     #[serde(rename = "portmappings")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -5677,19 +6048,36 @@ pub struct PodSpecGenerator {
     #[serde(rename = "resource_limits")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub resource_limits: Option<LinuxResources>,
+    #[serde(rename = "security_opt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security_opt: Option<Vec<String>>,
+    /// PodCreateCommand is the command used to create this pod. This will be shown in the output of Inspect() on the pod, and may also be used by some tools that wish to recreate the pod (e.g. `podman generate systemd --new`). Optional. ShareParent determines if all containers in the pod will share the pod's cgroup as the cgroup parent
+    #[serde(rename = "share_parent")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub share_parent: Option<bool>,
     /// SharedNamespaces instructs the pod to share a set of namespaces. Shared namespaces will be joined (by default) by every container which joins the pod. If not set and NoInfra is false, the pod will set a default set of namespaces to share. Conflicts with NoInfra=true. Optional.
     #[serde(rename = "shared_namespaces")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shared_namespaces: Option<Vec<String>>,
-    #[serde(rename = "static_ip")]
+    /// Sysctl sets kernel parameters for the pod
+    #[serde(rename = "sysctl")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ip: Option<Ip>,
-    #[serde(rename = "static_mac")]
+    pub sysctl: Option<HashMap<String, String>>,
+    /// ThrottleReadBpsDevice contains the rate at which the devices in the pod can be read from/accessed
+    #[serde(rename = "throttleReadBpsDevice")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_mac: Option<HardwareAddr>,
+    pub throttle_read_bps_device: Option<HashMap<String, LinuxThrottleDevice>>,
     #[serde(rename = "userns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub userns: Option<Namespace>,
+    /// Volumes are named volumes that will be added to the pod. These will supersede Image Volumes and VolumesFrom  volumes where there are conflicts. Optional.
+    #[serde(rename = "volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volumes: Option<Vec<NamedVolume>>,
+    /// VolumesFrom is a set of containers whose volumes will be added to this pod. The name or ID of the container must be provided, and may optionally be followed by a : and then one or more comma-separated options. Valid options are 'ro', 'rw', and 'z'. Options will be used for all volumes sourced from the container.
+    #[serde(rename = "volumes_from")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volumes_from: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -5710,6 +6098,30 @@ pub struct PodStopReport {
     #[serde(rename = "Id")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct PodStorageConfig {
+    /// Image volumes bind-mount a container-image mount into the pod's infra container. Optional.
+    #[serde(rename = "image_volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_volumes: Option<Vec<ImageVolume>>,
+    /// Mounts are mounts that will be added to the pod. These will supersede Image Volumes and VolumesFrom volumes where there are conflicts. Optional.
+    #[serde(rename = "mounts")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mounts: Option<Vec<Mount>>,
+    /// Overlay volumes are named volumes that will be added to the pod. Optional.
+    #[serde(rename = "overlay_volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub overlay_volumes: Option<Vec<OverlayVolume>>,
+    /// Volumes are named volumes that will be added to the pod. These will supersede Image Volumes and VolumesFrom  volumes where there are conflicts. Optional.
+    #[serde(rename = "volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volumes: Option<Vec<NamedVolume>>,
+    /// VolumesFrom is a set of containers whose volumes will be added to this pod. The name or ID of the container must be provided, and may optionally be followed by a : and then one or more comma-separated options. Valid options are 'ro', 'rw', and 'z'. Options will be used for all volumes sourced from the container.
+    #[serde(rename = "volumes_from")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub volumes_from: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -5938,7 +6350,6 @@ pub struct RestartPolicy {
     pub name: Option<String>,
 }
 
-/// RootFS holds the root fs information of an image
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct RootFs {
     #[serde(rename = "Layers")]
@@ -6191,10 +6602,10 @@ pub struct SlirpInfo {
 /// SpecGenerator creates an OCI spec and Libpod configuration options to create a container based on the given configuration.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct SpecGenerator {
-    /// Aliases are a list of network-scoped aliases for container Optional
-    #[serde(rename = "aliases")]
+    /// Map of networks names or ids that the container should join. You can request additional settings for each network, you can set network aliases, static ips, static mac address  and the network interface name for this container on the specific network. If the map is empty and the bridge network mode is set the container will be joined to the default network.
+    #[serde(rename = "Networks")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aliases: Option<HashMap<String, Vec<String>>>,
+    pub networks: Option<HashMap<String, PerNetworkOptions>>,
     /// Annotations are key-value options passed into the container runtime that can be used to trigger special behavior. Optional.
     #[serde(rename = "annotations")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6211,7 +6622,7 @@ pub struct SpecGenerator {
     #[serde(rename = "cap_drop")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cap_drop: Option<Vec<String>>,
-    /// CgroupParent is the container's CGroup parent. If not set, the default for the current cgroup driver will be used. Optional.
+    /// CgroupParent is the container's Cgroup parent. If not set, the default for the current cgroup driver will be used. Optional.
     #[serde(rename = "cgroup_parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroup_parent: Option<String>,
@@ -6222,7 +6633,11 @@ pub struct SpecGenerator {
     #[serde(rename = "cgroups_mode")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cgroups_mode: Option<String>,
-    /// CNINetworks is a list of CNI networks to join the container to. If this list is empty, the default CNI network will be joined instead. If at least one entry is present, we will not join the default network (unless it is part of this list). Only available if NetNS is set to bridge. Optional.
+    /// ChrootDirs is an additional set of directories that need to be treated as root directories. Standard bind mounts will be mounted into paths relative to these directories.
+    #[serde(rename = "chroot_directories")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub chroot_directories: Option<Vec<String>>,
+    /// CNINetworks is a list of CNI networks to join the container to. If this list is empty, the default CNI network will be joined instead. If at least one entry is present, we will not join the default network (unless it is part of this list). Only available if NetNS is set to bridge. Optional. Deprecated: as of podman 4.0 use \"Networks\" instead.
     #[serde(rename = "cni_networks")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cni_networks: Option<Vec<String>>,
@@ -6254,7 +6669,7 @@ pub struct SpecGenerator {
     #[serde(rename = "dependencyContainers")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dependency_containers: Option<Vec<String>>,
-    /// DeviceCGroupRule are device cgroup rules that allow containers to use additional types of devices.
+    /// DeviceCgroupRule are device cgroup rules that allow containers to use additional types of devices.
     #[serde(rename = "device_cgroup_rule")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_cgroup_rule: Option<Vec<LinuxDeviceCgroup>>,
@@ -6262,6 +6677,10 @@ pub struct SpecGenerator {
     #[serde(rename = "devices")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub devices: Option<Vec<LinuxDevice>>,
+    /// DevicesFrom is a way to ensure your container inherits device specific information from another container
+    #[serde(rename = "devices_from")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub devices_from: Option<Vec<String>>,
     /// DNSOptions is a set of DNS options that will be used in the container's resolv.conf, replacing the host's DNS options which are used by default. Conflicts with UseImageResolvConf. Optional.
     #[serde(rename = "dns_option")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6286,7 +6705,7 @@ pub struct SpecGenerator {
     #[serde(rename = "env_host")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env_host: Option<bool>,
-    /// Expose is a number of ports that will be forwarded to the container if PublishExposedPorts is set. Expose is a map of uint16 (port number) to a string representing protocol. Allowed protocols are \"tcp\", \"udp\", and \"sctp\", or some combination of the three separated by commas. If protocol is set to \"\" we will assume TCP. Only available if NetNS is set to Bridge or Slirp, and PublishExposedPorts is set. Optional.
+    /// Expose is a number of ports that will be forwarded to the container if PublishExposedPorts is set. Expose is a map of uint16 (port number) to a string representing protocol i.e map[uint16]string. Allowed protocols are \"tcp\", \"udp\", and \"sctp\", or some combination of the three separated by commas. If protocol is set to \"\" we will assume TCP. Only available if NetNS is set to Bridge or Slirp, and PublishExposedPorts is set. Optional.
     #[serde(rename = "expose")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expose: Option<Value>,
@@ -6297,6 +6716,10 @@ pub struct SpecGenerator {
     #[serde(rename = "healthconfig")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub healthconfig: Option<Schema2HealthConfig>,
+    /// HostDeviceList is used to recreate the mounted device on inherited containers
+    #[serde(rename = "host_device_list")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub host_device_list: Option<Vec<LinuxDevice>>,
     /// HostAdd is a set of hosts which will be added to the container's etc/hosts file. Conflicts with UseImageHosts. Optional.
     #[serde(rename = "hostadd")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6305,6 +6728,10 @@ pub struct SpecGenerator {
     #[serde(rename = "hostname")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hostname: Option<String>,
+    /// HostUses is a list of host usernames or UIDs to add to the container etc/passwd file
+    #[serde(rename = "hostusers")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub hostusers: Option<Vec<String>>,
     /// EnvHTTPProxy indicates that the http host proxy environment variables should be added to container Optional.
     #[serde(rename = "httpproxy")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6346,6 +6773,10 @@ pub struct SpecGenerator {
     #[serde(rename = "log_configuration")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub log_configuration: Option<LogConfig>,
+    /// Passwd is a container run option that determines if we are validating users/groups before running the container
+    #[serde(rename = "manage_password")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub manage_password: Option<bool>,
     /// Mask is the path we want to mask in the container. This masks the paths given in addition to the default list. Optional
     #[serde(rename = "mask")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6385,6 +6816,10 @@ pub struct SpecGenerator {
     #[serde(rename = "overlay_volumes")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub overlay_volumes: Option<Vec<OverlayVolume>>,
+    /// PasswdEntry specifies arbitrary data to append to a file.
+    #[serde(rename = "passwd_entry")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub passwd_entry: Option<String>,
     #[serde(rename = "personality")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub personality: Option<LinuxPersonality>,
@@ -6442,6 +6877,10 @@ pub struct SpecGenerator {
     #[serde(rename = "rootfs")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rootfs: Option<String>,
+    /// RootfsOverlay tells if rootfs is actually an overlay on top of base path
+    #[serde(rename = "rootfs_overlay")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub rootfs_overlay: Option<bool>,
     /// RootfsPropagation is the rootfs propagation mode for the container. If not set, the default of rslave will be used. Optional.
     #[serde(rename = "rootfs_propagation")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6474,15 +6913,6 @@ pub struct SpecGenerator {
     #[serde(rename = "shm_size")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shm_size: Option<i64>,
-    #[serde(rename = "static_ip")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ip: Option<Ip>,
-    #[serde(rename = "static_ipv6")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_ipv6: Option<Ip>,
-    #[serde(rename = "static_mac")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub static_mac: Option<HardwareAddr>,
     /// Stdin is whether the container will keep its STDIN open.
     #[serde(rename = "stdin")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6494,6 +6924,10 @@ pub struct SpecGenerator {
     #[serde(rename = "stop_timeout")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop_timeout: Option<i64>,
+    /// StorageOpts is the container's storage options Optional.
+    #[serde(rename = "storage_opts")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub storage_opts: Option<HashMap<String, String>>,
     /// Sysctl sets kernel parameters for the container
     #[serde(rename = "sysctl")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6542,7 +6976,15 @@ pub struct SpecGenerator {
     #[serde(rename = "unmask")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unmask: Option<Vec<String>>,
-    /// UseImageHosts indicates that /etc/hosts should not be managed by Podman, and instead sourced from the image. Conflicts with HostAdd.
+    /// UnsetEnv unsets the specified default environment variables from the image or from buildin or containers.conf Optional.
+    #[serde(rename = "unsetenv")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unsetenv: Option<Vec<String>>,
+    /// UnsetEnvAll unsetall default environment variables from the image or from buildin or containers.conf UnsetEnvAll unsets all default environment variables from the image or from buildin Optional.
+    #[serde(rename = "unsetenvall")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unsetenvall: Option<bool>,
+    /// UseImageHosts indicates that /etc/hosts should not be managed by Podman, and instead sourced from the image. Conflicts with HostAdd. Do not set omitempty here, if this is false it should be set to not get the server default. Ideally this would be a pointer so we could differentiate between an explicitly false/true and unset (containers.conf default). However specgen is stable so we can not change this right now. TODO (5.0): change to pointer
     #[serde(rename = "use_image_hosts")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub use_image_hosts: Option<bool>,
@@ -6603,6 +7045,9 @@ pub struct StoreInfo {
     #[serde(rename = "graphStatus")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub graph_status: Option<HashMap<String, String>>,
+    #[serde(rename = "imageCopyTmpDir")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub image_copy_tmp_dir: Option<String>,
     #[serde(rename = "imageStore")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub image_store: Option<ImageStore>,
@@ -6616,6 +7061,21 @@ pub struct StoreInfo {
 
 /// We need to override the json decoder to accept both options.
 pub type StrSlice = Vec<String>;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct Subnet {
+    /// Gateway IP for this Network.
+    #[serde(rename = "gateway")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gateway: Option<String>,
+    #[serde(rename = "lease_range")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lease_range: Option<LeaseRange>,
+    /// Subnet for this Network in CIDR form.
+    #[serde(rename = "subnet")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subnet: Option<String>,
+}
 
 /// SystemDfContainerReport describes a container for use with df
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
@@ -6769,6 +7229,9 @@ pub struct Version {
     #[serde(rename = "GoVersion")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub go_version: Option<String>,
+    #[serde(rename = "Os")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub os: Option<String>,
     #[serde(rename = "OsArch")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub os_arch: Option<String>,
@@ -6814,15 +7277,79 @@ pub struct Volume {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct VolumeConfigResponse {
+    /// Anonymous indicates that the volume was created as an anonymous volume for a specific container, and will be be removed when any container using it is removed.
+    #[serde(rename = "Anonymous")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub anonymous: Option<bool>,
+    /// CreatedAt is the date and time the volume was created at. This is not stored for older Libpod volumes; if so, it will be omitted.
+    #[serde(rename = "CreatedAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+    /// Driver is the driver used to create the volume. If set to \"local\" or \"\", the Local driver (Podman built-in code) is used to service the volume; otherwise, a volume plugin with the given name is used to mount and manage the volume.
+    #[serde(rename = "Driver")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub driver: Option<String>,
+    /// GID is the GID that the volume was created with.
+    #[serde(rename = "GID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub GID: Option<i64>,
+    /// Labels includes the volume's configured labels, key:value pairs that can be passed during volume creation to provide information for third party tools.
+    #[serde(rename = "Labels")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub labels: Option<HashMap<String, String>>,
+    /// MountCount is the number of times this volume has been mounted.
+    #[serde(rename = "MountCount")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mount_count: Option<i64>,
+    /// Mountpoint is the path on the host where the volume is mounted.
+    #[serde(rename = "Mountpoint")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mountpoint: Option<String>,
+    /// Name is the name of the volume.
+    #[serde(rename = "Name")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// NeedsChown indicates that the next time the volume is mounted into a container, the container will chown the volume to the container process UID/GID.
+    #[serde(rename = "NeedsChown")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub needs_chown: Option<bool>,
+    /// NeedsCopyUp indicates that the next time the volume is mounted into
+    #[serde(rename = "NeedsCopyUp")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub needs_copy_up: Option<bool>,
+    /// Options is a set of options that were used when creating the volume. For the Local driver, these are mount options that will be used to determine how a local filesystem is mounted; they are handled as parameters to Mount in a manner described in the volume create manpage. For non-local drivers, these are passed as-is to the volume plugin.
+    #[serde(rename = "Options")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<HashMap<String, String>>,
+    /// Scope is unused and provided solely for Docker compatibility. It is unconditionally set to \"local\".
+    #[serde(rename = "Scope")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scope: Option<String>,
+    /// Status is used to return information on the volume's current state, if the volume was created using a volume plugin (uses a Driver that is not the local driver). Status is provided to us by an external program, so no guarantees are made about its format or contents. Further, it is an optional field, so it may not be set even in cases where a volume plugin is in use.
+    #[serde(rename = "Status")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub status: Option<HashMap<String, Value>>,
+    /// UID is the UID that the volume was created with.
+    #[serde(rename = "UID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub UID: Option<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct VolumeCreate {
     /// Volume driver to use
     #[serde(rename = "Driver")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub driver: Option<String>,
-    /// User-defined key/value metadata.
+    /// User-defined key/value metadata. Provided for compatibility
     #[serde(rename = "Label")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub label: Option<HashMap<String, String>>,
+    /// User-defined key/value metadata. Preferred field, will override Label
+    #[serde(rename = "Labels")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub labels: Option<HashMap<String, String>>,
     /// New volume's name. Can be left blank
     #[serde(rename = "Name")]
     #[serde(skip_serializing_if = "Option::is_none")]
