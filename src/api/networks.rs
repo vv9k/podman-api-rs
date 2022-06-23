@@ -103,7 +103,7 @@ impl Network {
     /// };
     /// ```
     |
-    pub async fn inspect(&self) -> Result<models::NetworkConfigList> {
+    pub async fn inspect(&self) -> Result<models::Network> {
         self.podman
             .get_json(&format!("/libpod/networks/{}/json", &self.name))
             .await
@@ -210,7 +210,7 @@ impl Networks {
     /// };
     /// ```
     |
-    pub async fn create(&self, opts: &opts::NetworkCreateOpts) -> Result<models::NetworkCreateReport> {
+    pub async fn create(&self, opts: &opts::NetworkCreateOpts) -> Result<models::Network> {
         self.podman
             .post_json("/libpod/networks/create", Payload::Json(opts.serialize()?))
             .await
@@ -237,7 +237,7 @@ impl Networks {
     pub async fn list(
         &self,
         opts: &opts::NetworkListOpts,
-    ) -> Result<Vec<models::NetworkListReport>> {
+    ) -> Result<Vec<models::Network>> {
         let ep = url::construct_ep("/libpod/networks/json", opts.serialize());
         self.podman.get_json(&ep).await
     }}
