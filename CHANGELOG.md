@@ -1,4 +1,9 @@
-#
+# 0.4.0
+* Use libpod API v4.2
+* Update return type of `Network::inspect` and `Network::create` to `models::Network`
+* Update return type of `Networks::list` to `Vec<models::Network>`
+
+# 0.3.0
 * Add `portmappings` to `ContainerCreateOptsBuilder` [#117](https://github.com/vv9k/podman-api-rs/pull/117)
 * Fix typo `referene` in `PullOptsBuilder` [#119](https://github.com/vv9k/podman-api-rs/pull/119)
 * Make Images::pull return a stream [#121](https://github.com/vv9k/podman-api-rs/pull/121)

@@ -17,5 +17,8 @@ sed -i -r "s/(type PortMap = HashMap<String, )String>/\1Option<Vec<PortBinding>>
 # https://github.com/vv9k/podman-api-rs/issues/120
 sed -i -r "s/(ports: Option<HashMap<String, )(Vec<InspectHostPort>>>)/\1Option<\2>/g" src/models.rs
 
+# After upgrading to v4.2 there is a with a new type MacAddress
+sed -i -r "s/(type MacAddress =) array/\1Vec<u8>/g" src/models.rs
+
 cargo fmt
 

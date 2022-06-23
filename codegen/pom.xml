@@ -66,7 +66,7 @@
         <maven-plugin-version>1.0.0</maven-plugin-version>
         <junit-version>4.13.1</junit-version>
         <podman-api-codegen-version>0.4.0-dev</podman-api-codegen-version>
-        <libpod-api-version>v3.4</libpod-api-version>
+        <libpod-api-version>v4.2</libpod-api-version>
         <swagger-spec-url>https://storage.googleapis.com/libpod-master-releases</swagger-spec-url>
     </properties>
 </project>
