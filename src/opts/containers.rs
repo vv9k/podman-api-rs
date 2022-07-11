@@ -222,10 +222,10 @@ impl_opts_builder!(url =>
 );
 
 impl ContainerWaitOptsBuilder {
-    pub fn conditions<I>(mut self, conditions: I) -> Self
-    where
-        I: IntoIterator<Item = models::ContainerStatus>,
-    {
+    pub fn conditions(
+        mut self,
+        conditions: impl IntoIterator<Item = models::ContainerStatus>,
+    ) -> Self {
         let joined = conditions
             .into_iter()
             .map(|it| format!("\"{}\"", it.as_ref()))

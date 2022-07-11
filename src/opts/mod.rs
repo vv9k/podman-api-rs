@@ -43,10 +43,7 @@ impl EventsOptsBuilder {
     );
 
     /// A list of constraints for events
-    pub fn filters<F>(mut self, filters: F) -> Self
-    where
-        F: IntoIterator<Item = EventsConstraint>,
-    {
+    pub fn filters(mut self, filters: impl IntoIterator<Item = EventsConstraint>) -> Self {
         let filters: std::collections::HashMap<_, _> = filters.into_iter().collect();
         self.params.insert(
             "filters",

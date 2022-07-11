@@ -162,10 +162,9 @@ impl NetworkConnectOptsBuilder {
     );
 
     /// Static IPs for the container.
-    pub fn static_ips<I, A>(mut self, ips: I) -> Self
+    pub fn static_ips<I>(mut self, ips: impl IntoIterator<Item = I>) -> Self
     where
-        I: IntoIterator<Item = A>,
-        A: IntoIterator<Item = u8>,
+        I: IntoIterator<Item = u8>,
     {
         let ips: Vec<Vec<_>> = ips.into_iter().map(|a| a.into_iter().collect()).collect();
         self.params.insert("static_ips", serde_json::json!(ips));
@@ -173,10 +172,7 @@ impl NetworkConnectOptsBuilder {
     }
 
     /// Static mac for the container.
-    pub fn static_mac<I>(mut self, mac: I) -> Self
-    where
-        I: IntoIterator<Item = u8>,
-    {
+    pub fn static_mac(mut self, mac: impl IntoIterator<Item = u8>) -> Self {
         let mac: Vec<_> = mac.into_iter().collect();
         self.params.insert("static_mac", serde_json::json!(mac));
         self

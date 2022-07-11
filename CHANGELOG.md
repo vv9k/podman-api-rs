@@ -2,6 +2,7 @@
 * Use libpod API v4.2
 * Update return type of `Network::inspect` and `Network::create` to `models::Network`
 * Update return type of `Networks::list` to `Vec<models::Network>`
+* Use simplified generic parameters wherever possible
 
 # 0.3.0
 * Add `portmappings` to `ContainerCreateOptsBuilder` [#117](https://github.com/vv9k/podman-api-rs/pull/117)

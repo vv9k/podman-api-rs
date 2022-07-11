@@ -94,9 +94,9 @@ impl ImageBuildOptsBuilder {
     );
 
     /// List of images used to build cache resolution
-    pub fn cache_from<I>(mut self, images: impl IntoIterator<Item = I>) -> Self
+    pub fn cache_from<S>(mut self, images: impl IntoIterator<Item = S>) -> Self
     where
-        I: Into<String>,
+        S: Into<String>,
     {
         self.params.insert(
             "cachefrom",

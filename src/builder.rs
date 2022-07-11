@@ -6,9 +6,8 @@ macro_rules! impl_vec_field {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name  >]<I, S>(mut self, $name: I)-> Self
+            pub fn [< $name  >]<S>(mut self, $name: impl IntoIterator<Item = S>)-> Self
             where
-                I: IntoIterator<Item = S>,
                 S: serde::Serialize
             {
                 self.params.insert($api_name, serde_json::json!($name.into_iter().collect::<Vec<_>>()));
@@ -21,9 +20,7 @@ macro_rules! impl_vec_field {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name  >]<I>(mut self, $name: I)-> Self
-            where
-                I: IntoIterator<Item = $ty>,
+            pub fn [< $name  >](mut self, $name: impl IntoIterator<Item = $ty>)-> Self
             {
                 self.params.insert($api_name, serde_json::json!($name.into_iter().collect::<Vec<_>>()));
                 self
@@ -97,9 +94,8 @@ macro_rules! impl_url_vec_field {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name >]<I, S>(mut self, $name: I)-> Self
+            pub fn [< $name >]<S>(mut self, $name: impl IntoIterator<Item = S>)-> Self
             where
-                I: IntoIterator<Item = S>,
                 S: Into<String>
             {
                 let joined = $name.into_iter().map(|it| it.into()).collect::<Vec<_>>().join(",");
@@ -166,9 +162,8 @@ macro_rules! impl_map_field {
             $(
                 #[doc= $docs]
             )*
-            pub fn [< $name  >]<I, K, V>(mut self, $name: I)-> Self
+            pub fn [< $name  >]<K, V>(mut self, $name: impl IntoIterator<Item = (K, V)>)-> Self
             where
-                I: IntoIterator<Item = (K, V)>,
                 K: serde::Serialize + Eq + std::hash::Hash,
                 V: serde::Serialize
             {
@@ -184,9 +179,7 @@ macro_rules! impl_filter_func {
         $(
             #[doc = $doc]
         )*
-        pub fn filter<F>(mut self, filters: F) -> Self
-        where
-            F: IntoIterator<Item = $filter_ty>,
+        pub fn filter(mut self, filters: impl IntoIterator<Item = $filter_ty>) -> Self
         {
             let mut param = std::collections::HashMap::new();
             for (key, val) in filters.into_iter().map(|f| f.query_key_val()) {
