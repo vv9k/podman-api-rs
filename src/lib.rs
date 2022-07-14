@@ -3,9 +3,7 @@
 
 #[macro_use]
 mod builder;
-mod id;
 mod podman;
-mod util;
 
 pub mod api;
 pub mod models;
@@ -13,12 +11,12 @@ pub mod opts;
 
 /// Connection related items.
 pub mod conn {
-    pub(crate) use containers_api_conn::*;
-    pub use containers_api_conn::{Error, Multiplexer, Transport, TtyChunk};
+    pub(crate) use containers_api::conn::*;
+    pub use containers_api::conn::{Error, Multiplexer, Transport, TtyChunk};
 }
 
 pub use api::ApiVersion;
-pub use id::Id;
+pub use containers_api::id::Id;
 pub use podman::Podman;
 
 /// Latest libpod API version supported by this crate
@@ -33,7 +31,7 @@ pub(crate) use _version as version;
 /// Common result type used throughout this crate
 pub type Result<T> = std::result::Result<T, Error>;
 
-use containers_api_conn::hyper::StatusCode;
+use containers_api::conn::hyper::StatusCode;
 use futures_util::io::Error as IoError;
 use serde_json::Error as SerdeError;
 use thiserror::Error as ThisError;
@@ -65,5 +63,5 @@ pub enum Error {
     #[error("Failed to serialize opts - {0}")]
     OptsSerialization(String),
     #[error(transparent)]
-    Error(#[from] containers_api_conn::Error),
+    Error(#[from] containers_api::conn::Error),
 }

@@ -1,10 +1,9 @@
 use crate::{
     conn::{tty, Headers, Payload},
-    opts,
-    util::url,
-    Result,
+    opts, Result,
 };
 
+use containers_api::url;
 use futures_util::future::TryFutureExt;
 use futures_util::stream::{Stream, TryStreamExt};
 

@@ -426,7 +426,7 @@ impl PullOpts {
         if self.params.is_empty() {
             None
         } else {
-            Some(crate::util::url::encoded_pairs(
+            Some(containers_api::url::encoded_pairs(
                 self.params.iter().map(|(k, v)| (k, v)),
             ))
         }
@@ -624,7 +624,7 @@ impl ImagePushOpts {
         if self.params.is_empty() {
             None
         } else {
-            Some(crate::util::url::encoded_pairs(
+            Some(containers_api::url::encoded_pairs(
                 self.params.iter().map(|(k, v)| (k, v)),
             ))
         }

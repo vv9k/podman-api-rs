@@ -1,11 +1,10 @@
 use crate::{
     api::ApiResource,
     conn::{Headers, Payload},
-    models, opts,
-    util::{tarball, url},
-    Error, Result,
+    models, opts, Error, Result,
 };
 
+use containers_api::{tarball, url};
 use futures_util::future::TryFutureExt;
 use futures_util::stream::{Stream, TryStreamExt};
 

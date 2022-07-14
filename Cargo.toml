@@ -14,8 +14,9 @@ keywords = ["podman", "api", "containers", "docker", "unix"]
 [dependencies]
 #podman-api-stubs = "0.3"
 podman-api-stubs = { path = "./codegen/target/gen" }
-containers-api-conn = "0.1"
-#containers-api-conn = { path = "../containers-api-conn" }
+
+#containers-api = "0.2"
+containers-api = { git = "https://github.com/vv9k/containers-api" }
 
 log = "0.4"
 thiserror = "1"
@@ -46,8 +47,9 @@ pretty_assertions = "0.7"
 
 [features]
 default = ["chrono"]
-tls = ["containers-api-conn/tls"]
-vendored-ssl = ["tls", "containers-api-conn/vendored-ssl"]
+#chrono = ["containers-api/chrono"]
+tls = ["containers-api/tls"]
+vendored-ssl = ["tls", "containers-api/vendored-ssl"]
 
 
 # docs.rs-specific configuration

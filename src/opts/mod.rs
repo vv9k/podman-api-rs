@@ -257,7 +257,7 @@ impl SecretCreateOpts {
             params.push(("driver", driver.clone()));
         }
 
-        Some(crate::util::url::encoded_pairs(params))
+        Some(containers_api::url::encoded_pairs(params))
     }
 }
 

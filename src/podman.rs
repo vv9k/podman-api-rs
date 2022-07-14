@@ -5,7 +5,7 @@ use crate::{
     conn::{get_http_connector, transport, Headers, Payload, Transport},
     models,
     opts::*,
-    util, ApiVersion, Error, Result, LATEST_API_VERSION,
+    ApiVersion, Error, Result, LATEST_API_VERSION,
 };
 
 #[cfg(feature = "tls")]
@@ -14,6 +14,8 @@ use crate::conn::get_https_connector;
 use crate::conn::get_unix_connector;
 
 use crate::conn::hyper::{body::Bytes, Body, Client, Method, Response};
+
+use containers_api::url;
 use futures_util::{
     io::{AsyncRead, AsyncWrite},
     stream::Stream,
@@ -21,7 +23,6 @@ use futures_util::{
 };
 use log::trace;
 use serde::de::DeserializeOwned;
-
 use std::path::Path;
 
 /// Entrypoint interface for communicating with podman daemon
@@ -159,7 +160,7 @@ impl Podman {
             version: version.into(),
             transport: Transport::EncryptedTcp {
                 client: Client::builder().build(get_https_connector(cert_path.as_ref(), verify)?),
-                host: url::Url::parse(&format!("https://{}", host.as_ref()))
+                host: url::url::Url::parse(&format!("https://{}", host.as_ref()))
                     .map_err(Error::InvalidUrl)?,
             },
         })
@@ -191,7 +192,7 @@ impl Podman {
             version: version.into(),
             transport: Transport::Tcp {
                 client: Client::builder().build(get_http_connector()),
-                host: url::Url::parse(&format!("tcp://{}", host.as_ref()))
+                host: url::url::Url::parse(&format!("tcp://{}", host.as_ref()))
                     .map_err(Error::InvalidUrl)?,
             },
         })
@@ -430,7 +431,7 @@ impl Podman {
         &'libpod self,
         opts: &EventsOpts,
     ) -> impl Stream<Item = Result<models::Event>> + Unpin + 'libpod {
-        let ep = util::url::construct_ep("/libpod/events", opts.serialize());
+        let ep = url::construct_ep("/libpod/events", opts.serialize());
         let reader = Box::pin(
             self.stream_get(ep)
                 .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)),
@@ -489,7 +490,7 @@ impl Podman {
         opts: &PlayKubernetesYamlOpts,
         yaml: impl Into<String>,
     ) -> Result<models::PlayKubeReport> {
-        let ep = util::url::construct_ep("/libpod/play/kube", opts.serialize());
+        let ep = url::construct_ep("/libpod/play/kube", opts.serialize());
         let yaml = yaml.into();
         self.post_json(&ep, Payload::Text(yaml)).await
     }}
@@ -539,7 +540,7 @@ impl Podman {
         opts: &SystemdUnitsOpts,
         id: &crate::Id,
     ) -> Result<serde_json::Value> {
-        let ep = util::url::construct_ep(
+        let ep = url::construct_ep(
             format!("/libpod/generate/{}/systemd", &id),
             opts.serialize(),
         );
@@ -548,10 +549,7 @@ impl Podman {
 
     pub(crate) async fn generate_kube_yaml(&self, service: bool, id: &crate::Id) -> Result<String> {
         let opts = [("names", id.to_string()), ("service", service.to_string())];
-        let ep = util::url::construct_ep(
-            "/libpod/generate/kube",
-            Some(util::url::encoded_pairs(opts)),
-        );
+        let ep = url::construct_ep("/libpod/generate/kube", Some(url::encoded_pairs(opts)));
 
         let body = self.get(&ep).await.map(|b| b.into_body())?;
         transport::body_to_string(body).await.map_err(Error::from)

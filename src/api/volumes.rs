@@ -1,4 +1,6 @@
-use crate::{api::ApiResource, conn::Payload, models, opts, util::url, Result};
+use crate::{api::ApiResource, conn::Payload, models, opts, Result};
+
+use containers_api::url;
 
 impl_api_ty!(
     Volume => name

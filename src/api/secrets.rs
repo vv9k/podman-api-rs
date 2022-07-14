@@ -1,4 +1,6 @@
-use crate::{models, opts, util::url, Result};
+use crate::{models, opts, Result};
+
+use containers_api::url;
 
 impl_api_ty!(
     Secret => id

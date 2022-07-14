@@ -1,11 +1,10 @@
 use crate::{
     api::{ApiResource, Exec},
     conn::{tty, Headers, Payload},
-    models, opts,
-    util::url,
-    Result,
+    models, opts, Result,
 };
 
+use containers_api::url;
 use futures_util::stream::{Stream, TryStreamExt};
 use std::path::Path;
 
@@ -1057,7 +1056,7 @@ impl Container {
     /// };
     /// ```
     |
-    pub async fn copy_to(&self, path: impl AsRef<Path>, body: containers_api_conn::hyper::Body) -> Result<()> {
+    pub async fn copy_to(&self, path: impl AsRef<Path>, body: crate::conn::hyper::Body) -> Result<()> {
         self.podman
             .put(
                 &format!(

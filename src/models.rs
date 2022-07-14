@@ -6,8 +6,8 @@ use crate::{Error, Result};
 
 #[cfg(feature = "chrono")]
 use {
-    crate::util::datetime::*,
     chrono::{DateTime, Utc},
+    containers_api::datetime::*,
 };
 
 use crate::conn::hyper::header::HeaderMap;
