@@ -18,6 +18,10 @@ pub use volumes::*;
 
 pub type EventsConstraint = (String, Vec<String>);
 
+use containers_api::{
+    impl_opts_builder, impl_url_bool_field, impl_url_enum_field, impl_url_field,
+    impl_url_str_field, impl_url_vec_field,
+};
 use std::fmt;
 
 impl_opts_builder!(

@@ -1,4 +1,7 @@
 use containers_api::opts::Filter;
+use containers_api::{
+    impl_field, impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field, impl_vec_field,
+};
 
 impl_opts_builder!(json =>
     /// Adjust how a network is created.

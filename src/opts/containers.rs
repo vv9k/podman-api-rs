@@ -1,6 +1,11 @@
-use containers_api::opts::Filter;
 use crate::models;
 use crate::opts::ImageOpt;
+use containers_api::opts::Filter;
+use containers_api::{
+    impl_field, impl_filter_func, impl_map_field, impl_opts_builder, impl_str_enum_field,
+    impl_str_field, impl_url_bool_field, impl_url_field, impl_url_str_field, impl_url_vec_field,
+    impl_vec_field,
+};
 use std::fmt;
 
 impl_opts_builder!(url =>

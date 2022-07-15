@@ -1,4 +1,9 @@
 use containers_api::opts::Filter;
+use containers_api::{
+    impl_filter_func, impl_map_field, impl_opts_builder, impl_opts_required_builder,
+    impl_url_bool_field, impl_url_enum_field, impl_url_field, impl_url_str_field,
+    impl_url_vec_field,
+};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;

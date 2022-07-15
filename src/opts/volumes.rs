@@ -1,4 +1,5 @@
 use containers_api::opts::Filter;
+use containers_api::{impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field};
 
 impl_opts_builder!(url =>
     /// Adjust the list of returned volumes with this options.

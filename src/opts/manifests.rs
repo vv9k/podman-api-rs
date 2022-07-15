@@ -1,3 +1,8 @@
+use containers_api::{
+    impl_field, impl_opts_builder, impl_opts_required_builder, impl_str_field, impl_url_bool_field,
+    impl_url_str_field, impl_vec_field,
+};
+
 impl_opts_required_builder!(url =>
     /// Adjust how a manifest list is created.
     ManifestCreate,

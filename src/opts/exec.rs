@@ -1,3 +1,6 @@
+use containers_api::{
+    impl_field, impl_opts_builder, impl_str_enum_field, impl_str_field, impl_vec_field,
+};
 use std::fmt;
 
 impl_opts_builder!(json =>
