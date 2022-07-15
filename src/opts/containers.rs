@@ -1,4 +1,4 @@
-use crate::api::Filter;
+use containers_api::opts::Filter;
 use crate::models;
 use crate::opts::ImageOpt;
 use std::fmt;

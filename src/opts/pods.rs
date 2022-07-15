@@ -1,4 +1,5 @@
-use crate::{api::Filter, models};
+use crate::{models};
+use containers_api::opts::Filter;
 
 impl_opts_builder!(url =>
     /// Adjust the list of returned pods with this options.

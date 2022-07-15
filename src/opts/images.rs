@@ -1,4 +1,4 @@
-use crate::api::Filter;
+use containers_api::opts::Filter;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::fmt;

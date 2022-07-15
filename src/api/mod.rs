@@ -21,12 +21,6 @@ pub use volumes::*;
 use crate::{Error, Result};
 use std::str::FromStr;
 
-/// Allows easier construction of filter functions for multiple api endpoints
-pub(crate) trait Filter {
-    // TODO: Add a stronger return type. Not all filters are `key=val`, soma are only `key`
-    fn query_key_val(&self) -> (&'static str, String);
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 /// Types of resources available in Podman. This is just a helper enum listing all possible
 /// categories of endpoints.
