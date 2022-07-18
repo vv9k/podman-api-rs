@@ -16,8 +16,7 @@ keywords = ["podman", "api", "containers", "docker", "unix"]
 podman-api-stubs = { path = "./codegen/target/gen" }
 
 #containers-api = "0.2"
-#containers-api = { git = "https://github.com/vv9k/containers-api" }
-containers-api = { path = "../containers-api" }
+containers-api = { git = "https://github.com/vv9k/containers-api" }
 
 log = "0.4"
 thiserror = "1"
