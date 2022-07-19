@@ -15,8 +15,8 @@ pub mod conn {
     pub use containers_api::conn::{Error, Multiplexer, Transport, TtyChunk};
 }
 
-pub use api::ApiVersion;
 pub use containers_api::id::Id;
+pub use containers_api::version::{ApiVersion, Error as VersionError};
 pub use podman::Podman;
 
 /// Latest libpod API version supported by this crate
@@ -58,8 +58,6 @@ pub enum Error {
     InvalidPort(String),
     #[error("Invalid protocol - {0}")]
     InvalidProtocol(String),
-    #[error("Invalid version - {0}")]
-    MalformedVersion(String),
     #[error("Failed to serialize opts - {0}")]
     OptsSerialization(String),
     #[error(transparent)]
