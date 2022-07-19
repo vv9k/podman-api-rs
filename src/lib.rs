@@ -20,10 +20,10 @@ pub use containers_api::version::{ApiVersion, Error as VersionError};
 pub use podman::Podman;
 
 /// Latest libpod API version supported by this crate
-pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(3, 4, 4);
+pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(4, 2, 0);
 macro_rules! _version {
     () => {
-        "v3.4.4"
+        "v4.2"
     };
 }
 pub(crate) use _version as version;

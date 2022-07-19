@@ -1,6 +1,6 @@
 [package]
 name = "podman-api"
-version = "0.4.0-dev"
+version = "0.4.0"
 edition = "2021"
 
 authors = ["Wojciech Kępka <wojciech@wkepka.dev>"]
@@ -12,11 +12,12 @@ repository = "https://github.com/vv9k/podman-api-rs"
 keywords = ["podman", "api", "containers", "docker", "unix"]
 
 [dependencies]
-#podman-api-stubs = "0.3"
-podman-api-stubs = { path = "./codegen/target/gen" }
+podman-api-stubs = "0.4"
+#podman-api-stubs = { path = "./codegen/target/gen" }
 
-#containers-api = "0.2"
-containers-api = { git = "https://github.com/vv9k/containers-api" }
+containers-api = "0.2"
+#containers-api = { git = "https://github.com/vv9k/containers-api" }
+#containers-api = { path = "../containers-api" }
 
 log = "0.4"
 thiserror = "1"
