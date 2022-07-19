@@ -347,20 +347,22 @@ impl Images {
     /// ```no_run
     /// async {
     ///     use podman_api::Podman;
+    ///     use futures_util::StreamExt;
     ///     use podman_api::opts::ImageBuildOpts;
+    ///
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     if let Err(e) = podman
-    ///         .images()
-    ///         .build(
-    ///             &ImageBuildOpts::builder()
-    ///                 .remote("http://some.url.to/Dockerfile")
-    ///                 .tag("myimage:1.0.0")
-    ///                 .build(),
-    ///         )
-    ///         .await
-    ///     {
-    ///         eprintln!("{}", e);
+    ///     let opts = ImageBuildOpts::builder("http://some.url.to/Dockerfile")
+    ///             .tag("myimage:1.0.0")
+    ///             .build();
+    ///     let images = podman.images();
+    ///     let mut build_stream = images.build(&opts);
+    ///
+    ///     while let Some(chunk) = build_stream.next().await {
+    ///         match chunk {
+    ///             Ok(chunk) => println!("{:?}", chunk),
+    ///             Err(e) => eprintln!("{}", e),
+    ///         }
     ///     }
     /// };
     /// ```
@@ -428,9 +430,8 @@ impl Images {
     /// ```no_run
     /// async {
     ///     use futures_util::{StreamExt, TryStreamExt};
-    ///     use crate::Error;
-    ///     use crate::Podman;
-    ///     use crate::opts::PullOpts;
+    ///     use podman_api::{Error, Podman};
+    ///     use podman_api::opts::PullOpts;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     ///     let events = podman

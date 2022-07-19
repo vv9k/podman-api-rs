@@ -360,7 +360,8 @@ impl Container {
     ///     use podman_api::opts::ContainerCheckpointOpts;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut container_stream = podman.containers().get("79c93f220e3e").checkpoint(
+    ///     let container = podman.containers().get("79c93f220e3e");
+    ///     let mut container_stream = container.checkpoint(
     ///         &ContainerCheckpointOpts::builder()
     ///             .leave_running(true)
     ///             .print_stats(true)
@@ -587,10 +588,8 @@ impl Container {
     /// async {
     ///     use podman_api::Podman;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
-    ///
-    ///     let tty_multiplexer = podman
-    ///             .containers()
-    ///             .get("79c93f220e3e")
+    ///     let container = podman.containers().get("79c93f220e3e");
+    ///     let tty_multiplexer = container
     ///             .attach(&Default::default())
     ///             .await
     ///             .unwrap();
@@ -666,7 +665,8 @@ impl Container {
     ///     use podman_api::opts::ContainerLogsOpts;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut logs = podman.containers().get("3f278d2d0d79").logs(
+    ///     let container = podman.containers().get("3f278d2d0d79");
+    ///     let mut logs = container.logs(
     ///         &ContainerLogsOpts::builder()
     ///             .stdout(true)
     ///             .stderr(true)
@@ -735,10 +735,8 @@ impl Container {
     ///     use podman_api::Podman;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut stats = podman
-    ///         .containers()
-    ///         .get("fc93f220e3e")
-    ///         .stats_stream(None);
+    ///     let container = podman.containers().get("fc93f220e3e");
+    ///     let mut stats = container.stats_stream(None);
     ///
     ///     while let Some(chunk) = stats.next().await {
     ///         match chunk {
@@ -804,9 +802,8 @@ impl Container {
     ///     use podman_api::Podman;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut top = podman
-    ///         .containers()
-    ///         .get("fc93f220e3e")
+    ///     let container = podman.containers().get("fc93f220e3e");
+    ///     let mut top = container
     ///         .top_stream(&Default::default());
     ///
     ///     while let Some(chunk) = top.next().await {
@@ -992,7 +989,7 @@ impl Container {
     /// ```no_run
     /// async {
     ///     use podman_api::Podman;
-    ///     use futures::TryStreamExt;
+    ///     use futures_util::TryStreamExt;
     ///     use tar::Archive;
     ///
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
@@ -1002,19 +999,20 @@ impl Container {
     ///          .get("fc93f220e3e")
     ///          .copy_from("/tmp/dir")
     ///          .try_concat()
-    ///          .await?;
+    ///          .await.unwrap();
     ///
     ///      let mut archive = Archive::new(&bytes[..]);
-    ///      archive.unpack(&local_path)?;
+    ///      let local_path = "/tmp";
+    ///      archive.unpack(&local_path).unwrap();
     /// };
     /// ```
     |
-    pub fn copy_from(&self, path: &Path) -> impl Stream<Item = Result<Vec<u8>>> + '_ {
+    pub fn copy_from(&self, path: impl AsRef<Path>) -> impl Stream<Item = Result<Vec<u8>>> + '_ {
         self.podman
             .stream_get(format!(
                 "/containers/{}/archive?{}",
                 self.id,
-                url::encoded_pair("path", path.to_string_lossy())
+                url::encoded_pair("path", path.as_ref().to_string_lossy())
             ))
             .map_ok(|c| c.to_vec())
     }}
@@ -1030,7 +1028,7 @@ impl Container {
     /// ```no_run
     /// async {
     ///     use podman_api::Podman;
-    ///     use futures::TryStreamExt;
+    ///     use futures_util::TryStreamExt;
     ///     use tar::Archive;
     ///
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
@@ -1044,15 +1042,22 @@ impl Container {
     ///     header.set_mode(0o0644);
     ///     ar.append_data(
     ///         &mut header,
-    ///         path,
+    ///         src_path
     ///             .iter()
     ///             .skip(1)
     ///             .collect::<std::path::PathBuf>(),
-    ///         bytes,
-    ///     )?;
-    ///     let data = ar.into_inner()?;
+    ///         std::io::Cursor::new(bytes),
+    ///     ).unwrap();
+    ///     let data = ar.into_inner().unwrap();
     ///
-    ///     podman.copy_to("/", data.into()).await.map(|_| ())
+    ///     if let Err(e) = podman
+    ///         .containers()
+    ///         .get("fc93f220e3e")
+    ///         .copy_to("/", data.into())
+    ///         .await
+    ///     {
+    ///         eprintln!("Error: {}", e);
+    ///     }
     /// };
     /// ```
     |
@@ -1082,25 +1087,25 @@ impl Container {
     /// ```no_run
     /// async {
     ///     use podman_api::Podman;
-    ///     use futures::TryStreamExt;
+    ///     use futures_util::TryStreamExt;
     ///     use tar::Archive;
     ///
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     ///     use std::{fs::File, io::Read};
     ///
-    ///     let mut file = File::open("/some/important/file")?;
+    ///     let mut file = File::open("/some/important/file").unwrap();
     ///     let mut bytes = Vec::new();
     ///     file.read_to_end(&mut bytes)
     ///         .expect("Cannot read file on the localhost.");
     ///
     ///     if let Err(e) = podman
     ///         .containers()
-    ///         .get(&id)
+    ///         .get("fc93f220e3e")
     ///         .copy_file_into("/tmp/", &bytes)
     ///         .await
     ///     {
-    ///         eprintln!("Error: {}", e)
+    ///         eprintln!("Error: {}", e);
     ///     }
     /// };
     /// ```
@@ -1245,8 +1250,8 @@ impl Containers {
     ///     use podman_api::Podman;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut stats = podman
-    ///         .containers()
+    ///     let containers = podman.containers();
+    ///     let mut stats = containers
     ///         .stats_stream(&Default::default());
     ///
     ///     while let Some(chunk) = stats.next().await {

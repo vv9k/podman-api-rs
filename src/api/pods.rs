@@ -342,7 +342,8 @@ impl Pod {
     ///     use futures_util::StreamExt;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut stream = podman.pods().get("79c93f220e3e").top_stream(&Default::default());
+    ///     let pod = podman.pods().get("79c93f220e3e");
+    ///     let mut stream = pod.top_stream(&Default::default());
     ///     while let Some(chunk) = stream.next().await {
     ///         match chunk{
     ///             Ok(chunk) => println!("{:?}", chunk),
@@ -463,7 +464,8 @@ impl Pods {
     ///     use futures_util::StreamExt;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     let mut stream = podman.pods().stats(&PodStatsOpts::builder().all(true).build());
+    ///     let pods = podman.pods();
+    ///     let mut stream = pods.stats(&PodStatsOpts::builder().all(true).build());
     ///     while let Some(chunk) = stream.next().await {
     ///         match chunk{
     ///             Ok(chunk) => println!("{:?}", chunk),
