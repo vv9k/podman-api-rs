@@ -83,7 +83,4 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
       - name: Run tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-targets --all-features
+        run: make test

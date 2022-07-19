@@ -9,6 +9,7 @@ codegen:
 .PHONY: test
 test:
 	cargo test --all-targets --all-features
+	cargo test --doc
 
 .PHONY: lint
 lint:
