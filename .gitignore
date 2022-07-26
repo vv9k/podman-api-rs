@@ -1,7 +1,5 @@
-codegen/target/classes
-codegen/target/generated[-]sources
-codegen/target/maven*
-codegen/target/gen/.swagger[-]codegen[-]ignore
+podman-api-stubs/build
+podman-api-stubs/lib/target
 .vscode
 .idea
 /target
