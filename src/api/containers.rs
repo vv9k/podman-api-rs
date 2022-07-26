@@ -85,7 +85,7 @@ impl Container {
     /// };
     /// ```
     |
-    pub async fn inspect(&self) -> Result<models::LibpodContainerInspectResponse> {
+    pub async fn inspect(&self) -> Result<models::ContainerInspectResponseLibpod> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/json", &self.id),
             Some(url::encoded_pair("size", "true")),
@@ -712,7 +712,7 @@ impl Container {
     /// };
     /// ```
     |
-    pub async fn stats(&self) -> Result<models::LibpodContainerStatsResponse> {
+    pub async fn stats(&self) -> Result<models::ContainerStats200Response> {
         self.podman
             .containers()
             .stats(
@@ -750,7 +750,7 @@ impl Container {
     pub fn stats_stream(
         &self,
         interval: Option<usize>,
-    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>>  + '_ {
+    ) -> impl Stream<Item = Result<models::ContainerStats200Response>>  + '_ {
         let opts = opts::ContainerStatsOpts::builder()
                 .containers([self.id.to_string()])
                 .interval(interval.unwrap_or(5))
@@ -1231,7 +1231,7 @@ impl Containers {
     pub async fn stats(
         &self,
         opts: &opts::ContainerStatsOpts,
-    ) -> Result<models::LibpodContainerStatsResponse> {
+    ) -> Result<models::ContainerStats200Response> {
         let ep = url::construct_ep("/libpod/containers/stats", opts.oneshot().serialize());
 
         self.podman.get_json(&ep).await
@@ -1266,7 +1266,7 @@ impl Containers {
     pub fn stats_stream(
         &self,
         opts: &opts::ContainerStatsOpts,
-    ) -> impl Stream<Item = Result<models::LibpodContainerStatsResponse>> + '_ {
+    ) -> impl Stream<Item = Result<models::ContainerStats200Response>> + '_ {
         let ep = url::construct_ep("/libpod/containers/stats", opts.stream().serialize());
 
         Box::pin(self.podman.stream_get_json(ep))

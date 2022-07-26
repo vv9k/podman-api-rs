@@ -103,7 +103,7 @@ impl Pod {
     /// };
     /// ```
     |
-    pub async fn inspect(&self) -> Result<models::LibpodPodInspectResponse> {
+    pub async fn inspect(&self) -> Result<models::PodInspectResponse> {
         self.podman
             .get_json(&format!("/libpod/pods/{}/json", &self.id))
             .await
@@ -323,7 +323,7 @@ impl Pod {
     /// };
     /// ```
     |
-    pub async fn top(&self, opts: &opts::PodTopOpts) -> Result<models::LibpodPodTopResponse> {
+    pub async fn top(&self, opts: &opts::PodTopOpts) -> Result<models::PodTopResponse> {
         let ep = url::construct_ep(format!("/libpod/pods/{}/top", &self.id), opts.serialize());
         self.podman.get_json(&ep).await
     }}
@@ -356,7 +356,7 @@ impl Pod {
     pub fn top_stream(
         &self,
         opts: &opts::PodTopOpts,
-    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + '_ {
+    ) -> impl Stream<Item = Result<models::PodTopResponse>> + Unpin + '_ {
         let ep = url::construct_ep(
             format!("/libpod/pods/{}/top", &self.id),
             opts.stream().serialize(),
@@ -478,7 +478,7 @@ impl Pods {
     pub fn stats(
         &self,
         opts: &opts::PodStatsOpts,
-    ) -> impl Stream<Item = Result<models::LibpodPodTopResponse>> + Unpin + '_ {
+    ) -> impl Stream<Item = Result<models::PodStatsResponse>> + Unpin + '_ {
         let ep = url::construct_ep(
             "/libpod/pods/stats",
             opts.serialize(),

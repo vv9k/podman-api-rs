@@ -115,8 +115,8 @@ impl Secrets {
                 crate::conn::Payload::Json(serde_json::to_string(&secret.into())?),
             )
             .await
-            .map(|resp: models::LibpodSecretCreateResponse| {
-                Secret::new(self.podman.clone(), resp.ID.unwrap_or_default())
+            .map(|resp: models::SecretCreateResponse| {
+                Secret::new(self.podman.clone(), resp.id.unwrap_or_default())
             })
     }}
 }

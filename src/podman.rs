@@ -355,7 +355,7 @@ impl Podman {
     /// };
     /// ```
     |
-    pub async fn version(&self) -> Result<models::LibpodVersionResponse> {
+    pub async fn version(&self) -> Result<models::VersionResponse> {
         self.get_json("/libpod/version").await
     }}
 
@@ -377,7 +377,7 @@ impl Podman {
     /// };
     /// ```
     |
-    pub async fn data_usage(&self) -> Result<models::LibpodDataUsageResponse> {
+    pub async fn data_usage(&self) -> Result<models::SystemDfReport> {
         self.get_json("/libpod/system/df").await
     }}
 
@@ -399,7 +399,7 @@ impl Podman {
     /// };
     /// ```
     |
-    pub async fn prune(&self) -> Result<models::LibpodSystemPruneResponse> {
+    pub async fn prune(&self) -> Result<models::SystemPruneReport> {
         self.post_json("/libpod/system/prune", Payload::empty())
             .await
     }}
