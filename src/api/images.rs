@@ -31,7 +31,7 @@ impl Image {
     /// };
     /// ```
     |
-    pub async fn inspect(&self) -> Result<models::LibpodImageInspectResponse> {
+    pub async fn inspect(&self) -> Result<models::InspectImageResponseLibpod> {
         self.podman
             .get_json(&format!("/libpod/images/{}/json", &self.id))
             .await
@@ -282,7 +282,7 @@ impl Image {
     pub async fn tree(
         &self,
         opts: &opts::ImageTreeOpts,
-    ) -> Result<Vec<models::LibpodImageTreeResponse>> {
+    ) -> Result<Vec<models::TreeResponse>> {
         let ep = url::construct_ep(
             format!("/libpod/images/{}/tree", &self.id),
             opts.serialize(),
@@ -370,7 +370,7 @@ impl Images {
     pub fn build<'podman>(
         &'podman self,
         opts: &'podman opts::ImageBuildOpts,
-    ) -> impl Stream <Item = Result<models::LibpodImageBuildResponse>> + Unpin + 'podman {
+    ) -> impl Stream <Item = Result<models::ImageBuildLibpod200Response>> + Unpin + 'podman {
         let ep = url::construct_ep("/libpod/build", opts.serialize());
         let mut bytes = Vec::default();
 
@@ -645,7 +645,7 @@ impl Images {
     pub async fn search(
         &self,
         opts: &opts::ImageSearchOpts,
-    ) -> Result<Vec<models::LibpodImageSearchResponse>> {
+    ) -> Result<Vec<models::RegistrySearchResponse>> {
         let ep = url::construct_ep("/libpod/images/search", opts.serialize());
         self.podman.get_json(&ep).await
     }}

@@ -53,7 +53,7 @@ impl Volume {
     /// };
     /// ```
     |
-    pub async fn inspect(&self) -> Result<models::LibpodVolumeInspectResponse> {
+    pub async fn inspect(&self) -> Result<models::VolumeInspect> {
         self.podman
             .get_json(&format!("/libpod/volumes/{}/json", &self.name))
             .await
@@ -140,7 +140,7 @@ impl Volumes {
     pub async fn create(
         &self,
         opts: &opts::VolumeCreateOpts,
-    ) -> Result<models::LibpodContainerInspectResponse> {
+    ) -> Result<models::VolumeCreateResponse> {
         self.podman
             .post_json(
                 "/libpod/volumes/create",
