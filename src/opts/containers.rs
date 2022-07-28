@@ -435,9 +435,15 @@ impl ContainerCreateOptsBuilder {
         dependency_containers => "dependencyContainers"
     );
 
-    //TODO: device_cgroup_rule
+    impl_vec_field!(
+        /// DeviceCgroupRule are device cgroup rules that allow containers to use additional types of devices.
+        device_cgroup_rule : models::LinuxDeviceCgroup => "device_cgroup_rule"
+    );
 
-    //TODO: devices
+    impl_vec_field!(
+        /// Devices are devices that will be added to the container.
+        devices : models::LinuxDevice => "devices"
+    );
 
     impl_vec_field!(
         /// A way to ensure your container inherits device specific information from another container.
@@ -487,7 +493,11 @@ impl ContainerCreateOptsBuilder {
         health_config: models::Schema2HealthConfig => "healthconfig"
     );
 
-    // TODO: host_device_list
+    impl_vec_field!(
+        /// The bits have the same definition on all systems, so that information about files can be moved from one system to another portably.
+        /// Not all bits apply to all systems. The only required bit is ModeDir for directories.
+        host_device_list : models::LinuxDevice => "host_device_list"
+    );
 
     impl_vec_field!(
         /// A set of hosts which will be added to the container's etc/hosts file. Conflicts with
@@ -528,7 +538,10 @@ impl ContainerCreateOptsBuilder {
         image_volume_mode: ImageVolumeMode => "image_volume_mode"
     );
 
-    // TODO: image_volumes
+    impl_vec_field!(
+        /// Image volumes bind-mount a container-image mount into the container.
+        image_volumes : models::ImageVolume => "image_volumes"
+    );
 
     impl_field!(
         /// Specifies that an init binary will be mounted into the container, and will be used as
@@ -591,7 +604,13 @@ impl ContainerCreateOptsBuilder {
         network_options => "network_options"
     );
 
-    // TODO: networks
+    impl_map_field!(json
+        /// Map of networks names or ids that the container should join.
+        /// You can request additional settings for each network, you can set network aliases,
+        /// static ips, static mac address and the network interface name for this container on the specific network.
+        /// If the map is empty and the bridge network mode is set the container will be joined to the default network.
+        networks => "Networks"
+    );
 
     impl_field!(
         /// Whether the container will set the no new privileges flag on create, which disables
@@ -610,7 +629,10 @@ impl ContainerCreateOptsBuilder {
         oom_score_adj: i64 => "oom_score_adj"
     );
 
-    // TODO: overlay_volumes
+    impl_vec_field!(
+        /// Overlay volumes are named volumes that will be added to the container.
+        overlay_volumes : models::OverlayVolume => "overlay_volumes"
+    );
 
     impl_field!(
         /// Specify the Linux personality syscall input.
@@ -653,7 +675,10 @@ impl ContainerCreateOptsBuilder {
         publish_image_ports: bool => "publish_image_ports"
     );
 
-    // TODO: r_limits
+    impl_vec_field!(
+        /// Rlimits are POSIX rlimits to apply to the container. Optional.
+        r_limits : models::PosixRlimit => "r_limits"
+    );
 
     impl_str_field!(
         /// The user-specified and unprocessed input referring to a local or a remote image.
@@ -729,7 +754,10 @@ impl ContainerCreateOptsBuilder {
         secret_env => "secret_env"
     );
 
-    // TODO: secrets
+    impl_vec_field!(
+        /// Secrets are the secrets that will be added to the container.
+        secrets :models::Secret => "secrets"
+    );
 
     impl_vec_field!(
         /// The process label the container will use. if SELinux is enabled and this is not
@@ -778,10 +806,25 @@ impl ContainerCreateOptsBuilder {
         terminal: bool => "terminal"
     );
 
-    // TODO: throttleReadBpsDevice
-    // TODO: throttleReadIOPSDevice
-    // TODO: throttleWriteBpsDevice
-    // TODO: throttleWriteIOPSDevice
+    impl_map_field!(json
+        /// IO read rate limit per cgroup per device, bytes per second
+        throttle_read_bps_device => "throttleReadBpsDevice"
+    );
+
+    impl_map_field!(json
+        ///IO read rate limit per cgroup per device, IO per second
+        throttle_read_iops_device => "throttleReadIOPSDevice"
+    );
+
+    impl_map_field!(json
+        /// IO write rate limit per cgroup per device, bytes per second
+        throttle_write_bps_device => "throttleWriteBpsDevice"
+    );
+
+    impl_map_field!(json
+        /// IO write rate limit per cgroup per device, IO per second
+        throttle_write_iops_device => "throttleWriteIOPSDevice"
+    );
 
     impl_field!(
         /// A maximum time in seconds the container will run before main process is sent SIGKILL.
@@ -861,7 +904,10 @@ impl ContainerCreateOptsBuilder {
         volatile: bool => "volatile"
     );
 
-    // TODO: volumes
+    impl_vec_field!(
+        /// Specifies the container volume to use with this container.
+        volumes: models::NamedVolume => "volumes"
+    );
 
     impl_vec_field!(
         /// Set of containers whose volumes will be added to this container. The name or ID of the
