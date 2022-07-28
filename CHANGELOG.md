@@ -1,3 +1,6 @@
+#
+* Missing attributes for container creation added. [#127](https://github.com/vv9k/podman-api-rs/pull/127)
+
 # 0.4.0
 * Use libpod API v4.2
 * Update return type of `Network::inspect` and `Network::create` to `models::Network`
