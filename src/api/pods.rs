@@ -488,7 +488,7 @@ impl Pods {
 
     api_doc! {
     Pod => CreateLibpod
-    /// Create a container with specified options.
+    /// Create a pod with specified options.
     ///
     /// Examples:
     ///
@@ -512,7 +512,7 @@ impl Pods {
     pub async fn create(&self, opts: &opts::PodCreateOpts) -> Result<Pod> {
         self.podman
             .post_json(
-                &"/libpod/containers/create",
+                &"/libpod/pods/create",
                 Payload::Json(opts.serialize()?),
             )
             .await
