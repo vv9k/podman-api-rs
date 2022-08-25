@@ -1,5 +1,6 @@
 #
 * Missing attributes for container creation added. [#127](https://github.com/vv9k/podman-api-rs/pull/127)
+* Use correct endpoint in Pods::create  [#128](https://github.com/vv9k/podman-api-rs/pull/128)
 
 # 0.4.0
 * Use libpod API v4.2
