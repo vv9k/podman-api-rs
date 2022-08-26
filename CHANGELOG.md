@@ -1,3 +1,6 @@
+# 0.5.0
+* Fix some generated models
+
 # 0.4.1
 * Missing attributes for container creation added. [#127](https://github.com/vv9k/podman-api-rs/pull/127)
 * Use correct endpoint in Pods::create  [#128](https://github.com/vv9k/podman-api-rs/pull/128)
