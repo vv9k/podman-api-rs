@@ -30,3 +30,6 @@ cd lib
 
 cargo fmt
 
+sed -r -i 's/(PortMap = HashMap<String, )(Vec<PortBinding>)/\1Option<\2>/g' src/models.rs
+
+cargo fmt

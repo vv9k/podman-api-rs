@@ -6229,7 +6229,7 @@ pub struct PortBinding {
 }
 
 /// PortMap is a collection of PortBinding indexed by Port
-pub type PortMap = HashMap<String, Vec<PortBinding>>;
+pub type PortMap = HashMap<String, Option<Vec<PortBinding>>>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PortMapping {
