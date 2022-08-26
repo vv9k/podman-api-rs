@@ -50,7 +50,7 @@ impl fmt::Display for NetworkMode {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 /// Used to set the image platform with [`platform`](ImageBuildOptsBuilder::platform).
 pub struct Platform {
     os: String,
