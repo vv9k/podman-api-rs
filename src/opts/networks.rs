@@ -130,10 +130,31 @@ pub enum NetworkPruneFilter {
     Until(String),
 }
 
+impl Filter for NetworkPruneFilter {
+    fn query_item(&self) -> FilterItem {
+        use NetworkPruneFilter::*;
+        match &self {
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
+            }
+            Until(until) => FilterItem::new("until", until.clone(), Equality::Equal),
+        }
+    }
+}
+
 impl_opts_builder!(url =>
     /// Adjust how unused networks are removed.
     NetworkPrune
 );
+
+impl NetworkPruneOptsBuilder {
+    impl_filter_func!(NetworkPruneFilter);
+}
 
 impl_opts_builder!(json =>
     /// Adjust how a container is disconnected from a network.
