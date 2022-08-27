@@ -1,4 +1,4 @@
-use containers_api::opts::Filter;
+use containers_api::opts::{Equality, Filter, FilterItem};
 use containers_api::{
     impl_filter_func, impl_map_field, impl_opts_builder, impl_opts_required_builder,
     impl_url_bool_field, impl_url_enum_field, impl_url_field, impl_url_str_field,
@@ -281,23 +281,28 @@ pub enum ImageListFilter {
 }
 
 impl Filter for ImageListFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use ImageListFilter::*;
         match &self {
-            Before(image) => ("before", image.to_string()),
-            Dangling(dangling) => ("dangling", dangling.to_string()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
-            Reference(image, tag) => (
+            Before(image) => FilterItem::new("before", image.to_string(), Equality::Equal),
+            Dangling(dangling) => {
+                FilterItem::new("dangling", dangling.to_string(), Equality::Equal)
+            }
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            Reference(image, tag) => FilterItem::new(
                 "reference",
                 if let Some(tag) = tag {
                     format!("{}:{}", image, tag)
                 } else {
                     image.to_string()
                 },
+                Equality::Equal,
             ),
-            Id(id) => ("id", id.to_string()),
-            Since(image) => ("since", image.to_string()),
+            Id(id) => FilterItem::new("id", id.to_string(), Equality::Equal),
+            Since(image) => FilterItem::new("since", image.to_string(), Equality::Equal),
         }
     }
 }
@@ -688,13 +693,17 @@ pub enum ImagePruneFilter {
 }
 
 impl Filter for ImagePruneFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use ImagePruneFilter::*;
         match &self {
-            Dangling(dangling) => ("dangling", dangling.to_string()),
-            Until(until) => ("until", until.to_string()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
+            Dangling(dangling) => {
+                FilterItem::new("dangling", dangling.to_string(), Equality::Equal)
+            }
+            Until(until) => FilterItem::new("until", until.to_string(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
         }
     }
 }
@@ -732,12 +741,16 @@ pub enum ImageSearchFilter {
 }
 
 impl Filter for ImageSearchFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use ImageSearchFilter::*;
         match &self {
-            IsAutomated(is_automated) => ("is-automated", is_automated.to_string()),
-            IsOfficial(is_official) => ("is-official", is_official.to_string()),
-            Stars(stars) => ("stars", stars.to_string()),
+            IsAutomated(is_automated) => {
+                FilterItem::new("is-automated", is_automated.to_string(), Equality::Equal)
+            }
+            IsOfficial(is_official) => {
+                FilterItem::new("is-official", is_official.to_string(), Equality::Equal)
+            }
+            Stars(stars) => FilterItem::new("stars", stars.to_string(), Equality::Equal),
         }
     }
 }

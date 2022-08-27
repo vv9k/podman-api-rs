@@ -1,4 +1,4 @@
-use containers_api::opts::Filter;
+use containers_api::opts::{Equality, Filter, FilterItem};
 use containers_api::{
     impl_field, impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field, impl_vec_field,
 };
@@ -83,15 +83,17 @@ pub enum NetworkListFilter {
 }
 
 impl Filter for NetworkListFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use NetworkListFilter::*;
         match &self {
-            Name(name) => ("name", name.clone()),
-            Id(id) => ("id", id.to_string()),
-            Driver(driver) => ("driver", driver.clone()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
-            Until(until) => ("until", until.clone()),
+            Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
+            Id(id) => FilterItem::new("id", id.to_string(), Equality::Equal),
+            Driver(driver) => FilterItem::new("driver", driver.clone(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            Until(until) => FilterItem::new("until", until.clone(), Equality::Equal),
         }
     }
 }

@@ -1,6 +1,6 @@
 use crate::models;
 use crate::opts::ImageOpt;
-use containers_api::opts::Filter;
+use containers_api::opts::{Equality, Filter, FilterItem};
 use containers_api::{
     impl_field, impl_filter_func, impl_map_field, impl_opts_builder, impl_str_enum_field,
     impl_str_field, impl_url_bool_field, impl_url_field, impl_url_str_field, impl_url_vec_field,
@@ -48,25 +48,33 @@ pub enum ContainerListFilter {
 }
 
 impl Filter for ContainerListFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use ContainerListFilter::*;
         match &self {
-            Ancestor(ancestor) => ("ancestor", ancestor.to_string()),
-            Before(container) => ("before", container.clone()),
-            Expose(port) => ("expose", port.clone()),
-            Exited(code) => ("exited", code.to_string()),
-            Health(health) => ("health", health.as_ref().to_string()),
-            Id(id) => ("id", id.to_string()),
-            IsTask(is_task) => ("is-task", is_task.to_string()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
-            Name(name) => ("name", name.clone()),
-            Network(net) => ("network", net.clone()),
-            Pod(pod) => ("pod", pod.clone()),
-            Publish(port) => ("publish", port.clone()),
-            Since(container) => ("since", container.clone()),
-            Status(status) => ("status", status.as_ref().to_string()),
-            Volume(vol) => ("volume", vol.clone()),
+            Ancestor(ancestor) => {
+                FilterItem::new("ancestor", ancestor.to_string(), Equality::Equal)
+            }
+            Before(container) => FilterItem::new("before", container.clone(), Equality::Equal),
+            Expose(port) => FilterItem::new("expose", port.clone(), Equality::Equal),
+            Exited(code) => FilterItem::new("exited", code.to_string(), Equality::Equal),
+            Health(health) => {
+                FilterItem::new("health", health.as_ref().to_string(), Equality::Equal)
+            }
+            Id(id) => FilterItem::new("id", id.to_string(), Equality::Equal),
+            IsTask(is_task) => FilterItem::new("is-task", is_task.to_string(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
+            Network(net) => FilterItem::new("network", net.clone(), Equality::Equal),
+            Pod(pod) => FilterItem::new("pod", pod.clone(), Equality::Equal),
+            Publish(port) => FilterItem::new("publish", port.clone(), Equality::Equal),
+            Since(container) => FilterItem::new("since", container.clone(), Equality::Equal),
+            Status(status) => {
+                FilterItem::new("status", status.as_ref().to_string(), Equality::Equal)
+            }
+            Volume(vol) => FilterItem::new("volume", vol.clone(), Equality::Equal),
         }
     }
 }
@@ -1083,12 +1091,14 @@ pub enum ContainerPruneFilter {
 }
 
 impl Filter for ContainerPruneFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use ContainerPruneFilter::*;
         match &self {
-            Until(until) => ("until", until.to_string()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
+            Until(until) => FilterItem::new("until", until.to_string(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
         }
     }
 }

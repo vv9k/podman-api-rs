@@ -1,4 +1,4 @@
-use containers_api::opts::Filter;
+use containers_api::opts::{Equality, Filter, FilterItem};
 use containers_api::{impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field};
 
 impl_opts_builder!(url =>
@@ -25,15 +25,17 @@ pub enum VolumeListFilter {
 }
 
 impl Filter for VolumeListFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use VolumeListFilter::*;
         match &self {
-            Driver(driver) => ("driver", driver.clone()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
-            Name(name) => ("name", name.clone()),
-            Opt(opt) => ("opt", opt.clone()),
-            Until(t) => ("until", t.clone()),
+            Driver(driver) => FilterItem::new("driver", driver.clone(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
+            Opt(opt) => FilterItem::new("opt", opt.clone(), Equality::Equal),
+            Until(t) => FilterItem::new("until", t.clone(), Equality::Equal),
         }
     }
 }
@@ -87,12 +89,14 @@ pub enum VolumePruneFilter {
 }
 
 impl Filter for VolumePruneFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use VolumePruneFilter::*;
         match &self {
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
-            Until(t) => ("until", t.clone()),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            Until(t) => FilterItem::new("until", t.clone(), Equality::Equal),
         }
     }
 }

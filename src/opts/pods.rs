@@ -1,5 +1,5 @@
 use crate::models;
-use containers_api::opts::Filter;
+use containers_api::opts::{Equality, Filter, FilterItem};
 use containers_api::{
     impl_field, impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field,
     impl_url_bool_field, impl_url_field, impl_url_str_field, impl_url_vec_field, impl_vec_field,
@@ -39,20 +39,26 @@ pub enum PodListFilter {
 }
 
 impl Filter for PodListFilter {
-    fn query_key_val(&self) -> (&'static str, String) {
+    fn query_item(&self) -> FilterItem {
         use PodListFilter::*;
         match &self {
-            Id(id) => ("id", id.to_string()),
-            LabelKey(key) => ("label", key.clone()),
-            LabelKeyVal(key, val) => ("label", format!("{}={}", key, val)),
-            Name(name) => ("name", name.clone()),
-            Until(until) => ("until", until.clone()),
-            Network(net) => ("network", net.clone()),
-            Status(status) => ("status", status.as_ref().to_string()),
-            ContainerName(name) => ("ctr-names", name.clone()),
-            ContainerId(id) => ("ctr-ids", id.to_string()),
-            ContainerStatus(status) => ("ctr-status", status.as_ref().to_string()),
-            ContainerNumber(n) => ("ctr-number", n.to_string()),
+            Id(id) => FilterItem::new("id", id.to_string(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
+            LabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
+            Until(until) => FilterItem::new("until", until.clone(), Equality::Equal),
+            Network(net) => FilterItem::new("network", net.clone(), Equality::Equal),
+            Status(status) => {
+                FilterItem::new("status", status.as_ref().to_string(), Equality::Equal)
+            }
+            ContainerName(name) => FilterItem::new("ctr-names", name.clone(), Equality::Equal),
+            ContainerId(id) => FilterItem::new("ctr-ids", id.to_string(), Equality::Equal),
+            ContainerStatus(status) => {
+                FilterItem::new("ctr-status", status.as_ref().to_string(), Equality::Equal)
+            }
+            ContainerNumber(n) => FilterItem::new("ctr-number", n.to_string(), Equality::Equal),
         }
     }
 }
