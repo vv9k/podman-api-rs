@@ -479,6 +479,7 @@ impl Pods {
         &self,
         opts: &opts::PodStatsOpts,
     ) -> impl Stream<Item = Result<models::PodStatsResponse>> + Unpin + '_ {
+        let opts = opts.stream();
         let ep = url::construct_ep(
             "/libpod/pods/stats",
             opts.serialize(),

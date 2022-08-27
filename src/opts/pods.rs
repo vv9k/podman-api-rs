@@ -106,6 +106,14 @@ impl_opts_builder!(url =>
     PodStats
 );
 
+impl PodStatsOpts {
+    pub(crate) fn stream(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("stream", true.to_string());
+        new
+    }
+}
+
 impl PodStatsOptsBuilder {
     impl_url_bool_field!(
         /// Provide statistics for all running pods.
