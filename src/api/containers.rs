@@ -1129,6 +1129,36 @@ impl Container {
 
         self.copy_to(Path::new("/"), data.into()).await.map(|_| ())
     }}
+
+    api_doc! {
+    Container => ResizeLibpod
+    /// Resize the terminal attached to this container (for use with Attach).
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///     let container = podman.containers().get("451b27c6b9d3");
+    ///
+    ///     if let Err(e) = container.resize(1280, 720).await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
+    /// ```
+    |
+    pub async fn resize(&self, width: usize, heigth: usize) -> Result<()> {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/resize", &self.id),
+            Some(url::encoded_pairs([
+                ("h", heigth.to_string()),
+                ("w", width.to_string()),
+            ])),
+        );
+        self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
+    }}
+    }}
 }
 
 impl Containers {
