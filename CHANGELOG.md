@@ -1,3 +1,6 @@
+#
+* Add `Container::restore`, `Container::resize`, `Container::export`
+
 # 0.5.0
 * Fix some generated models
 
