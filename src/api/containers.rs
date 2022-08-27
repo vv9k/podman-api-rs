@@ -1176,7 +1176,7 @@ impl Container {
     ///     let mut content = vec![];
     ///
     ///     while let Some(tar_chunk) = tarball_stream.next().await {
-    ///         content.append(tar_chunk.unwrap());
+    ///         content.append(&mut tar_chunk.unwrap());
     ///     }
     ///
     ///     std::fs::write("/tmp/79c93f220e3e.tar", &content).unwrap();
