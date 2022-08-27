@@ -1158,6 +1158,35 @@ impl Container {
         );
         self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
     }}
+
+    api_doc! {
+    Container => ExportLibpod
+    /// Export the contents of a container as a tarball.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     let container = podman.containers().get("79c93f220e3e");
+    ///     let mut tarball_stream = container.export();
+    ///     let mut content = vec![];
+    ///
+    ///     while let Some(tar_chunk) = tarball_stream.next().await {
+    ///         content.append(tar_chunk.unwrap());
+    ///     }
+    ///
+    ///     std::fs::write("/tmp/79c93f220e3e.tar", &content).unwrap();
+    /// };
+    /// ```
+    |
+    pub fn export(&self) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
+        let ep = format!("/libpod/containers/{}/export", &self.id);
+
+        Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
     }}
 }
 
