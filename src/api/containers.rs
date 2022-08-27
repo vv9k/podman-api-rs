@@ -1188,6 +1188,32 @@ impl Container {
 
         Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
     }}
+
+    api_doc! {
+    Container => RestoreLibpod
+    /// Restore a container from a checkpoint
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     match podman.containers().get("79c93f220e3e").restore(&Default::default()).await {
+    ///         Ok(info) => println!("{info:?}"),
+    ///         Err(e) =>  eprintln!("{e}"),
+    ///     }
+    /// };
+    /// ```
+    |
+    pub async fn restore(&self, opts: &opts::ContainerRestoreOpts) -> Result<serde_json::Value> {
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/restore", &self.id),
+            opts.serialize(),
+        );
+        self.podman.post_json(&ep, Payload::empty()).await
+    }}
 }
 
 impl Containers {
