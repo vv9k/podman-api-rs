@@ -73,10 +73,14 @@ pub enum NetworkListFilter {
     Id(crate::Id),
     /// Only bridge is supported.
     Driver(String),
-    /// Matches networks based on the presence of a key label.
+    /// Matches networks with key label.
     LabelKey(String),
-    /// Matches networks based on the presence of a key-value label.
+    /// Matches networks with key=value label.
     LabelKeyVal(String, String),
+    /// Matches networks without key label.
+    NoLabelKey(String),
+    /// Matches networks without key=value label.
+    NoLabelKeyVal(String, String),
     /// Matches all networks that were create before the given timestamp.
     // TODO: use DateTime
     Until(String),
@@ -92,6 +96,10 @@ impl Filter for NetworkListFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
             Until(until) => FilterItem::new("until", until.clone(), Equality::Equal),
         }
@@ -110,13 +118,15 @@ impl NetworkListOptsBuilder {
 #[derive(Debug)]
 /// Used to filter unused networks to remove.
 pub enum NetworkPruneFilter {
-    // TODO: label!=key=val
-    /// Matches networks based on the presence of a key label.
+    /// Matches networks with key label.
     LabelKey(String),
-    /// Matches networks based on the presence of a key-value label.
+    /// Matches networks with key=value label.
     LabelKeyVal(String, String),
+    /// Matches networks without key label.
+    NoLabelKey(String),
+    /// Matches networks without key=value label.
+    NoLabelKeyVal(String, String),
     /// Matches all networks that were create before the given timestamp.
-    // TODO: use DateTime
     Until(String),
 }
 

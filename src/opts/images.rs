@@ -270,10 +270,14 @@ impl fmt::Display for ImageOpt {
 pub enum ImageListFilter {
     Before(ImageOpt),
     Dangling(bool),
-    /// Image that contains key label.
+    /// Image with key label.
     LabelKey(String),
-    /// Image that contains key-value label.
+    /// Image with key-value label.
     LabelKeyVal(String, String),
+    /// Image without key label.
+    NoLabelKey(String),
+    /// Image without key=value label.
+    NoLabelKeyVal(String, String),
     /// Image name with optional tag.
     Reference(crate::Id, Option<String>),
     Id(crate::Id),
@@ -291,6 +295,10 @@ impl Filter for ImageListFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
             Reference(image, tag) => FilterItem::new(
                 "reference",
@@ -686,10 +694,14 @@ pub enum ImagePruneFilter {
     /// daemon machine’s time.
     // #TODO: DateTime
     Until(String),
-    /// Image that contains key label.
+    /// Image with key label.
     LabelKey(String),
-    /// Image that contains key-value label.
+    /// Image with key-value label.
     LabelKeyVal(String, String),
+    /// Image without key label.
+    NoLabelKey(String),
+    /// Image without key-value label.
+    NoLabelKeyVal(String, String),
 }
 
 impl Filter for ImagePruneFilter {
@@ -703,6 +715,10 @@ impl Filter for ImagePruneFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
         }
     }

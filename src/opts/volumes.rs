@@ -13,8 +13,12 @@ pub enum VolumeListFilter {
     Driver(String),
     /// Volumes with a label.
     LabelKey(String),
-    /// Volumes with a key-value label.
+    /// Volumes with a key=value label.
     LabelKeyVal(String, String),
+    /// Volumes without a label.
+    NoLabelKey(String),
+    /// Volumes without a key=value label.
+    NoLabelKeyVal(String, String),
     /// Volume with name
     Name(String),
     /// Volumes with storage driver opts
@@ -32,6 +36,10 @@ impl Filter for VolumeListFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
             Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
             Opt(opt) => FilterItem::new("opt", opt.clone(), Equality::Equal),
@@ -81,8 +89,12 @@ impl_opts_builder!(url =>
 pub enum VolumePruneFilter {
     /// Volumes with a label.
     LabelKey(String),
-    /// Volumes with a key-value label.
+    /// Volumes with a key=value label.
     LabelKeyVal(String, String),
+    /// Volumes without a label.
+    NoLabelKey(String),
+    /// Volumes without a key=value label.
+    NoLabelKeyVal(String, String),
     /// The <timestamp> can be Unix timestamps, date formatted timestamps, or Go
     /// duration strings (e.g. 10m, 1h30m) computed relative to the daemon machine’s time.
     Until(String),
@@ -95,6 +107,10 @@ impl Filter for VolumePruneFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
             Until(t) => FilterItem::new("until", t.clone(), Equality::Equal),
         }

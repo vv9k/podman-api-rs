@@ -15,10 +15,14 @@ impl_opts_builder!(url =>
 pub enum PodListFilter {
     /// A pods's ID
     Id(crate::Id),
-    /// Pod key label.
+    /// Pods with key label.
     LabelKey(String),
-    /// Pod key-value label.
+    /// Pods with key=value label.
     LabelKeyVal(String, String),
+    /// Pods without key label.
+    NoLabelKey(String),
+    /// Pods without key=value label.
+    NoLabelKeyVal(String, String),
     /// A pods's name
     Name(String),
     /// List pods created before this timestamp. The <timestamp> can be Unix timestamps,
@@ -46,6 +50,10 @@ impl Filter for PodListFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
             Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
             Until(until) => FilterItem::new("until", until.clone(), Equality::Equal),

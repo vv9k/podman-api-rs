@@ -28,10 +28,14 @@ pub enum ContainerListFilter {
     /// A container's ID
     Id(crate::Id),
     IsTask(bool),
-    /// Container key label.
+    /// Container with key label.
     LabelKey(String),
-    /// Container key-value label.
+    /// Container with key-value label.
     LabelKeyVal(String, String),
+    /// Container without key label.
+    NoLabelKey(String),
+    /// Container without key-value label.
+    NoLabelKeyVal(String, String),
     /// A container's name
     Name(String),
     /// Network ID or name
@@ -65,6 +69,10 @@ impl Filter for ContainerListFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
             Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
             Network(net) => FilterItem::new("network", net.clone(), Equality::Equal),
@@ -1084,10 +1092,14 @@ pub enum ContainerPruneFilter {
     /// daemon machine’s time.
     // #TODO: DateTime
     Until(String),
-    /// Container that contains key label.
+    /// Container with key label.
     LabelKey(String),
-    /// Container that contains key-value label.
+    /// Container with key-value label.
     LabelKeyVal(String, String),
+    /// Container without key label.
+    NoLabelKey(String),
+    /// Container without key-value label.
+    NoLabelKeyVal(String, String),
 }
 
 impl Filter for ContainerPruneFilter {
@@ -1098,6 +1110,10 @@ impl Filter for ContainerPruneFilter {
             LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
             LabelKeyVal(key, val) => {
                 FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
+            }
+            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
+            NoLabelKeyVal(key, val) => {
+                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
             }
         }
     }

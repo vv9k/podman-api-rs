@@ -1,5 +1,6 @@
 #
 * Add `Container::restore`, `Container::resize`, `Container::export`
+* Add support for `!=` filters like `label!=key=val` or `label!=key`
 
 # 0.5.0
 * Fix some generated models
