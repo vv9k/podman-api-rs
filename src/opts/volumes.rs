@@ -1,4 +1,4 @@
-use containers_api::opts::{Equality, Filter, FilterItem};
+use containers_api::opts::{Filter, FilterItem};
 use containers_api::{impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field};
 
 impl_opts_builder!(url =>
@@ -32,18 +32,14 @@ impl Filter for VolumeListFilter {
     fn query_item(&self) -> FilterItem {
         use VolumeListFilter::*;
         match &self {
-            Driver(driver) => FilterItem::new("driver", driver.clone(), Equality::Equal),
-            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
-            LabelKeyVal(key, val) => {
-                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
-            }
-            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
-            NoLabelKeyVal(key, val) => {
-                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
-            }
-            Name(name) => FilterItem::new("name", name.clone(), Equality::Equal),
-            Opt(opt) => FilterItem::new("opt", opt.clone(), Equality::Equal),
-            Until(t) => FilterItem::new("until", t.clone(), Equality::Equal),
+            Driver(driver) => FilterItem::new("driver", driver.clone()),
+            LabelKey(key) => FilterItem::new("label", key.clone()),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            NoLabelKey(key) => FilterItem::new("label!", key.clone()),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            Name(name) => FilterItem::new("name", name.clone()),
+            Opt(opt) => FilterItem::new("opt", opt.clone()),
+            Until(t) => FilterItem::new("until", t.clone()),
         }
     }
 }
@@ -104,15 +100,11 @@ impl Filter for VolumePruneFilter {
     fn query_item(&self) -> FilterItem {
         use VolumePruneFilter::*;
         match &self {
-            LabelKey(key) => FilterItem::new("label", key.clone(), Equality::Equal),
-            LabelKeyVal(key, val) => {
-                FilterItem::new("label", format!("{}={}", key, val), Equality::Equal)
-            }
-            NoLabelKey(key) => FilterItem::new("label", key.clone(), Equality::NotEqual),
-            NoLabelKeyVal(key, val) => {
-                FilterItem::new("label", format!("{}={}", key, val), Equality::NotEqual)
-            }
-            Until(t) => FilterItem::new("until", t.clone(), Equality::Equal),
+            LabelKey(key) => FilterItem::new("label", key.clone()),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            NoLabelKey(key) => FilterItem::new("label", key.clone()),
+            NoLabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            Until(t) => FilterItem::new("until", t.clone()),
         }
     }
 }
