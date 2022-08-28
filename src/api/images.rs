@@ -5,7 +5,6 @@ use crate::{
 };
 
 use containers_api::{tarball, url};
-use futures_util::future::TryFutureExt;
 use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(
@@ -355,37 +354,43 @@ impl Images {
     ///     let opts = ImageBuildOpts::builder("http://some.url.to/Dockerfile")
     ///             .tag("myimage:1.0.0")
     ///             .build();
-    ///     let images = podman.images();
-    ///     let mut build_stream = images.build(&opts);
     ///
-    ///     while let Some(chunk) = build_stream.next().await {
-    ///         match chunk {
-    ///             Ok(chunk) => println!("{:?}", chunk),
-    ///             Err(e) => eprintln!("{}", e),
-    ///         }
-    ///     }
+    ///     let images = podman.images();
+    ///     match images.build(&opts) {
+    ///         Ok(mut build_stream) => while let Some(chunk) = build_stream.next().await {
+    ///             match chunk {
+    ///                 Ok(chunk) => println!("{:?}", chunk),
+    ///                 Err(e) => eprintln!("{}", e),
+    ///             }
+    ///         },
+    ///         Err(e) => eprintln!("{}", e),
+    ///     };
     /// };
     /// ```
     |
-    pub fn build<'podman>(
-        &'podman self,
-        opts: &'podman opts::ImageBuildOpts,
-    ) -> impl Stream <Item = Result<models::ImageBuildLibpod200Response>> + Unpin + 'podman {
-        let ep = url::construct_ep("/libpod/build", opts.serialize());
+    pub fn build(
+        &self,
+        opts: &opts::ImageBuildOpts,
+    ) -> Result<impl Stream <Item = Result<models::ImageBuildLibpod200Response>> + Unpin + '_> {
         let mut bytes = Vec::default();
+        let path = opts.get_param("path").ok_or_else(|| Error::OptsSerialization("expected a path to build context".into()))?;
+        tarball::dir(&mut bytes, &path)?;
 
-        Box::pin(
-            async move {
-                let path = opts.get_param("path").ok_or_else(|| Error::OptsSerialization("expected a path to build context".into()))?;
-                tarball::dir(&mut bytes, &path)?;
-
-                let value_stream =
-                    self.podman.stream_post_into(ep, Payload::Tar(bytes), Headers::none());
-
-                Ok(value_stream)
-            }
-            .try_flatten_stream(),
+        let ep = url::construct_ep("/libpod/build", opts.serialize());
+        let reader = Box::pin(
+            self.podman
+                .stream_post(ep, Payload::Tar(bytes), Headers::none())
+                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)),
         )
+        .into_async_read();
+
+        Ok(Box::pin(
+            futures_codec::FramedRead::new(reader, futures_codec::LinesCodec)
+                .map_err(Error::IO)
+                .and_then(|s: String| async move {
+                    serde_json::from_str(&s).map_err(Error::SerdeJsonError)
+                }),
+        ))
     }}
 
     api_doc! {
