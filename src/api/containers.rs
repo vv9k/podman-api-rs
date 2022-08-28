@@ -111,10 +111,13 @@ impl Container {
     /// ```
     |
     pub async fn send_signal(&self, signal: impl Into<String>) -> Result<()> {
-        let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/kill", &self.id),
-            Some(url::encoded_pair("signal", signal.into())),
-        );
+        let signal = signal.into();
+        let base_path = format!("/libpod/containers/{}/kill", &self.id);
+        let ep = if signal.is_empty() {
+            base_path
+        } else {
+            url::construct_ep(base_path, Some(url::encoded_pair("signal", signal)))
+        };
         self.podman.post(&ep, Payload::empty()).await.map(|_| ())
     }}
 
@@ -136,7 +139,7 @@ impl Container {
     /// ```
     |
     pub async fn kill(&self) -> Result<()> {
-        self.send_signal("TERM").await
+        self.send_signal("").await
     }}
 
     api_doc! {
