@@ -4,6 +4,8 @@
 * Add missing filter function `NetworkPruneOptsBuilder::filters`
 * Fix `Pods::stats` endpoint
 * Fix all `exists` endpoints like `Container::exists`
+* Fixed a typo that prevented the specification of a dockerfile when building an image. [#133](https://github.com/vv9k/podman-api-rs/pull/133)
+* *BREAKING* Make the result stream of `Images::build` continuous [#134](https://github.com/vv9k/podman-api-rs/pull/134)
 
 # 0.5.0
 * Fix some generated models
