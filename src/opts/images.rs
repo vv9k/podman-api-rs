@@ -134,7 +134,7 @@ impl ImageBuildOptsBuilder {
     impl_url_str_field!(
         /// Path within the build context to the Dockerfile. This is ignored
         /// if remote is specified and points to an external Dockerfile.
-        dockerfile => "Dockerfile"
+        dockerfile => "dockerfile"
     );
 
     impl_url_str_field!(
