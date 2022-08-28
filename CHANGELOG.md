@@ -3,6 +3,7 @@
 * Add support for `!=` filters like `label!=key=val` or `label!=key`
 * Add missing filter function `NetworkPruneOptsBuilder::filters`
 * Fix `Pods::stats` endpoint
+* Fix all `exists` endpoints like `Container::exists`
 
 # 0.5.0
 * Fix some generated models

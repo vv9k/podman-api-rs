@@ -522,16 +522,14 @@ impl Podman {
         resource: ApiResource,
         id: &crate::Id,
     ) -> Result<bool> {
+        use crate::conn::http::StatusCode;
         let ep = format!("/libpod/{}/{}/exists", resource.as_ref(), id);
         match self.get(&ep).await {
-            Ok(_) => Ok(true),
-            Err(e) => match e {
-                crate::Error::Fault {
-                    code: crate::conn::http::StatusCode::NOT_FOUND,
-                    message: _,
-                } => Ok(false),
-                e => Err(e),
+            Ok(resp) => match resp.status() {
+                StatusCode::NO_CONTENT => Ok(true),
+                _ => Ok(false),
             },
+            Err(e) => Err(e),
         }
     }
 
