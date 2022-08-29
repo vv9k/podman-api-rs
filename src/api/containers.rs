@@ -702,6 +702,7 @@ impl Container {
     /// use futures_util::StreamExt;
     /// async {
     ///     use podman_api::Podman;
+    ///     use podman_api::conn::TtyChunk;
     ///     use podman_api::opts::ContainerLogsOpts;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
@@ -715,9 +716,14 @@ impl Container {
     ///     );
     ///
     ///     while let Some(chunk) = logs.next().await {
-    ///         match chunk {
-    ///             Ok(chunk) => println!("{}", String::from_utf8_lossy(&chunk)),
-    ///             Err(e) => eprintln!("{}", e),
+    ///         match chunk.unwrap() {
+    ///             TtyChunk::StdOut(data) => {
+    ///                 println!("{}", String::from_utf8_lossy(&data));
+    ///             }
+    ///             TtyChunk::StdErr(data) => {
+    ///                 eprintln!("{}", String::from_utf8_lossy(&data));
+    ///             }
+    ///             _ => {}
     ///         }
     ///     }
     /// };
@@ -726,12 +732,18 @@ impl Container {
     pub fn logs(
         &self,
         opts: &opts::ContainerLogsOpts,
-    ) -> impl Stream<Item = Result<Vec<u8>>> + '_  {
+    ) -> impl Stream<Item = Result<tty::TtyChunk>> + '_ {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/logs", &self.id),
             opts.serialize(),
         );
-        Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
+        let stream = Box::pin(
+            self.podman
+                .stream_get(ep)
+                .map_err(|e| containers_api::conn::Error::Any(Box::new(e))),
+        );
+
+        Box::pin(tty::decode(stream).map_err(crate::Error::Error))
     }}
 
     api_doc! {
