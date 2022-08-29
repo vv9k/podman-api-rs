@@ -2,7 +2,7 @@
 
 macro_rules! api_url {
     () => {
-        concat!("https://docs.podman.io/en/", crate::version!() , "/_static/api.html")
+        concat!("https://docs.podman.io/en/latest/_static/api.html?version=", crate::version!())
     };
     (operation $ep:expr) => {
         concat!("\n[Api Reference](", api_url!(), "#operation/", $ep, ")")
