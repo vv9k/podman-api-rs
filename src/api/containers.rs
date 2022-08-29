@@ -353,6 +353,45 @@ impl Container {
 
     api_doc! {
     Container => CheckpointLibpod
+    /// Checkpoint this container returning the checkpoint image in a tar.gz.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// use futures_util::StreamExt;
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use podman_api::opts::ContainerCheckpointOpts;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     let container = podman.containers().get("79c93f220e3e");
+    ///     let mut export_stream = container.checkpoint_export(
+    ///         &ContainerCheckpointOpts::builder()
+    ///             .print_stats(true)
+    ///             .build(),
+    ///     );
+    ///
+    ///     while let Some(tar_gz_chunk) = export_stream.next().await {
+    ///         println!("{:?}", tar_gz_chunk);
+    ///     }
+    /// };
+    /// ```
+    |
+    pub fn checkpoint_export(
+        &self,
+        opts: &opts::ContainerCheckpointOpts,
+    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
+        let ep = url::construct_ep(
+            format!("/libpod/containers/{}/checkpoint", &self.id),
+            opts.for_export().serialize(),
+        );
+        Box::pin(self.podman
+            .stream_post(ep, Payload::empty(), Headers::none())
+            .map_ok(|c| c.to_vec()))
+    }}
+
+    api_doc! {
+    Container => CheckpointLibpod
     /// Checkpoint this container.
     ///
     /// Examples:
@@ -365,30 +404,27 @@ impl Container {
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     ///     let container = podman.containers().get("79c93f220e3e");
-    ///     let mut container_stream = container.checkpoint(
+    ///     let mut export_stream = container.checkpoint_export(
     ///         &ContainerCheckpointOpts::builder()
-    ///             .leave_running(true)
     ///             .print_stats(true)
     ///             .build(),
     ///     );
     ///
-    ///     while let Some(chunk) = container_stream.next().await {
-    ///         println!("{:?}", chunk);
+    ///     while let Some(tarball_chunk) = export_stream.next().await {
+    ///         println!("{:?}", tarball_chunk);
     ///     }
     /// };
     /// ```
     |
-    pub fn checkpoint(
+    pub async fn checkpoint(
         &self,
         opts: &opts::ContainerCheckpointOpts,
-    ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
+    ) -> Result<serde_json::Value> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/checkpoint", &self.id),
             opts.serialize(),
         );
-        Box::pin(self.podman
-            .stream_post(ep, Payload::empty(), Headers::none())
-            .map_ok(|c| c.to_vec()))
+        self.podman.post_json(&ep, Payload::empty()).await
     }}
 
     api_doc! {

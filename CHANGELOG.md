@@ -9,6 +9,7 @@
 * Fix `Container::kill`
 * Fix API documentation hyperlinks
 * Fix `Container::mount`, `Container::unmount`
+* *BREAKING* `export` option is no longer available on `ContainerCheckpointOptsBuilder`. In place of the option, there is a new `Container::checkpoint_export` method that exports the tarball as a stream while the `Container::checkpoint` method creates a snapshot on the podman side without exporting it. 
 
 # 0.5.0
 * Fix some generated models

@@ -145,12 +145,15 @@ impl_opts_builder!(url =>
     ContainerCheckpoint
 );
 
-impl ContainerCheckpointOptsBuilder {
-    impl_url_bool_field!(
-        /// Export the checkpoint image to a tar.gz
-        export => "export"
-    );
+impl ContainerCheckpointOpts {
+    pub(crate) fn for_export(&self) -> Self {
+        let mut new = self.clone();
+        new.params.insert("export", true.to_string());
+        new
+    }
+}
 
+impl ContainerCheckpointOptsBuilder {
     impl_url_bool_field!(
         /// Do not include root file-system changes when exporting
         ignore_root_fs => "ignoreRootFS"
