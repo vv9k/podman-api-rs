@@ -1452,7 +1452,7 @@ impl Containers {
     pub async fn prune(
         &self,
         opts: &opts::ContainerPruneOpts,
-    ) -> Result<Vec<models::ContainersPruneReport>> {
+    ) -> Result<Vec<models::ContainersPruneReportLibpod>> {
         let ep = url::construct_ep("/libpod/containers/prune", opts.serialize());
         self.podman.post_json(&ep, Payload::empty()).await
     }}
