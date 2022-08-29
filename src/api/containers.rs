@@ -1003,7 +1003,7 @@ impl Container {
 
     api_doc! {
     Container => HealthcheckLibpod
-    /// Execute the defined healtcheck and return information about the result.
+    /// Execute the defined healthcheck and return information about the result.
     ///
     /// Examples:
     ///
@@ -1012,16 +1012,16 @@ impl Container {
     ///     use podman_api::Podman;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     match podman.containers().get("fc93f220e3e").healtcheck().await {
-    ///         Ok(healtcheck) => println!("{:?}", healtcheck),
+    ///     match podman.containers().get("fc93f220e3e").healthcheck().await {
+    ///         Ok(healthcheck) => println!("{:?}", healthcheck),
     ///         Err(e) => eprintln!("{}", e),
     ///     }
     /// };
     /// ```
     |
-    pub async fn healtcheck(&self) -> Result<models::HealthCheckResults> {
+    pub async fn healthcheck(&self) -> Result<models::HealthCheckResults> {
         self.podman
-            .get_json(&format!("/libpod/containers/{}/healtcheck", &self.id))
+            .get_json(&format!("/libpod/containers/{}/healthcheck", &self.id))
             .await
     }}
 
