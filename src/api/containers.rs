@@ -308,20 +308,20 @@ impl Container {
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     ///     match podman.containers().get("79c93f220e3e").mount().await {
-    ///         Ok(id) => println!("mounted container {}", id),
+    ///         Ok(path) => println!("mounted container path {}", path.display()),
     ///         Err(e) => eprintln!("{}", e),
     ///     }
     /// };
     /// ```
     |
-    pub async fn mount(&self) -> Result<crate::Id> {
+    pub async fn mount(&self) -> Result<std::path::PathBuf> {
         self.podman
-            .post_json(
+            .post(
                 &format!("/libpod/containers/{}/mount", &self.id),
                 Payload::empty(),
             )
             .await
-            .map(|id: String| id.into())
+            .map(|resp| resp.trim().into())
     }}
 
     api_doc! {
@@ -343,11 +343,12 @@ impl Container {
     |
     pub async fn unmount(&self) -> Result<()> {
         self.podman
-            .post_json(
+            .post(
                 &format!("/libpod/containers/{}/unmount", &self.id),
                 Payload::empty(),
             )
             .await
+            .map(|_| ())
     }}
 
     api_doc! {

@@ -8,6 +8,7 @@
 * *BREAKING* Make the result stream of `Images::build` continuous [#134](https://github.com/vv9k/podman-api-rs/pull/134)
 * Fix `Container::kill`
 * Fix API documentation hyperlinks
+* Fix `Container::mount`, `Container::unmount`
 
 # 0.5.0
 * Fix some generated models
