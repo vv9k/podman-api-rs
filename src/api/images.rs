@@ -677,22 +677,24 @@ impl Images {
     /// async {
     ///     use podman_api::Podman;
     ///     use podman_api::opts::ImagesExportOpts;
+    ///     use futures_util::stream::TryStreamExt;
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///     let images = podman.images();
     ///
-    ///     match podman
-    ///         .images()
-    ///         .export(
-    ///             &ImagesExportOpts::builder()
-    ///                 .references(["alpine", "ubuntu"])
-    ///                 .build()
-    ///         ).await {
-    ///             Ok(images) => { /* ... */ },
-    ///             Err(e) => eprintln!("{}", e),
-    ///     }
+    ///     let full_id_a = "3290fj209...".to_string();
+    ///     let full_id_b = "ioajfoi32...".to_string();
+    ///
+    ///     let export_opts = ImagesExportOpts::builder()
+    ///         .references([full_id_a, full_id_b])
+    ///         .build();
+    ///
+    ///     let export_stream = images.export(&export_opts);
+    ///     let export_data = export_stream.try_concat().await.expect("images archive");
+    ///     assert!(!export_data.is_empty());
     /// };
     /// ```
-    pub async fn export(&self, opts: &opts::ImagesExportOpts) -> Result<Vec<u8>> {
+    pub fn export(&self, opts: &opts::ImagesExportOpts) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
         let ep = url::construct_ep("/libpod/images/export", opts.serialize());
-        self.podman.get_json(&ep).await
+        Box::pin(self.podman.get_stream(ep).map_ok(|c| c.to_vec()))
     }}
 }
