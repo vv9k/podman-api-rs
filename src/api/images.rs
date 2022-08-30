@@ -280,7 +280,7 @@ impl Image {
     ///     }
     /// };
     /// ```
-    pub async fn tree(&self, opts: &opts::ImageTreeOpts) -> Result<Vec<models::TreeResponse>> {
+    pub async fn tree(&self, opts: &opts::ImageTreeOpts) -> Result<models::TreeResponse> {
         let ep = url::construct_ep(
             format!("/libpod/images/{}/tree", &self.id),
             opts.serialize(),
