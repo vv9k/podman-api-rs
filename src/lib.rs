@@ -12,7 +12,7 @@ pub mod opts;
 /// Connection related items.
 pub mod conn {
     pub(crate) use containers_api::conn::*;
-    pub use containers_api::conn::{Error, Multiplexer, Transport, TtyChunk};
+    pub use containers_api::conn::{Error, Multiplexer, TtyChunk};
 }
 
 pub use containers_api::id::Id;

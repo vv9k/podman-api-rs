@@ -13,6 +13,7 @@
 * *BREAKING* Change stream item of `Container::logs` to `TtyChunk`
 * *BREAKING* Fix typo in Container method name `healtcheck` -> `healthcheck` and fix the endpoint itself.
 * Fix return type of `Containers::prune`
+* `Transport` is no longer publicly available in `conn` module
 
 # 0.5.0
 * Fix some generated models
