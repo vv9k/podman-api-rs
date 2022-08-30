@@ -1,11 +1,10 @@
 use crate::{
     api::ApiResource,
     conn::{Headers, Payload},
-    models, opts, Result,
+    models, opts, Result, Stream, Value,
 };
 
 use containers_api::url;
-use futures_util::stream::Stream;
 
 impl_api_ty!(
     Pod => id
@@ -408,7 +407,7 @@ impl Pod {
     pub async fn generate_systemd_units(
         &self,
         opts: &opts::SystemdUnitsOpts,
-    ) -> Result<serde_json::Value> {
+    ) -> Result<Value> {
         self.podman.generate_systemd_units(opts, &self.id).await
     }}
 }

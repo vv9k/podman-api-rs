@@ -5,7 +5,7 @@ use crate::{
     conn::{get_http_connector, Headers, Payload, RequestClient, Transport},
     models,
     opts::*,
-    ApiVersion, Error, Result, LATEST_API_VERSION,
+    ApiVersion, Error, Result, Value, LATEST_API_VERSION,
 };
 
 #[cfg(feature = "tls")]
@@ -531,7 +531,7 @@ impl Podman {
         &self,
         opts: &SystemdUnitsOpts,
         id: &crate::Id,
-    ) -> Result<serde_json::Value> {
+    ) -> Result<Value> {
         let ep = url::construct_ep(
             format!("/libpod/generate/{}/systemd", &id),
             opts.serialize(),

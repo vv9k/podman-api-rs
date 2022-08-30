@@ -1,3 +1,5 @@
+use crate::Value;
+
 use containers_api::opts::{Filter, FilterItem};
 use containers_api::{
     impl_field, impl_filter_func, impl_map_field, impl_opts_builder, impl_str_field, impl_vec_field,
@@ -210,10 +212,8 @@ impl NetworkConnectOptsBuilder {
 impl NetworkConnectOpts {
     pub(crate) fn for_container(&self, container: &crate::Id) -> Self {
         let mut new = self.clone();
-        new.params.insert(
-            "container",
-            serde_json::Value::String(container.to_string()),
-        );
+        new.params
+            .insert("container", Value::String(container.to_string()));
         new
     }
 }

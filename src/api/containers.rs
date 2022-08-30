@@ -1,11 +1,10 @@
 use crate::{
     api::{ApiResource, Exec},
     conn::{tty, Headers, Payload},
-    models, opts, Result,
+    models, opts, Result, Stream, TryStreamExt, Value,
 };
 
 use containers_api::url;
-use futures_util::stream::{Stream, TryStreamExt};
 use std::path::Path;
 
 impl_api_ty!(
@@ -440,7 +439,7 @@ impl Container {
     pub async fn checkpoint(
         &self,
         opts: &opts::ContainerCheckpointOpts,
-    ) -> Result<serde_json::Value> {
+    ) -> Result<Value> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/checkpoint", &self.id),
             opts.serialize(),
@@ -938,7 +937,7 @@ impl Container {
     pub async fn generate_systemd_units(
         &self,
         opts: &opts::SystemdUnitsOpts,
-    ) -> Result<serde_json::Value> {
+    ) -> Result<Value> {
         self.podman.generate_systemd_units(opts, &self.id).await
     }}
 
@@ -1299,7 +1298,7 @@ impl Container {
     ///     }
     /// };
     /// ```
-    pub async fn restore(&self, opts: &opts::ContainerRestoreOpts) -> Result<serde_json::Value> {
+    pub async fn restore(&self, opts: &opts::ContainerRestoreOpts) -> Result<Value> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/restore", &self.id),
             opts.serialize(),
@@ -1470,7 +1469,7 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    pub async fn list_mounted(&self) -> Result<serde_json::Value> {
+    pub async fn list_mounted(&self) -> Result<Value> {
         self.podman.get_json("/libpod/containers/showmounted").await
     }}
 

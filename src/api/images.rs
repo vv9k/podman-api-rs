@@ -1,11 +1,10 @@
 use crate::{
     api::ApiResource,
     conn::{Headers, Payload},
-    models, opts, Error, Result,
+    models, opts, Error, Result, Stream, TryStreamExt,
 };
 
 use containers_api::{tarball, url};
-use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(
     Image => id

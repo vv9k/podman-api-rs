@@ -1,11 +1,9 @@
 use crate::{
     conn::{tty, Headers, Payload},
-    opts, Result,
+    opts, Result, Stream, TryFutureExt, TryStreamExt, Value,
 };
 
 use containers_api::url;
-use futures_util::future::TryFutureExt;
-use futures_util::stream::{Stream, TryStreamExt};
 
 impl_api_ty!(Exec => id);
 
@@ -97,7 +95,7 @@ impl Exec {
     ///     }
     /// };
     /// ```
-    pub async fn inspect(&self) -> Result<serde_json::Value> {
+    pub async fn inspect(&self) -> Result<Value> {
         let ep = format!("/libpod/exec/{}/json", &self.id);
         self.podman.get_json(&ep).await
     }}
