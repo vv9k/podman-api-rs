@@ -215,6 +215,21 @@ impl Image {
     Image => GetLibpod
     |
     /// Export this image.
+    ///
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     use futures_util::stream::TryStreamExt;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///     let image = podman.images().get("myimage");
+    ///
+    ///     let export_stream = image.export(&Default::default());
+    ///     let export_data = export_stream.try_concat().await.expect("image archive");
+    ///     assert!(!export_data.is_empty());
+    /// };
+    /// ```
     pub fn export(
         &self,
         opts: &opts::ImageExportOpts,
