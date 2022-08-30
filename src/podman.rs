@@ -569,10 +569,10 @@ impl Podman {
             .await
     }
 
-    pub(crate) fn get_stream<'client>(
-        &'client self,
+    pub(crate) fn get_stream(
+        &'_ self,
         endpoint: impl AsRef<str>,
-    ) -> impl Stream<Item = Result<Bytes>> + 'client {
+    ) -> impl Stream<Item = Result<Bytes>> + '_ {
         self.client.get_stream(self.version.make_endpoint(endpoint))
     }
 
