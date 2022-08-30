@@ -14,6 +14,7 @@ impl_api_ty!(
 impl Image {
     api_doc! {
     Image => InspectLibpod
+    |
     /// Obtain low-level information about this image.
     ///
     /// Examples:
@@ -29,7 +30,6 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn inspect(&self) -> Result<models::InspectImageResponseLibpod> {
         self.podman
             .get_json(&format!("/libpod/images/{}/json", &self.id))
@@ -38,6 +38,7 @@ impl Image {
 
     api_doc! {
     Image => HistoryLibpod
+    |
     /// Return parent layers of an image.
     ///
     /// Examples:
@@ -53,7 +54,6 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn history(&self) -> Result<models::HistoryResponseItem> {
         self.podman
             .get_json(&format!("/libpod/images/{}/history", &self.id))
@@ -62,6 +62,7 @@ impl Image {
 
     api_doc! {
     Image => ExistsLibpod
+    |
     /// Quick way to determine if a image exists by name or ID.
     ///
     /// Examples:
@@ -81,7 +82,6 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
             .resource_exists(ApiResource::Images, &self.id)
@@ -90,6 +90,7 @@ impl Image {
 
     api_doc! {
     Image => DeleteLibpod
+    |
     /// Delete this image from local storage. To forcefully remove an image use
     /// [`Image::remove`](Image::remove).
     ///
@@ -105,13 +106,16 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn delete(&self) -> Result<()> {
-        self.podman.delete(&format!("/libpod/images/{}", &self.id)).await.map(|_| ())
+        self.podman
+            .delete(&format!("/libpod/images/{}", &self.id))
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Image => DeleteLibpod
+    |
     /// Remove this image forcefully from local storage. To remove the image normally use
     /// [`Image::delete`](Image::delete).
     ///
@@ -127,7 +131,6 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn remove(&self) -> Result<()> {
         let ep = url::construct_ep(
             format!("/libpod/images/{}", &self.id),
@@ -138,6 +141,7 @@ impl Image {
 
     api_doc! {
     Image => TagLibpod
+    |
     /// Tag an image so that it becomes part of a repository.
     ///
     /// Examples:
@@ -163,17 +167,17 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn tag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
-        let ep = url::construct_ep(
-            format!("/libpod/images/{}/tag", &self.id),
-            opts.serialize()
-        );
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        let ep = url::construct_ep(format!("/libpod/images/{}/tag", &self.id), opts.serialize());
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Image => UntagLibpod
+    |
     /// Untag an image. If repo and tag are not specified, all tags are removed
     /// from the image.
     ///
@@ -200,29 +204,29 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn untag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
-        let ep = url::construct_ep(
-            format!("/libpod/images/{}/tag", &self.id),
-            opts.serialize()
-        );
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        let ep = url::construct_ep(format!("/libpod/images/{}/tag", &self.id), opts.serialize());
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Image => GetLibpod
-    /// Export this image.
     |
+    /// Export this image.
     pub fn export(
         &self,
         opts: &opts::ImageExportOpts,
     ) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
         let ep = url::construct_ep(format!("/libpod/images/{}/get", &self.id), opts.serialize());
-        Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
+        Box::pin(self.podman.get_stream(ep).map_ok(|c| c.to_vec()))
     }}
 
     api_doc! {
     Image => ChangesLibpod
+    |
     /// Returns which files in this image's filesystem have been added, deleted, or modified.
     ///
     /// Examples:
@@ -243,7 +247,6 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
     pub async fn changes(
         &self,
         opts: &opts::ChangesOpts,
@@ -257,6 +260,7 @@ impl Image {
 
     api_doc! {
     Image => TreeLibpod
+    |
     /// Retrieve the image tree for this image.
     ///
     /// Examples:
@@ -277,11 +281,7 @@ impl Image {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn tree(
-        &self,
-        opts: &opts::ImageTreeOpts,
-    ) -> Result<Vec<models::TreeResponse>> {
+    pub async fn tree(&self, opts: &opts::ImageTreeOpts) -> Result<Vec<models::TreeResponse>> {
         let ep = url::construct_ep(
             format!("/libpod/images/{}/tree", &self.id),
             opts.serialize(),
@@ -291,6 +291,7 @@ impl Image {
 
     api_doc! {
     Image => PushLibpod
+    |
     /// Push this image to a container registry.
     ///
     /// Examples:
@@ -319,7 +320,6 @@ impl Image {
     ///     };
     /// };
     /// ```
-    |
     pub async fn push(&self, opts: &opts::ImagePushOpts) -> Result<String> {
         let headers = opts
             .auth_header()
@@ -331,7 +331,7 @@ impl Image {
         );
 
         self.podman
-            .post_headers(&ep, Payload::empty(), headers)
+            .post_string(&ep, Payload::empty(), headers)
             .await
     }}
 }
@@ -339,6 +339,7 @@ impl Image {
 impl Images {
     api_doc! {
     Image => BuildLibpod
+    |
     /// Build an image from the given Dockerfile(s)
     ///
     /// Examples:
@@ -367,19 +368,20 @@ impl Images {
     ///     };
     /// };
     /// ```
-    |
     pub fn build(
         &self,
         opts: &opts::ImageBuildOpts,
-    ) -> Result<impl Stream <Item = Result<models::ImageBuildLibpod200Response>> + Unpin + '_> {
+    ) -> Result<impl Stream<Item = Result<models::ImageBuildLibpod200Response>> + Unpin + '_> {
         let mut bytes = Vec::default();
-        let path = opts.get_param("path").ok_or_else(|| Error::OptsSerialization("expected a path to build context".into()))?;
+        let path = opts
+            .get_param("path")
+            .ok_or_else(|| Error::OptsSerialization("expected a path to build context".into()))?;
         tarball::dir(&mut bytes, &path)?;
 
         let ep = url::construct_ep("/libpod/build", opts.serialize());
         let reader = Box::pin(
             self.podman
-                .stream_post(ep, Payload::Tar(bytes), Headers::none())
+                .post_stream(ep, Payload::Tar(bytes), Headers::none())
                 .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)),
         )
         .into_async_read();
@@ -395,6 +397,7 @@ impl Images {
 
     api_doc! {
     Image => ListLibpod
+    |
     /// Returns a list of images.
     ///
     /// Examples:
@@ -420,14 +423,17 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn list(&self, opts: &opts::ImageListOpts) -> Result<Vec<models::LibpodImageSummary>> {
+    pub async fn list(
+        &self,
+        opts: &opts::ImageListOpts,
+    ) -> Result<Vec<models::LibpodImageSummary>> {
         let ep = url::construct_ep("/libpod/images/json", opts.serialize());
         self.podman.get_json(&ep).await
     }}
 
     api_doc! {
     Image => PullLibpod
+    |
     /// Pull one or more images from a container registry.
     ///
     /// Examples:
@@ -460,7 +466,6 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub fn pull(
         &self,
         opts: &opts::PullOpts,
@@ -468,7 +473,7 @@ impl Images {
         let ep = url::construct_ep("/libpod/images/pull", opts.serialize());
         let reader = Box::pin(
             self.podman
-                .stream_post(
+                .post_stream(
                     ep,
                     Payload::empty(),
                     opts.auth_header()
@@ -489,6 +494,7 @@ impl Images {
 
     api_doc! {
     Image => LoadLibpod
+    |
     /// Load an image (oci-archive or docker-archive) stream.
     ///
     /// Examples:
@@ -506,16 +512,20 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub async fn load(&self, image: impl AsRef<[u8]>) -> Result<models::ImageLoadReport> {
         let archive = image.as_ref().to_vec();
         self.podman
-            .post_json("/libpod/images/load", Payload::XTar(archive))
+            .post_json(
+                "/libpod/images/load",
+                Payload::XTar(archive),
+                Headers::none(),
+            )
             .await
     }}
 
     api_doc! {
     Image => ImportLibpod
+    |
     /// Import a previously exported tarball as an image.
     ///
     /// Examples:
@@ -542,7 +552,6 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub async fn import(
         &self,
         opts: &opts::ImageImportOpts,
@@ -553,12 +562,14 @@ impl Images {
             .post_json(
                 url::construct_ep("/libpod/images/import", opts.serialize()),
                 Payload::XTar(archive),
+                Headers::none(),
             )
             .await
     }}
 
     api_doc! {
     Image => DeleteAllLibpod
+    |
     /// Remove multiple images. To remove a single image use
     /// [`Image::delete`](Image::delete) or [`Image::remove`](Image::remove).
     ///
@@ -580,7 +591,6 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub async fn remove(
         &self,
         opts: &opts::ImagesRemoveOpts,
@@ -591,6 +601,7 @@ impl Images {
 
     api_doc! {
     Image => PruneLibpod
+    |
     /// Remove images that are not being used by a container.
     ///
     /// Examples:
@@ -613,17 +624,19 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub async fn prune(
         &self,
         opts: &opts::ImagePruneOpts,
     ) -> Result<Option<Vec<models::PruneReport>>> {
         let ep = url::construct_ep("/libpod/images/prune", opts.serialize());
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 
     api_doc! {
     Image => SearchLibpod
+    |
     /// Search registries for images.
     ///
     /// Examples:
@@ -646,7 +659,6 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub async fn search(
         &self,
         opts: &opts::ImageSearchOpts,
@@ -657,6 +669,7 @@ impl Images {
 
     api_doc! {
     Image => ExportLibpod
+    |
     /// Export multiple images into a single object.
     ///
     /// Examples:
@@ -679,7 +692,6 @@ impl Images {
     ///     }
     /// };
     /// ```
-    |
     pub async fn export(&self, opts: &opts::ImagesExportOpts) -> Result<Vec<u8>> {
         let ep = url::construct_ep("/libpod/images/export", opts.serialize());
         self.podman.get_json(&ep).await

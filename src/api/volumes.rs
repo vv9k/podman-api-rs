@@ -1,4 +1,8 @@
-use crate::{api::ApiResource, conn::Payload, models, opts, Result};
+use crate::{
+    api::ApiResource,
+    conn::{Headers, Payload},
+    models, opts, Result,
+};
 
 use containers_api::url;
 
@@ -9,6 +13,7 @@ impl_api_ty!(
 impl Volume {
     api_doc! {
     Volume => ExistsLibpod
+    |
     /// Quick way to determine if this volume exists.
     ///
     /// Examples:
@@ -28,7 +33,6 @@ impl Volume {
     ///     }
     /// };
     /// ```
-    |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
             .resource_exists(ApiResource::Volumes, &self.name)
@@ -37,6 +41,7 @@ impl Volume {
 
     api_doc! {
     Volume => InspectLibpod
+    |
     /// Obtain low-level information about this volume.
     ///
     /// Examples:
@@ -52,7 +57,6 @@ impl Volume {
     ///     }
     /// };
     /// ```
-    |
     pub async fn inspect(&self) -> Result<models::VolumeInspect> {
         self.podman
             .get_json(&format!("/libpod/volumes/{}/json", &self.name))
@@ -61,6 +65,7 @@ impl Volume {
 
     api_doc! {
     Volume => DeleteLibpod
+    |
     /// Delete this volume. To forcefully remove an volume use
     /// [`Volume::remove`](Volume::remove).
     ///
@@ -76,13 +81,16 @@ impl Volume {
     ///     }
     /// };
     /// ```
-    |
     pub async fn delete(&self) -> Result<()> {
-        self.podman.delete(&format!("/libpod/volumes/{}", &self.name)).await.map(|_| ())
+        self.podman
+            .delete(&format!("/libpod/volumes/{}", &self.name))
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Volume => DeleteLibpod
+    |
     /// Remove this volume forcefully. To remove the volume normally use
     /// [`Volume::delete`](Volume::delete).
     ///
@@ -98,7 +106,6 @@ impl Volume {
     ///     }
     /// };
     /// ```
-    |
     pub async fn remove(&self) -> Result<()> {
         let ep = url::construct_ep(
             format!("/libpod/volumes/{}", &self.name),
@@ -111,6 +118,7 @@ impl Volume {
 impl Volumes {
     api_doc! {
     Volume => CreateLibpod
+    |
     /// Create a volume with specified options.
     ///
     /// Examples:
@@ -136,7 +144,6 @@ impl Volumes {
     ///     }
     /// };
     /// ```
-    |
     pub async fn create(
         &self,
         opts: &opts::VolumeCreateOpts,
@@ -145,12 +152,14 @@ impl Volumes {
             .post_json(
                 "/libpod/volumes/create",
                 Payload::Json(opts.serialize()?),
+                Headers::none(),
             )
             .await
     }}
 
     api_doc! {
     Volume => ListLibpod
+    |
     /// Returns a list of volumes.
     ///
     /// Examples:
@@ -176,7 +185,6 @@ impl Volumes {
     ///     }
     /// };
     /// ```
-    |
     pub async fn list(&self, opts: &opts::VolumeListOpts) -> Result<Vec<models::Volume>> {
         let ep = url::construct_ep("/libpod/volumes/json", opts.serialize());
         self.podman.get_json(&ep).await
@@ -184,6 +192,7 @@ impl Volumes {
 
     api_doc! {
     Volume => PruneLibpod
+    |
     /// Delete unused volumes.
     ///
     /// Examples:
@@ -199,9 +208,10 @@ impl Volumes {
     ///     }
     /// };
     /// ```
-    |
     pub async fn prune(&self, opts: &opts::VolumePruneOpts) -> Result<Vec<models::PruneReport>> {
         let ep = url::construct_ep("/libpod/volumes/prune", opts.serialize());
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 }

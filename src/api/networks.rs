@@ -1,4 +1,8 @@
-use crate::{api::ApiResource, conn::Payload, models, opts, Result};
+use crate::{
+    api::ApiResource,
+    conn::{Headers, Payload},
+    models, opts, Result,
+};
 
 use containers_api::url;
 
@@ -9,6 +13,7 @@ impl_api_ty!(
 impl Network {
     api_doc! {
     Network => DeleteLibpod
+    |
     /// Delete this container. To delete this network forcefully use
     /// [`Network::force_delete`](Network::force_delete).
     ///
@@ -25,7 +30,6 @@ impl Network {
     ///     }
     /// };
     /// ```
-    |
     pub async fn delete(&self) -> Result<models::NetworkRmReport> {
         self.podman
             .delete_json(&format!("/libpod/networks/{}", &self.name))
@@ -34,6 +38,7 @@ impl Network {
 
     api_doc! {
     Network => DeleteLibpod
+    |
     /// Force remove this network removing associated containers. To delete network normally use
     /// [`Network::delete`](Network::delete).
     ///
@@ -50,7 +55,6 @@ impl Network {
     ///     }
     /// };
     /// ```
-    |
     pub async fn force_delete(&self) -> Result<models::NetworkRmReport> {
         let ep = url::construct_ep(
             &format!("/libpod/networks/{}", &self.name),
@@ -61,6 +65,7 @@ impl Network {
 
     api_doc! {
     Network => ExistsLibpod
+    |
     /// Quick way to determine if a network exists by name or id.
     ///
     /// Examples:
@@ -80,7 +85,6 @@ impl Network {
     ///     }
     /// };
     /// ```
-    |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
             .resource_exists(ApiResource::Networks, &self.name)
@@ -89,6 +93,7 @@ impl Network {
 
     api_doc! {
     Network => InspectLibpod
+    |
     /// Display low level configuration for this CNI network.
     ///
     /// Examples:
@@ -104,7 +109,6 @@ impl Network {
     ///     }
     /// };
     /// ```
-    |
     pub async fn inspect(&self) -> Result<models::Network> {
         self.podman
             .get_json(&format!("/libpod/networks/{}/json", &self.name))
@@ -113,6 +117,7 @@ impl Network {
 
     api_doc! {
     Network => DisconnectLibpod
+    |
     /// Disconnect a container from this network.
     ///
     /// Examples:
@@ -138,12 +143,12 @@ impl Network {
     ///     }
     /// };
     /// ```
-    |
     pub async fn disconnect_container(&self, opts: &opts::NetworkDisconnectOpts) -> Result<()> {
         self.podman
             .post(
                 &format!("/libpod/networks/{}/disconnect", &self.name),
                 Payload::Json(opts.serialize()?),
+                Headers::none(),
             )
             .await
             .map(|_| ())
@@ -151,6 +156,7 @@ impl Network {
 
     api_doc! {
     Network => ConnectLibpod
+    |
     /// Connect a container to this network.
     ///
     /// Examples:
@@ -176,12 +182,12 @@ impl Network {
     ///     }
     /// };
     /// ```
-    |
     pub async fn connect_container(&self, opts: &opts::NetworkConnectOpts) -> Result<()> {
         self.podman
             .post(
                 &format!("/libpod/networks/{}/connect", &self.name),
                 Payload::Json(opts.serialize()?),
+                Headers::none(),
             )
             .await
             .map(|_| ())
@@ -191,6 +197,7 @@ impl Network {
 impl Networks {
     api_doc! {
     Network => CreateLibpod
+    |
     /// Quick way to determine if a network exists by name or id.
     ///
     /// Examples:
@@ -211,15 +218,19 @@ impl Networks {
     ///     }
     /// };
     /// ```
-    |
     pub async fn create(&self, opts: &opts::NetworkCreateOpts) -> Result<models::Network> {
         self.podman
-            .post_json("/libpod/networks/create", Payload::Json(opts.serialize()?))
+            .post_json(
+                "/libpod/networks/create",
+                Payload::Json(opts.serialize()?),
+                Headers::none(),
+            )
             .await
     }}
 
     api_doc! {
     Network => ListLibpod
+    |
     /// List network configurations.
     ///
     /// Examples:
@@ -235,17 +246,14 @@ impl Networks {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn list(
-        &self,
-        opts: &opts::NetworkListOpts,
-    ) -> Result<Vec<models::Network>> {
+    pub async fn list(&self, opts: &opts::NetworkListOpts) -> Result<Vec<models::Network>> {
         let ep = url::construct_ep("/libpod/networks/json", opts.serialize());
         self.podman.get_json(&ep).await
     }}
 
     api_doc! {
     Network => PruneLibpod
+    |
     /// Delete unused networks.
     ///
     /// Examples:
@@ -261,12 +269,13 @@ impl Networks {
     ///     }
     /// };
     /// ```
-    |
     pub async fn prune(
         &self,
         opts: &opts::NetworkPruneOpts,
     ) -> Result<Vec<models::NetworkPruneReport>> {
         let ep = url::construct_ep("/libpod/networks/prune", opts.serialize());
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 }

@@ -2,7 +2,7 @@
 
 use crate::{
     api::{self, ApiResource},
-    conn::{get_http_connector, transport, Headers, Payload, Transport},
+    conn::{get_http_connector, Headers, Payload, RequestClient, Transport},
     models,
     opts::*,
     ApiVersion, Error, Result, LATEST_API_VERSION,
@@ -13,15 +13,10 @@ use crate::conn::get_https_connector;
 #[cfg(unix)]
 use crate::conn::get_unix_connector;
 
-use crate::conn::hyper::{body::Bytes, Body, Client, Method, Response};
-
+use crate::conn::hyper::{Body, Client, Response};
+use bytes::Bytes;
 use containers_api::url;
-use futures_util::{
-    io::{AsyncRead, AsyncWrite},
-    stream::Stream,
-    TryStreamExt,
-};
-use log::trace;
+use futures_util::{stream::Stream, AsyncRead, AsyncWrite, TryStreamExt};
 use serde::de::DeserializeOwned;
 use std::path::Path;
 
@@ -29,7 +24,7 @@ use std::path::Path;
 #[derive(Debug, Clone)]
 pub struct Podman {
     version: ApiVersion,
-    transport: Transport,
+    pub(crate) client: RequestClient<Error>,
 }
 
 impl Podman {
@@ -111,12 +106,12 @@ impl Podman {
     {
         Podman {
             version: version.into(),
-            transport: Transport::Unix {
+            client: RequestClient::new(Transport::Unix {
                 client: Client::builder()
                     .pool_max_idle_per_host(0)
                     .build(get_unix_connector()),
                 path: socket_path.as_ref().to_path_buf(),
-            },
+            }),
         }
     }
 
@@ -158,11 +153,11 @@ impl Podman {
     {
         Ok(Podman {
             version: version.into(),
-            transport: Transport::EncryptedTcp {
+            client: RequestClient::new(Transport::EncryptedTcp {
                 client: Client::builder().build(get_https_connector(cert_path.as_ref(), verify)?),
                 host: url::url::Url::parse(&format!("https://{}", host.as_ref()))
                     .map_err(Error::InvalidUrl)?,
-            },
+            }),
         })
     }
 
@@ -190,11 +185,11 @@ impl Podman {
     {
         Ok(Podman {
             version: version.into(),
-            transport: Transport::Tcp {
+            client: RequestClient::new(Transport::Tcp {
                 client: Client::builder().build(get_http_connector()),
                 host: url::url::Url::parse(&format!("tcp://{}", host.as_ref()))
                     .map_err(Error::InvalidUrl)?,
-            },
+            }),
         })
     }
 
@@ -293,6 +288,7 @@ impl Podman {
 
     api_doc! {
     System => InfoLibpod
+    |
     /// Returns information on the system and libpod configuration
     ///
     /// Example:
@@ -308,13 +304,13 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn info(&self) -> Result<models::Info> {
+        pub async fn info(&self) -> Result<models::Info> {
         self.get_json("/libpod/info").await
     }}
 
     api_doc! {
     System => Ping
+    |
     /// Return protocol information from libpod.
     ///
     /// Example:
@@ -330,8 +326,7 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn ping(&self) -> Result<models::LibpodPingInfo> {
+        pub async fn ping(&self) -> Result<models::LibpodPingInfo> {
         self.get("/libpod/_ping")
             .await
             .and_then(|resp| models::LibpodPingInfo::try_from(resp.headers()))
@@ -339,6 +334,7 @@ impl Podman {
 
     api_doc! {
     System => VersionLibpod
+    |
     /// Returns component version information.
     ///
     /// Example:
@@ -354,13 +350,13 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn version(&self) -> Result<models::VersionResponse> {
+        pub async fn version(&self) -> Result<models::VersionResponse> {
         self.get_json("/libpod/version").await
     }}
 
     api_doc! {
     System => DataUsageLibpod
+    |
     /// Return information about disk usage for containers, images, and volumes.
     ///
     /// Example:
@@ -376,13 +372,13 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn data_usage(&self) -> Result<models::SystemDfReport> {
+        pub async fn data_usage(&self) -> Result<models::SystemDfReport> {
         self.get_json("/libpod/system/df").await
     }}
 
     api_doc! {
     System => PruneLibpod
+    |
     /// Prune unused data.
     ///
     /// Example:
@@ -398,9 +394,8 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn prune(&self) -> Result<models::SystemPruneReport> {
-        self.post_json("/libpod/system/prune", Payload::empty())
+        pub async fn prune(&self) -> Result<models::SystemPruneReport> {
+        self.post_json("/libpod/system/prune", Payload::empty(), Headers::none())
             .await
     }}
 
@@ -427,13 +422,13 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    pub fn events<'libpod>(
+        pub fn events<'libpod>(
         &'libpod self,
         opts: &EventsOpts,
     ) -> impl Stream<Item = Result<models::Event>> + Unpin + 'libpod {
         let ep = url::construct_ep("/libpod/events", opts.serialize());
         let reader = Box::pin(
-            self.stream_get(ep)
+            self.get_stream(ep)
                 .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)),
         )
         .into_async_read();
@@ -441,14 +436,13 @@ impl Podman {
         Box::pin(
             futures_codec::FramedRead::new(reader, futures_codec::LinesCodec)
                 .map_err(Error::IO)
-                .and_then(|s: String| async move {
-                    serde_json::from_str(&s).map_err(Error::SerdeJsonError)
-                }),
+                .and_then(|s: String| async move { serde_json::from_str(&s).map_err(Error::from) }),
         )
     }}
 
     api_doc! {
     Play => KubeLibpod
+    |
     /// Create and run pods based on a Kubernetes YAML file (pod or service kind).
     ///
     /// Example:
@@ -484,19 +478,20 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn play_kubernetes_yaml(
+        pub async fn play_kubernetes_yaml(
         &self,
         opts: &PlayKubernetesYamlOpts,
         yaml: impl Into<String>,
     ) -> Result<models::PlayKubeReport> {
         let ep = url::construct_ep("/libpod/play/kube", opts.serialize());
         let yaml = yaml.into();
-        self.post_json(&ep, Payload::Text(yaml)).await
+        self.post_json(ep, Payload::Text(yaml), Headers::none())
+            .await
     }}
 
     api_doc! {
     Play => KubeDownLibpod
+    |
     /// Tears down pods defined in a YAML file.
     ///
     /// Example:
@@ -512,8 +507,7 @@ impl Podman {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn remove_kubernetes_pods(&self) -> Result<models::PlayKubeReport> {
+        pub async fn remove_kubernetes_pods(&self) -> Result<models::PlayKubeReport> {
         self.delete_json("/libpod/play/kube").await
     }}
 
@@ -542,310 +536,152 @@ impl Podman {
             format!("/libpod/generate/{}/systemd", &id),
             opts.serialize(),
         );
-        self.get_json(&ep).await
+        self.get_json(ep).await
     }
 
     pub(crate) async fn generate_kube_yaml(&self, service: bool, id: &crate::Id) -> Result<String> {
         let opts = [("names", id.to_string()), ("service", service.to_string())];
         let ep = url::construct_ep("/libpod/generate/kube", Some(url::encoded_pairs(opts)));
 
-        let body = self.get(&ep).await.map(|b| b.into_body())?;
-        transport::body_to_string(body).await.map_err(Error::from)
+        self.get_string(ep).await
     }
 
     //####################################################################################################
-    //
-    // Utility functions to make requests
-    //
+    // Request helpers
     //####################################################################################################
 
-    pub(crate) async fn get(&self, endpoint: &str) -> Result<Response<Body>> {
-        self.transport
-            .request(
-                Method::GET,
-                self.version.make_endpoint(endpoint),
-                Payload::empty(),
-                Headers::none(),
-            )
+    pub(crate) async fn get(&self, endpoint: impl AsRef<str>) -> Result<Response<Body>> {
+        self.client.get(self.version.make_endpoint(endpoint)).await
+    }
+
+    pub(crate) async fn get_string(&self, endpoint: impl AsRef<str>) -> Result<String> {
+        self.client
+            .get_string(self.version.make_endpoint(endpoint))
             .await
-            .map_err(Error::from)
     }
 
-    pub(crate) async fn get_json<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
-        let raw_string = self
-            .transport
-            .request_string(
-                Method::GET,
-                self.version.make_endpoint(endpoint),
-                Payload::empty(),
-                Headers::none(),
-            )
-            .await?;
-        trace!("{}", raw_string);
-
-        Ok(serde_json::from_str::<T>(&raw_string)?)
+    pub(crate) async fn get_json<T: DeserializeOwned>(
+        &self,
+        endpoint: impl AsRef<str>,
+    ) -> Result<T> {
+        self.client
+            .get_json(self.version.make_endpoint(endpoint))
+            .await
     }
 
-    pub(crate) async fn post<B>(&self, endpoint: &str, body: Payload<B>) -> Result<String>
+    pub(crate) fn get_stream<'client>(
+        &'client self,
+        endpoint: impl AsRef<str>,
+    ) -> impl Stream<Item = Result<Bytes>> + 'client {
+        self.client.get_stream(self.version.make_endpoint(endpoint))
+    }
+
+    pub(crate) fn get_json_stream<'client, T>(
+        &'client self,
+        endpoint: impl AsRef<str> + 'client,
+    ) -> impl Stream<Item = Result<T>> + 'client
+    where
+        T: DeserializeOwned + 'client,
+    {
+        self.client
+            .get_json_stream(self.version.make_endpoint(endpoint))
+    }
+
+    pub(crate) async fn post<B>(
+        &self,
+        endpoint: impl AsRef<str>,
+        body: Payload<B>,
+        headers: Option<Headers>,
+    ) -> Result<Response<Body>>
     where
         B: Into<Body>,
     {
-        self.transport
-            .request_string(
-                Method::POST,
-                self.version.make_endpoint(endpoint),
-                body,
-                Headers::none(),
-            )
+        self.client
+            .post(self.version.make_endpoint(endpoint), body, headers)
             .await
-            .map_err(Error::from)
     }
 
-    #[allow(dead_code)]
-    pub(crate) async fn post_headers<B>(
+    pub(crate) async fn post_string<B>(
         &self,
-        endpoint: &str,
+        endpoint: impl AsRef<str>,
         body: Payload<B>,
         headers: Option<Headers>,
     ) -> Result<String>
     where
         B: Into<Body>,
     {
-        self.transport
-            .request_string(
-                Method::POST,
-                self.version.make_endpoint(endpoint),
-                body,
-                headers,
-            )
+        self.client
+            .post_string(self.version.make_endpoint(endpoint), body, headers)
             .await
-            .map_err(Error::from)
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn put<B>(&self, endpoint: &str, body: Payload<B>) -> Result<String>
-    where
-        B: Into<Body>,
-    {
-        self.transport
-            .request_string(
-                Method::PUT,
-                self.version.make_endpoint(endpoint),
-                body,
-                Headers::none(),
-            )
-            .await
-            .map_err(Error::from)
     }
 
     pub(crate) async fn post_json<B, T>(
         &self,
         endpoint: impl AsRef<str>,
         body: Payload<B>,
+        headers: Option<Headers>,
     ) -> Result<T>
     where
         T: DeserializeOwned,
         B: Into<Body>,
     {
-        let raw_string = self
-            .transport
-            .request_string(
-                Method::POST,
-                self.version.make_endpoint(endpoint),
-                body,
-                Headers::none(),
-            )
-            .await?;
-        trace!("{}", raw_string);
-
-        Ok(serde_json::from_str::<T>(&raw_string)?)
+        self.client
+            .post_json(self.version.make_endpoint(endpoint), body, headers)
+            .await
     }
 
-    #[allow(dead_code)]
-    pub(crate) async fn post_json_headers<'a, B, T>(
-        &self,
+    pub(crate) fn post_stream<'client, B>(
+        &'client self,
         endpoint: impl AsRef<str>,
         body: Payload<B>,
         headers: Option<Headers>,
-    ) -> Result<T>
+    ) -> impl Stream<Item = Result<Bytes>> + 'client
     where
-        T: DeserializeOwned,
+        B: Into<Body> + 'client,
+    {
+        self.client
+            .post_stream(self.version.make_endpoint(endpoint), body, headers)
+    }
+
+    pub(crate) async fn post_upgrade_stream<'client, B>(
+        &'client self,
+        endpoint: impl AsRef<str> + 'client,
+        body: Payload<B>,
+    ) -> Result<impl AsyncRead + AsyncWrite + 'client>
+    where
+        B: Into<Body> + 'client,
+    {
+        self.client
+            .post_upgrade_stream(self.version.make_endpoint(endpoint), body)
+            .await
+    }
+
+    pub(crate) async fn put<B>(
+        &self,
+        endpoint: impl AsRef<str>,
+        body: Payload<B>,
+    ) -> Result<Response<Body>>
+    where
         B: Into<Body>,
     {
-        let raw_string = self
-            .transport
-            .request_string(
-                Method::POST,
-                self.version.make_endpoint(endpoint),
-                body,
-                headers,
-            )
-            .await?;
-        trace!("{}", raw_string);
-
-        Ok(serde_json::from_str::<T>(&raw_string)?)
-    }
-
-    pub(crate) async fn delete(&self, endpoint: &str) -> Result<String> {
-        self.transport
-            .request_string(
-                Method::DELETE,
-                self.version.make_endpoint(endpoint),
-                Payload::empty(),
-                Headers::none(),
-            )
+        self.client
+            .put(self.version.make_endpoint(endpoint), body)
             .await
-            .map_err(Error::from)
     }
 
-    pub(crate) async fn delete_json<T: DeserializeOwned>(&self, endpoint: &str) -> Result<T> {
-        let raw_string = self
-            .transport
-            .request_string(
-                Method::DELETE,
-                self.version.make_endpoint(endpoint),
-                Payload::empty(),
-                Headers::none(),
-            )
-            .await?;
-        trace!("{}", raw_string);
-
-        Ok(serde_json::from_str::<T>(&raw_string)?)
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn head_response(&self, endpoint: &str) -> Result<Response<Body>> {
-        self.transport
-            .request(
-                Method::HEAD,
-                self.version.make_endpoint(endpoint),
-                Payload::empty(),
-                Headers::none(),
-            )
+    pub(crate) async fn delete(&self, endpoint: impl AsRef<str>) -> Result<Response<Body>> {
+        self.client
+            .delete(self.version.make_endpoint(endpoint))
             .await
-            .map_err(Error::from)
     }
 
-    /// Send a streaming post request.
-    ///
-    /// Use stream_post_into_values if the endpoint returns JSON values
-    pub(crate) fn stream_post<'a, B>(
-        &'a self,
-        endpoint: impl AsRef<str> + 'a,
-        body: Payload<B>,
-        headers: Option<Headers>,
-    ) -> impl Stream<Item = Result<Bytes>> + 'a
-    where
-        B: Into<Body> + 'a,
-    {
-        self.transport
-            .stream_chunks(
-                Method::POST,
-                self.version.make_endpoint(endpoint),
-                body,
-                headers,
-            )
-            .map_err(Error::from)
-    }
-
-    #[allow(dead_code)]
-    /// Send a streaming post request.
-    fn stream_json_post<'a, B>(
-        &'a self,
-        endpoint: impl AsRef<str> + 'a,
-        body: Payload<B>,
-        headers: Option<Headers>,
-    ) -> impl Stream<Item = Result<Bytes>> + 'a
-    where
-        B: Into<Body> + 'a,
-    {
-        self.transport
-            .stream_json_chunks(
-                Method::POST,
-                self.version.make_endpoint(endpoint),
-                body,
-                headers,
-            )
-            .map_err(Error::from)
-    }
-
-    #[allow(dead_code)]
-    /// Send a streaming post request that returns a stream of JSON values
-    ///
-    /// When a received chunk does not contain a full JSON reads more chunks from the stream
-    pub(crate) fn stream_post_into<'a, B, T>(
-        &'a self,
-        endpoint: impl AsRef<str> + 'a,
-        body: Payload<B>,
-        headers: Option<Headers>,
-    ) -> impl Stream<Item = Result<T>> + 'a
-    where
-        B: Into<Body> + 'a,
-        T: DeserializeOwned,
-    {
-        self.stream_json_post(endpoint, body, headers)
-            .and_then(|chunk| async move {
-                trace!("got chunk {:?}", chunk);
-                let stream = futures_util::stream::iter(
-                    serde_json::Deserializer::from_slice(&chunk)
-                        .into_iter()
-                        .collect::<Vec<_>>(),
-                )
-                .map_err(Error::from);
-
-                Ok(stream)
-            })
-            .try_flatten()
-    }
-
-    pub(crate) fn stream_get<'a>(
-        &'a self,
-        endpoint: impl AsRef<str> + Unpin + 'a,
-    ) -> impl Stream<Item = Result<Bytes>> + 'a {
-        self.transport
-            .stream_chunks(
-                Method::GET,
-                self.version.make_endpoint(endpoint),
-                Payload::empty(),
-                Headers::none(),
-            )
-            .map_err(Error::from)
-    }
-
-    pub(crate) fn stream_get_json<'a, T>(
-        &'a self,
-        endpoint: impl AsRef<str> + Unpin + 'a,
-    ) -> impl Stream<Item = Result<T>> + 'a
-    where
-        T: DeserializeOwned,
-    {
-        self.stream_get(endpoint)
-            .and_then(|chunk| async move {
-                let stream = futures_util::stream::iter(
-                    serde_json::Deserializer::from_slice(&chunk)
-                        .into_iter()
-                        .collect::<Vec<_>>(),
-                )
-                .map_err(Error::from);
-
-                Ok(stream)
-            })
-            .try_flatten()
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn stream_post_upgrade<'a, B>(
-        &'a self,
-        endpoint: impl AsRef<str> + 'a,
-        body: Payload<B>,
-    ) -> Result<impl AsyncRead + AsyncWrite + 'a>
-    where
-        B: Into<Body> + 'a,
-    {
-        self.transport
-            .stream_upgrade(Method::POST, self.version.make_endpoint(endpoint), body)
+    pub(crate) async fn delete_json<T: DeserializeOwned>(
+        &self,
+        endpoint: impl AsRef<str>,
+    ) -> Result<T> {
+        self.client
+            .delete_json(self.version.make_endpoint(endpoint))
             .await
-            .map_err(Error::from)
     }
 }
 

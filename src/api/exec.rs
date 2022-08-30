@@ -12,6 +12,7 @@ impl_api_ty!(Exec => id);
 impl Exec {
     api_doc! {
     Exec => StartLibpod
+    |
     /// Starts a previously set up exec instance. If `detach` is true, this endpoint returns
     /// immediately after starting the command. Otherwise, it sets up an interactive session
     /// with the command.
@@ -44,7 +45,6 @@ impl Exec {
     ///     }
     /// };
     /// ```
-    |
     pub fn start<'exec>(
         &'exec self,
         opts: &'exec opts::ExecStartOpts,
@@ -58,7 +58,7 @@ impl Exec {
                 );
                 let stream = Box::pin(
                     self.podman
-                        .stream_post(ep, payload, Headers::none())
+                        .post_stream(ep, payload, Headers::none())
                         .map_err(|e| crate::conn::Error::Any(Box::new(e))),
                 );
 
@@ -70,6 +70,7 @@ impl Exec {
 
     api_doc! {
     Exec => InspectLibpod
+    |
     /// Returns low-level information about an exec instance.
     ///
     /// Examples:
@@ -96,16 +97,14 @@ impl Exec {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn inspect(
-        &self,
-    ) -> Result<serde_json::Value> {
+    pub async fn inspect(&self) -> Result<serde_json::Value> {
         let ep = format!("/libpod/exec/{}/json", &self.id);
         self.podman.get_json(&ep).await
     }}
 
     api_doc! {
     Exec => ResizeLibpod
+    |
     /// Resize the TTY session used by an exec instance. This endpoint only works if
     /// tty was specified as part of creating and starting the exec instance.
     ///
@@ -132,7 +131,6 @@ impl Exec {
     ///     }
     /// };
     /// ```
-    |
     pub async fn resize(&self, width: usize, heigth: usize) -> Result<()> {
         let ep = url::construct_ep(
             format!("/libpod/exec/{}/resize", &self.id),

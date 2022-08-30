@@ -1,4 +1,8 @@
-use crate::{api::ApiResource, conn::Payload, models, opts, Result};
+use crate::{
+    api::ApiResource,
+    conn::{Headers, Payload},
+    models, opts, Result,
+};
 
 use containers_api::url;
 
@@ -9,6 +13,7 @@ impl_api_ty!(
 impl Manifest {
     api_doc! {
     Manifest => ExistsLibpod
+    |
     /// Quick way to determine if a manifest exists by name or id.
     ///
     /// Examples:
@@ -28,7 +33,6 @@ impl Manifest {
     ///     }
     /// };
     /// ```
-    |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
             .resource_exists(ApiResource::Manifests, &self.name)
@@ -37,6 +41,7 @@ impl Manifest {
 
     api_doc! {
     Manifest => InspectLibpod
+    |
     /// Display details about this manifest list.
     ///
     /// Examples:
@@ -52,7 +57,6 @@ impl Manifest {
     ///     }
     /// };
     /// ```
-    |
     pub async fn inspect(&self) -> Result<models::Schema2List> {
         self.podman
             .get_json(&format!("/libpod/manifests/{}/json", &self.name))
@@ -61,6 +65,7 @@ impl Manifest {
 
     api_doc! {
     Manifest => AddLibpod
+    |
     /// Add an image to this manifest list.
     ///
     /// Examples:
@@ -81,18 +86,19 @@ impl Manifest {
     ///     }
     /// };
     /// ```
-    |
     pub async fn add_image(&self, opts: &opts::ManifestImageAddOpts) -> Result<models::IdResponse> {
         self.podman
             .post_json(
                 &format!("/libpod/manifests/{}/add", &self.name),
                 Payload::Json(opts.serialize()?),
+                Headers::none(),
             )
             .await
     }}
 
     api_doc! {
     Manifest => DeleteLibpod
+    |
     /// Remove an image digest from this manifest list.
     ///
     /// Examples:
@@ -112,7 +118,6 @@ impl Manifest {
     ///     }
     /// };
     /// ```
-    |
     pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::IdResponse> {
         let ep = url::construct_ep(
             &format!("/libpod/manifests/{}", &self.name),
@@ -124,6 +129,7 @@ impl Manifest {
 
     api_doc! {
     Manifest => PushLibpod
+    |
     /// Push this manifest list to a registry.
     ///
     /// Examples:
@@ -144,19 +150,21 @@ impl Manifest {
     ///     }
     /// };
     /// ```
-    |
     pub async fn push(&self, opts: &opts::ManifestPushOpts) -> Result<models::IdResponse> {
         let ep = url::construct_ep(
             &format!("/libpod/manifests/{}/push", &self.name),
             opts.serialize(),
         );
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 }
 
 impl Manifests {
     api_doc! {
     Manifest => CreateLibpod
+    |
     /// Create a manifest list.
     ///
     /// Examples:
@@ -181,11 +189,10 @@ impl Manifests {
     ///     }
     /// };
     /// ```
-    |
     pub async fn create(&self, opts: &opts::ManifestCreateOpts) -> Result<Manifest> {
         let ep = url::construct_ep("/libpod/manifests/create", opts.serialize());
         self.podman
-            .post_json(&ep, Payload::empty())
+            .post_json(&ep, Payload::empty(), Headers::none())
             .await
             .map(|resp: models::IdResponse| self.podman.manifests().get(resp.id))
     }}

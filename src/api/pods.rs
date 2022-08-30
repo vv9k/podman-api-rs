@@ -1,4 +1,8 @@
-use crate::{api::ApiResource, conn::Payload, models, opts, Result};
+use crate::{
+    api::ApiResource,
+    conn::{Headers, Payload},
+    models, opts, Result,
+};
 
 use containers_api::url;
 use futures_util::stream::Stream;
@@ -10,6 +14,7 @@ impl_api_ty!(
 impl Pod {
     api_doc! {
     Pod => StartLibpod
+    |
     /// Start this pod.
     ///
     /// Parameters:
@@ -28,11 +33,14 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn start(&self) -> Result<models::PodStartReport> {
-        self.podman.post_json(&
-            format!("/libpod/pods/{}/start", &self.id),
-             Payload::empty()).await
+        self.podman
+            .post_json(
+                &format!("/libpod/pods/{}/start", &self.id),
+                Payload::empty(),
+                Headers::none(),
+            )
+            .await
     }}
 
     async fn _stop(&self, timeout: Option<usize>) -> Result<models::PodStopReport> {
@@ -40,11 +48,14 @@ impl Pod {
             &format!("/libpod/pods/{}/stop", &self.id),
             timeout.map(|t| url::encoded_pair("t", t.to_string())),
         );
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }
 
     api_doc! {
     Pod => StopLibpod
+    |
     /// Stop this pod.
     ///
     /// Examples:
@@ -59,13 +70,13 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn stop(&self) -> Result<models::PodStopReport> {
         self._stop(None).await
     }}
 
     api_doc! {
     Pod => StopLibpod
+    |
     /// Stop this pod with a timeout.
     ///
     /// Examples:
@@ -80,13 +91,13 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn stop_with_timeout(&self, t: usize) -> Result<models::PodStopReport> {
         self._stop(Some(t)).await
     }}
 
     api_doc! {
     Pod => InspectLibpod
+    |
     /// Return low-level information about this pod.
     ///
     /// Examples:
@@ -102,7 +113,6 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn inspect(&self) -> Result<models::PodInspectResponse> {
         self.podman
             .get_json(&format!("/libpod/pods/{}/json", &self.id))
@@ -111,6 +121,7 @@ impl Pod {
 
     api_doc! {
     Pod => KillLibpod
+    |
     /// Send a signal to this pod.
     ///
     /// Examples:
@@ -125,17 +136,19 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn send_signal(&self, signal: impl Into<String>) -> Result<models::PodKillReport> {
         let ep = url::construct_ep(
             &format!("/libpod/pods/{}/kill", &self.id),
             Some(url::encoded_pair("signal", signal.into())),
         );
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 
     api_doc! {
     Pod => KillLibpod
+    |
     /// Kill this pod.
     ///
     /// Examples:
@@ -150,13 +163,13 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn kill(&self) -> Result<models::PodKillReport> {
         self.send_signal("SIGKILL").await
     }}
 
     api_doc! {
     Pod => PauseLibpod
+    |
     /// Pause this pod.
     ///
     /// Examples:
@@ -171,18 +184,19 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn pause(&self) -> Result<models::PodPauseReport> {
         self.podman
             .post_json(
                 &format!("/libpod/pods/{}/pause", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
     }}
 
     api_doc! {
     Pod => UnpauseLibpod
+    |
     /// Unpause this pod
     ///
     /// Examples:
@@ -197,18 +211,19 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn unpause(&self) -> Result<models::PodUnpauseReport> {
         self.podman
             .post_json(
                 &format!("/libpod/pods/{}/unpause", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
     }}
 
     api_doc! {
     Pod => RestartLibpod
+    |
     /// Restart this pod.
     ///
     /// Examples:
@@ -223,10 +238,11 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn restart(&self) -> Result<models::PodRestartReport> {
         let ep = format!("/libpod/pods/{}/restart", &self.id);
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 
     async fn _delete(&self, force: bool) -> Result<models::PodRmReport> {
@@ -239,6 +255,7 @@ impl Pod {
 
     api_doc! {
     Pod => DeleteLibpod
+    |
     /// Delete this pod.
     ///
     /// Examples:
@@ -253,13 +270,13 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn delete(&self) -> Result<models::PodRmReport> {
         self._delete(false).await
     }}
 
     api_doc! {
     Pod => DeleteLibpod
+    |
     /// Force remove this pod.
     ///
     /// Examples:
@@ -274,13 +291,13 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn remove(&self) -> Result<models::PodRmReport> {
         self._delete(true).await
     }}
 
     api_doc! {
     Pod => ExistsLibpod
+    |
     /// Quick way to determine if a pod exists by name or ID.
     ///
     /// Examples:
@@ -300,13 +317,15 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn exists(&self) -> Result<bool> {
-        self.podman.resource_exists(ApiResource::Pods, &self.id).await
+        self.podman
+            .resource_exists(ApiResource::Pods, &self.id)
+            .await
     }}
 
     api_doc! {
     Pod => TopLibpod
+    |
     /// List processes inside this pod.
     ///
     /// Examples:
@@ -322,7 +341,6 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn top(&self, opts: &opts::PodTopOpts) -> Result<models::PodTopResponse> {
         let ep = url::construct_ep(format!("/libpod/pods/{}/top", &self.id), opts.serialize());
         self.podman.get_json(&ep).await
@@ -330,6 +348,7 @@ impl Pod {
 
     api_doc! {
     Pod => TopLibpod
+    |
     /// List processes inside this pod.
     ///
     /// Only supported as of version > 4.0
@@ -352,7 +371,6 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub fn top_stream(
         &self,
         opts: &opts::PodTopOpts,
@@ -361,11 +379,12 @@ impl Pod {
             format!("/libpod/pods/{}/top", &self.id),
             opts.stream().serialize(),
         );
-        Box::pin(self.podman.stream_get_json(ep))
+        Box::pin(self.podman.get_json_stream(ep))
     }}
 
     api_doc! {
     Generate => SystemdLibpod
+    |
     /// Generate Systemd Units based on this pod.
     ///
     /// Examples:
@@ -386,7 +405,6 @@ impl Pod {
     ///     }
     /// };
     /// ```
-    |
     pub async fn generate_systemd_units(
         &self,
         opts: &opts::SystemdUnitsOpts,
@@ -398,6 +416,7 @@ impl Pod {
 impl Pods {
     api_doc! {
     Pod => ListLibpod
+    |
     /// Returns a list of pods.
     ///
     /// Examples:
@@ -423,7 +442,6 @@ impl Pods {
     ///     }
     /// };
     /// ```
-    |
     pub async fn list(&self, opts: &opts::PodListOpts) -> Result<Vec<models::ListPodsReport>> {
         let ep = url::construct_ep("/libpod/pods/json", opts.serialize());
         self.podman.get_json(&ep).await
@@ -431,6 +449,7 @@ impl Pods {
 
     api_doc! {
     Pod => ListLibpod
+    |
     /// Returns a list of pods.
     ///
     /// Examples:
@@ -446,13 +465,13 @@ impl Pods {
     ///     }
     /// };
     /// ```
-    |
     pub async fn prune(&self) -> Result<Vec<models::PodPruneReport>> {
         self.podman.get_json("/libpod/pods/prune").await
     }}
 
     api_doc! {
     Pod => StatsAllLibpod
+    |
     /// Display a live stream of resource usage statistics for the containers in one or more pods.
     ///
     /// Examples:
@@ -474,21 +493,18 @@ impl Pods {
     ///     }
     /// };
     /// ```
-    |
     pub fn stats(
         &self,
         opts: &opts::PodStatsOpts,
     ) -> impl Stream<Item = Result<models::PodStatsResponse>> + Unpin + '_ {
         let opts = opts.stream();
-        let ep = url::construct_ep(
-            "/libpod/pods/stats",
-            opts.serialize(),
-        );
-        Box::pin(self.podman.stream_get_json(ep))
+        let ep = url::construct_ep("/libpod/pods/stats", opts.serialize());
+        Box::pin(self.podman.get_json_stream(ep))
     }}
 
     api_doc! {
     Pod => CreateLibpod
+    |
     /// Create a pod with specified options.
     ///
     /// Examples:
@@ -509,12 +525,12 @@ impl Pods {
     ///     }
     /// };
     /// ```
-    |
     pub async fn create(&self, opts: &opts::PodCreateOpts) -> Result<Pod> {
         self.podman
             .post_json(
                 &"/libpod/pods/create",
                 Payload::Json(opts.serialize()?),
+                Headers::none(),
             )
             .await
             .map(|resp: models::IdResponse| Pod::new(self.podman.clone(), resp.id))

@@ -15,6 +15,7 @@ impl_api_ty!(
 impl Container {
     api_doc! {
     Container => StartLibpod
+    |
     /// Start this container.
     ///
     /// Parameters:
@@ -33,17 +34,20 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn start(&self, detach_keys: Option<String>) -> Result<()> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/start", &self.id),
             detach_keys.map(|d| url::encoded_pair("detachKeys", d)),
         );
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => StopLibpod
+    |
     /// Stop this container.
     ///
     /// Examples:
@@ -58,17 +62,20 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn stop(&self, opts: &opts::ContainerStopOpts) -> Result<()> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/stop", &self.id),
             opts.serialize(),
         );
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => InspectLibpod
+    |
     /// Return low-level information about this container.
     ///
     /// Examples:
@@ -84,7 +91,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn inspect(&self) -> Result<models::ContainerInspectResponseLibpod> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/json", &self.id),
@@ -95,6 +101,7 @@ impl Container {
 
     api_doc! {
     Container => KillLibpod
+    |
     /// Send a signal to this container.
     ///
     /// Examples:
@@ -109,7 +116,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn send_signal(&self, signal: impl Into<String>) -> Result<()> {
         let signal = signal.into();
         let base_path = format!("/libpod/containers/{}/kill", &self.id);
@@ -118,11 +124,15 @@ impl Container {
         } else {
             url::construct_ep(base_path, Some(url::encoded_pair("signal", signal)))
         };
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => KillLibpod
+    |
     /// Kill this container.
     ///
     /// Examples:
@@ -137,13 +147,13 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn kill(&self) -> Result<()> {
         self.send_signal("").await
     }}
 
     api_doc! {
     Container => PauseLibpod
+    |
     /// Use the cgroups freezer to suspend all processes in this container.
     ///
     /// Examples:
@@ -158,12 +168,12 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn pause(&self) -> Result<()> {
         self.podman
             .post(
                 &format!("/libpod/containers/{}/pause", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
             .map(|_| ())
@@ -171,6 +181,7 @@ impl Container {
 
     api_doc! {
     Container => UnpauseLibpod
+    |
     /// Unpause this container
     ///
     /// Examples:
@@ -185,12 +196,12 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn unpause(&self) -> Result<()> {
         self.podman
             .post(
                 &format!("/libpod/containers/{}/unpause", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
             .map(|_| ())
@@ -198,6 +209,7 @@ impl Container {
 
     api_doc! {
     Container => RestartLibpod
+    |
     /// Restart this container with a timeout.
     ///
     /// Parameters:
@@ -215,17 +227,20 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn restart_with_timeout(&self, t: usize) -> Result<()> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/restart", &self.id),
             Some(url::encoded_pair("t", t.to_string())),
         );
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => RestartLibpod
+    |
     /// Restart this container.
     ///
     /// Examples:
@@ -240,14 +255,17 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn restart(&self) -> Result<()> {
         let ep = format!("/libpod/containers/{}/restart", &self.id);
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => DeleteLibpod
+    |
     /// Delete this container.
     ///
     /// Examples:
@@ -268,7 +286,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn delete(&self, opts: &opts::ContainerDeleteOpts) -> Result<()> {
         let ep = url::construct_ep(format!("/libpod/containers/{}", &self.id), opts.serialize());
         self.podman.delete(&ep).await.map(|_| ())
@@ -276,6 +293,7 @@ impl Container {
 
     api_doc! {
     Container => DeleteLibpod
+    |
     /// Force remove this container.
     ///
     /// Examples:
@@ -290,7 +308,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn remove(&self) -> Result<()> {
         self.delete(&opts::ContainerDeleteOpts::builder().force(true).build())
             .await
@@ -298,6 +315,7 @@ impl Container {
 
     api_doc! {
     Container => MountLibpod
+    |
     /// Mount this container to the filesystem.
     ///
     /// Examples:
@@ -313,12 +331,12 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn mount(&self) -> Result<std::path::PathBuf> {
         self.podman
-            .post(
+            .post_string(
                 &format!("/libpod/containers/{}/mount", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
             .map(|resp| resp.trim().into())
@@ -326,6 +344,7 @@ impl Container {
 
     api_doc! {
     Container => UnmountLibpod
+    |
     /// Unmount this container from the filesystem.
     ///
     /// Examples:
@@ -340,12 +359,12 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn unmount(&self) -> Result<()> {
         self.podman
             .post(
                 &format!("/libpod/containers/{}/unmount", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
             .map(|_| ())
@@ -353,6 +372,7 @@ impl Container {
 
     api_doc! {
     Container => CheckpointLibpod
+    |
     /// Checkpoint this container returning the checkpoint image in a tar.gz.
     ///
     /// Examples:
@@ -376,7 +396,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub fn checkpoint_export(
         &self,
         opts: &opts::ContainerCheckpointOpts,
@@ -385,13 +404,16 @@ impl Container {
             format!("/libpod/containers/{}/checkpoint", &self.id),
             opts.for_export().serialize(),
         );
-        Box::pin(self.podman
-            .stream_post(ep, Payload::empty(), Headers::none())
-            .map_ok(|c| c.to_vec()))
+        Box::pin(
+            self.podman
+                .post_stream(ep, Payload::empty(), Headers::none())
+                .map_ok(|c| c.to_vec()),
+        )
     }}
 
     api_doc! {
     Container => CheckpointLibpod
+    |
     /// Checkpoint this container.
     ///
     /// Examples:
@@ -415,7 +437,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn checkpoint(
         &self,
         opts: &opts::ContainerCheckpointOpts,
@@ -424,11 +445,14 @@ impl Container {
             format!("/libpod/containers/{}/checkpoint", &self.id),
             opts.serialize(),
         );
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 
     api_doc! {
     Container => ImageCommitLibpod
+    |
     /// Create a new image from this container.
     ///
     /// Examples:
@@ -455,15 +479,18 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn commit(&self, opts: &opts::ContainerCommitOpts) -> Result<()> {
         let opts = opts.for_container(self.id.clone());
         let ep = url::construct_ep("/libpod/commit", opts.serialize());
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => ExecLibpod
+    |
     /// Create an exec session to run a command inside this container. Exec sessions will be
     /// automatically removed 5 minutes after they exit.
     ///
@@ -490,18 +517,18 @@ impl Container {
     ///     .unwrap();
     /// };
     /// ```
-    |
     pub async fn create_exec(&self, opts: &opts::ExecCreateOpts) -> Result<Exec> {
         let ep = format!("/libpod/containers/{}/exec", self.id);
 
         self.podman
-            .post_json(&ep, Payload::Json(opts.serialize()?))
+            .post_json(&ep, Payload::Json(opts.serialize()?), Headers::none())
             .await
             .map(|resp: models::IdResponse| Exec::new(self.podman.clone(), resp.id))
     }}
 
     api_doc! {
     Container => RenameLibpod
+    |
     /// Change the name of this container.
     ///
     /// Parameters:
@@ -519,17 +546,20 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn rename(&self, new_name: impl AsRef<str>) -> Result<()> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/rename", &self.id),
             Some(url::encoded_pair("name", new_name.as_ref())),
         );
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => InitLibpod
+    |
     /// Performs all tasks necessary for initializing the container but does not start the container.
     ///
     /// Examples:
@@ -544,12 +574,12 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn init(&self) -> Result<()> {
         self.podman
             .post(
                 &format!("/libpod/containers/{}/init", &self.id),
                 Payload::empty(),
+                Headers::none(),
             )
             .await
             .map(|_| ())
@@ -557,6 +587,7 @@ impl Container {
 
     api_doc! {
     Container => WaitLibpod
+    |
     /// Wait for this container to meet a given condition.
     ///
     /// Examples:
@@ -583,14 +614,20 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn wait(&self, opts: &opts::ContainerWaitOpts) -> Result<()> {
-        let ep = url::construct_ep(&format!("/libpod/containers/{}/wait", &self.id), opts.serialize());
-        self.podman.post(&ep, Payload::empty()).await.map(|_| ())
+        let ep = url::construct_ep(
+            &format!("/libpod/containers/{}/wait", &self.id),
+            opts.serialize(),
+        );
+        self.podman
+            .post(&ep, Payload::empty(), Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => ExistsLibpod
+    |
     /// Quick way to determine if a container exists by name or ID
     ///
     /// Examples:
@@ -610,7 +647,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn exists(&self) -> Result<bool> {
         self.podman
             .resource_exists(ApiResource::Containers, &self.id)
@@ -619,6 +655,7 @@ impl Container {
 
     api_doc! {
     Container => AttachLibpod
+    |
     /// Attach to this container.
     ///
     /// Examples:
@@ -643,23 +680,20 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn attach(
-        &self,
-        opts: &opts::ContainerAttachOpts,
-    ) -> Result<tty::Multiplexer<'_>> {
+    pub async fn attach(&self, opts: &opts::ContainerAttachOpts) -> Result<tty::Multiplexer<'_>> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/attach", &self.id),
             opts.stream().serialize(),
         );
         self.podman
-            .stream_post_upgrade(ep, Payload::empty())
+            .post_upgrade_stream(ep, Payload::empty())
             .await
             .map(tty::Multiplexer::new)
     }}
 
     api_doc! {
     Container => ChangesLibpod
+    |
     /// Returns which files in this container's filesystem have been added, deleted, or modified.
     ///
     /// Examples:
@@ -680,7 +714,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn changes(
         &self,
         opts: &opts::ChangesOpts,
@@ -694,6 +727,7 @@ impl Container {
 
     api_doc! {
     Container => LogsLibpod
+    |
     /// Get logs from this container.
     ///
     /// Examples:
@@ -728,7 +762,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub fn logs(
         &self,
         opts: &opts::ContainerLogsOpts,
@@ -739,7 +772,7 @@ impl Container {
         );
         let stream = Box::pin(
             self.podman
-                .stream_get(ep)
+                .get_stream(ep)
                 .map_err(|e| containers_api::conn::Error::Any(Box::new(e))),
         );
 
@@ -748,6 +781,7 @@ impl Container {
 
     api_doc! {
     Container => StatsAllLibpod
+    |
     /// Return a single resource usage statistics of this container.
     ///
     /// Examples:
@@ -763,7 +797,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn stats(&self) -> Result<models::ContainerStats200Response> {
         self.podman
             .containers()
@@ -777,6 +810,7 @@ impl Container {
 
     api_doc! {
     Container => StatsAllLibpod
+    |
     /// Return a stream of resource usage statistics of this container.
     ///
     /// Examples:
@@ -798,22 +832,22 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub fn stats_stream(
         &self,
         interval: Option<usize>,
-    ) -> impl Stream<Item = Result<models::ContainerStats200Response>>  + '_ {
+    ) -> impl Stream<Item = Result<models::ContainerStats200Response>> + '_ {
         let opts = opts::ContainerStatsOpts::builder()
-                .containers([self.id.to_string()])
-                .interval(interval.unwrap_or(5))
-                .build();
+            .containers([self.id.to_string()])
+            .interval(interval.unwrap_or(5))
+            .build();
         let ep = url::construct_ep("/libpod/containers/stats", opts.stream().serialize());
 
-        Box::pin(self.podman.stream_get_json(ep))
+        Box::pin(self.podman.get_json_stream(ep))
     }}
 
     api_doc! {
     Container => TopLibpod
+    |
     /// List processes running inside this container.
     ///
     /// Examples:
@@ -832,7 +866,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn top(&self, opts: &opts::ContainerTopOpts) -> Result<models::ContainerTopOkBody> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/top", &self.id),
@@ -844,6 +877,7 @@ impl Container {
 
     api_doc! {
     Container => TopLibpod
+    |
     /// List processes running inside this container as a stream. (As of libpod version 4.0)
     ///
     /// Examples:
@@ -866,7 +900,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub fn top_stream(
         &self,
         opts: &opts::ContainerTopOpts,
@@ -876,11 +909,12 @@ impl Container {
             opts.stream().serialize(),
         );
 
-        Box::pin(self.podman.stream_get_json(ep))
+        Box::pin(self.podman.get_json_stream(ep))
     }}
 
     api_doc! {
     Generate => SystemdLibpod
+    |
     /// Generate Systemd Units based on this container.
     ///
     /// Examples:
@@ -901,7 +935,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn generate_systemd_units(
         &self,
         opts: &opts::SystemdUnitsOpts,
@@ -911,6 +944,7 @@ impl Container {
 
     api_doc! {
     Generate => KubeLibpod
+    |
     /// Generate Kubernetes YAML based on this container
     ///
     /// Parameters:
@@ -934,13 +968,13 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn generate_kube_yaml(&self, service: bool) -> Result<String> {
         self.podman.generate_kube_yaml(service, &self.id).await
     }}
 
     api_doc! {
     Network => ConnectLibpod
+    |
     /// Connect this container to a network
     ///
     /// Examples:
@@ -961,7 +995,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn connect(
         &self,
         network: impl Into<crate::Id>,
@@ -974,6 +1007,7 @@ impl Container {
 
     api_doc! {
     Network => DisconnectLibpod
+    |
     /// Disconnect this container from a network.
     ///
     /// Examples:
@@ -988,7 +1022,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn disconnect(&self, network: impl Into<crate::Id>, force: bool) -> Result<()> {
         let network = self.podman.networks().get(network.into());
         network
@@ -1003,6 +1036,7 @@ impl Container {
 
     api_doc! {
     Container => HealthcheckLibpod
+    |
     /// Execute the defined healthcheck and return information about the result.
     ///
     /// Examples:
@@ -1018,7 +1052,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn healthcheck(&self) -> Result<models::HealthCheckResults> {
         self.podman
             .get_json(&format!("/libpod/containers/{}/healthcheck", &self.id))
@@ -1027,6 +1060,7 @@ impl Container {
 
     api_doc! {
     Container => Archive
+    |
     /// Copy a file/folder from the container.  The resulting stream is a tarball of the extracted
     /// files.
     ///
@@ -1058,10 +1092,9 @@ impl Container {
     ///      archive.unpack(&local_path).unwrap();
     /// };
     /// ```
-    |
     pub fn copy_from(&self, path: impl AsRef<Path>) -> impl Stream<Item = Result<Vec<u8>>> + '_ {
         self.podman
-            .stream_get(format!(
+            .get_stream(format!(
                 "/containers/{}/archive?{}",
                 self.id,
                 url::encoded_pair("path", path.as_ref().to_string_lossy())
@@ -1071,6 +1104,7 @@ impl Container {
 
     api_doc! {
     PutContainer => Archive
+    |
     /// Copy a tarball (see `body`) to the container.
     ///
     /// The tarball will be copied to the container and extracted at the given location (see `path`).
@@ -1112,8 +1146,11 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
-    pub async fn copy_to(&self, path: impl AsRef<Path>, body: crate::conn::hyper::Body) -> Result<()> {
+    pub async fn copy_to(
+        &self,
+        path: impl AsRef<Path>,
+        body: crate::conn::hyper::Body,
+    ) -> Result<()> {
         self.podman
             .put(
                 &format!(
@@ -1129,6 +1166,7 @@ impl Container {
 
     api_doc! {
     PutContainer => Archive
+    |
     /// Copy a byte slice as file into (see `bytes`) the container.
     ///
     /// The file will be copied at the given location (see `path`) and will be owned by root
@@ -1161,7 +1199,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn copy_file_into<P: AsRef<Path>>(&self, path: P, bytes: &[u8]) -> Result<()> {
         let path = path.as_ref();
 
@@ -1184,6 +1221,7 @@ impl Container {
 
     api_doc! {
     Container => ResizeLibpod
+    |
     /// Resize the terminal attached to this container (for use with Attach).
     ///
     /// Examples:
@@ -1199,7 +1237,6 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn resize(&self, width: usize, heigth: usize) -> Result<()> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/resize", &self.id),
@@ -1208,11 +1245,15 @@ impl Container {
                 ("w", width.to_string()),
             ])),
         );
-        self.podman.post(&ep, Payload::None::<&str>).await.map(|_| ())
+        self.podman
+            .post(&ep, Payload::None::<&str>, Headers::none())
+            .await
+            .map(|_| ())
     }}
 
     api_doc! {
     Container => ExportLibpod
+    |
     /// Export the contents of a container as a tarball.
     ///
     /// Examples:
@@ -1234,15 +1275,15 @@ impl Container {
     ///     std::fs::write("/tmp/79c93f220e3e.tar", &content).unwrap();
     /// };
     /// ```
-    |
     pub fn export(&self) -> impl Stream<Item = Result<Vec<u8>>> + Unpin + '_ {
         let ep = format!("/libpod/containers/{}/export", &self.id);
 
-        Box::pin(self.podman.stream_get(ep).map_ok(|c| c.to_vec()))
+        Box::pin(self.podman.get_stream(ep).map_ok(|c| c.to_vec()))
     }}
 
     api_doc! {
     Container => RestoreLibpod
+    |
     /// Restore a container from a checkpoint
     ///
     /// Examples:
@@ -1258,19 +1299,21 @@ impl Container {
     ///     }
     /// };
     /// ```
-    |
     pub async fn restore(&self, opts: &opts::ContainerRestoreOpts) -> Result<serde_json::Value> {
         let ep = url::construct_ep(
             &format!("/libpod/containers/{}/restore", &self.id),
             opts.serialize(),
         );
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 }
 
 impl Containers {
     api_doc! {
     Container => CreateLibpod
+    |
     /// Create a container with specified options.
     ///
     /// Examples:
@@ -1300,7 +1343,6 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    |
     pub async fn create(
         &self,
         opts: &opts::ContainerCreateOpts,
@@ -1309,12 +1351,14 @@ impl Containers {
             .post_json(
                 &"/libpod/containers/create",
                 Payload::Json(opts.serialize()?),
+                Headers::none(),
             )
             .await
     }}
 
     api_doc! {
     Container => ListLibpod
+    |
     /// Returns a list of containers.
     ///
     /// Examples:
@@ -1340,7 +1384,6 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    |
     pub async fn list(&self, opts: &opts::ContainerListOpts) -> Result<Vec<models::ListContainer>> {
         let ep = url::construct_ep("/libpod/containers/json", opts.serialize());
         self.podman.get_json(&ep).await
@@ -1348,6 +1391,7 @@ impl Containers {
 
     api_doc! {
     Container => StatsAllLibpod
+    |
     /// Return a single resource usage statistics of one or more container. If not container is
     /// specified in the options, the statistics of all are returned.
     ///
@@ -1364,7 +1408,6 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    |
     pub async fn stats(
         &self,
         opts: &opts::ContainerStatsOpts,
@@ -1376,6 +1419,7 @@ impl Containers {
 
     api_doc! {
     Container => StatsAllLibpod
+    |
     /// Return a stream of resource usage statistics of one or more container. If not container is
     /// specified in the options, the statistics of all are returned.
     ///
@@ -1399,18 +1443,18 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    |
     pub fn stats_stream(
         &self,
         opts: &opts::ContainerStatsOpts,
     ) -> impl Stream<Item = Result<models::ContainerStats200Response>> + '_ {
         let ep = url::construct_ep("/libpod/containers/stats", opts.stream().serialize());
 
-        Box::pin(self.podman.stream_get_json(ep))
+        Box::pin(self.podman.get_json_stream(ep))
     }}
 
     api_doc! {
     Container => ShowMountedLibpod
+    |
     /// List all mounted containers mount points.
     ///
     /// Examples:
@@ -1426,13 +1470,13 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    |
     pub async fn list_mounted(&self) -> Result<serde_json::Value> {
         self.podman.get_json("/libpod/containers/showmounted").await
     }}
 
     api_doc! {
     Container => PruneLibpod
+    |
     /// Remove containers not in use.
     ///
     /// Examples:
@@ -1448,12 +1492,13 @@ impl Containers {
     ///     }
     /// };
     /// ```
-    |
     pub async fn prune(
         &self,
         opts: &opts::ContainerPruneOpts,
     ) -> Result<Vec<models::ContainersPruneReportLibpod>> {
         let ep = url::construct_ep("/libpod/containers/prune", opts.serialize());
-        self.podman.post_json(&ep, Payload::empty()).await
+        self.podman
+            .post_json(&ep, Payload::empty(), Headers::none())
+            .await
     }}
 }
