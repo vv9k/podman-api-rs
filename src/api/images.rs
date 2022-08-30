@@ -53,7 +53,7 @@ impl Image {
     ///     }
     /// };
     /// ```
-    pub async fn history(&self) -> Result<models::HistoryResponseItem> {
+    pub async fn history(&self) -> Result<Vec<models::HistoryResponse>> {
         self.podman
             .get_json(&format!("/libpod/images/{}/history", &self.id))
             .await
