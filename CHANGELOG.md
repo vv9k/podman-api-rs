@@ -15,6 +15,7 @@
 * Fix return type of `Containers::prune`
 * `Transport` is no longer publicly available in `conn` module
 * Fix `Image::history` return type
+* Fix `Image::untag` endpoint
 
 # 0.5.0
 * Fix some generated models

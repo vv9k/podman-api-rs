@@ -204,7 +204,7 @@ impl Image {
     /// };
     /// ```
     pub async fn untag(&self, opts: &opts::ImageTagOpts) -> Result<()> {
-        let ep = url::construct_ep(format!("/libpod/images/{}/tag", &self.id), opts.serialize());
+        let ep = url::construct_ep(format!("/libpod/images/{}/untag", &self.id), opts.serialize());
         self.podman
             .post(&ep, Payload::empty(), Headers::none())
             .await
