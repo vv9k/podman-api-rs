@@ -159,6 +159,29 @@ impl Manifest {
             .post_json(&ep, Payload::empty(), Headers::none())
             .await
     }}
+
+    api_doc! {
+    Manifest => DeleteLibpod
+    |
+    /// Delete this manifest list.
+    /// Examples:
+    ///
+    /// ```no_run
+    /// async {
+    ///     use podman_api::Podman;
+    ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
+    ///
+    ///     if let Err(e) = podman.manifests().get("my-manifest").delete().await {
+    ///         eprintln!("{}", e);
+    ///     }
+    /// };
+    /// ```
+    pub async fn delete(&self) -> Result<()> {
+        self.podman
+            .delete(&format!("/libpod/manifests/{}", self.name))
+            .await
+            .map(|_| ())
+    }}
 }
 
 impl Manifests {

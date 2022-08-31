@@ -20,6 +20,7 @@
 * Fix `Images::export` to correctly return a stream of chunks
 * Fix `Secret::delete` endpoint
 * Fix `Manifest::remove_image` return type
+* Add `Manifest::delete` method
 
 # 0.5.0
 * Fix some generated models
