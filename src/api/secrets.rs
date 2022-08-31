@@ -50,7 +50,7 @@ impl Secret {
     /// ```
     pub async fn delete(&self) -> Result<()> {
         self.podman
-            .delete(&format!("/libpod/secrets/{}/", &self.id))
+            .delete(&format!("/libpod/secrets/{}", &self.id))
             .await
             .map(|_| ())
     }}

@@ -18,6 +18,7 @@
 * Fix `Image::untag` endpoint
 * Fix `Image::tree` return type
 * Fix `Images::export` to correctly return a stream of chunks
+* Fix `Secret::delete` endpoint
 
 # 0.5.0
 * Fix some generated models
