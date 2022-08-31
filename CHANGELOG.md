@@ -21,6 +21,7 @@
 * Fix `Secret::delete` endpoint
 * Fix `Manifest::remove_image` return type
 * Add `Manifest::delete` method
+* Fix `Manifest::create` endpoint to correctly include name of the manifest
 
 # 0.5.0
 * Fix some generated models

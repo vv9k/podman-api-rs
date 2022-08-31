@@ -213,7 +213,7 @@ impl Manifests {
     /// };
     /// ```
     pub async fn create(&self, opts: &opts::ManifestCreateOpts) -> Result<Manifest> {
-        let ep = url::construct_ep("/libpod/manifests/create", opts.serialize());
+        let ep = url::construct_ep(format!("/libpod/manifests/{}", opts.name()), opts.serialize());
         self.podman
             .post_json(&ep, Payload::empty(), Headers::none())
             .await
