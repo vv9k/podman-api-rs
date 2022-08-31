@@ -113,12 +113,12 @@ impl Manifest {
     ///       .get("my-manifest")
     ///       .remove_image("sha256:a1801b843b1bfaf77c501e7a6d3f709401a1e0c83863037fa3aab063a7fdb9dc")
     ///       .await {
-    ///         Ok(id) => println!("{:?}", id),
+    ///         Ok(report) => println!("{:?}", report),
     ///         Err(e) => eprintln!("{}", e),
     ///     }
     /// };
     /// ```
-    pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::IdResponse> {
+    pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::ManifestRemoveReport> {
         let ep = url::construct_ep(
             &format!("/libpod/manifests/{}", &self.name),
             Some(url::encoded_pair("digest", digest.into())),

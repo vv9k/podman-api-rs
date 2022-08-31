@@ -19,6 +19,7 @@
 * Fix `Image::tree` return type
 * Fix `Images::export` to correctly return a stream of chunks
 * Fix `Secret::delete` endpoint
+* Fix `Manifest::remove_image` return type
 
 # 0.5.0
 * Fix some generated models
