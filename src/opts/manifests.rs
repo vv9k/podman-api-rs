@@ -1,6 +1,6 @@
 use containers_api::{
     impl_field, impl_opts_builder, impl_opts_required_builder, impl_str_field, impl_url_bool_field,
-    impl_url_str_field, impl_vec_field,
+    impl_url_vec_field, impl_vec_field,
 };
 
 impl_opts_required_builder!(url =>
@@ -18,9 +18,9 @@ impl ManifestCreateOptsBuilder {
         all => "all"
     );
 
-    impl_url_str_field!(
-        /// Name of the image.
-        image => "image"
+    impl_url_vec_field!(
+        /// One or more names of an image or a manifest list. Repeat parameter as needed.
+        images => "images"
     );
 }
 

@@ -22,6 +22,7 @@
 * Fix `Manifest::remove_image` return type
 * Add `Manifest::delete` method
 * Fix `Manifest::create` endpoint to correctly include name of the manifest
+* Replace ManifestCreateOptsBuilder `image` method with `images`
 
 # 0.5.0
 * Fix some generated models
