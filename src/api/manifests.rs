@@ -202,7 +202,7 @@ impl Manifests {
     ///         .manifests()
     ///         .create(
     ///             &ManifestCreateOpts::builder("my-manifest")
-    ///                 .image("alpine")
+    ///                 .images(["alpine"])
     ///                 .build(),
     ///         )
     ///         .await
