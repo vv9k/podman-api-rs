@@ -23,6 +23,8 @@
 * Add `Manifest::delete` method
 * Fix `Manifest::create` endpoint to correctly include name of the manifest
 * Replace ManifestCreateOptsBuilder `image` method with `images`
+* Rename `Network::force_delete` to `Network::remove` to match other structs
+* Fix `Network::delete` and `Network::remove` return value
 
 # 0.5.0
 * Fix some generated models
