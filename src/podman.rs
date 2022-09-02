@@ -535,7 +535,13 @@ impl Podman {
                 StatusCode::NO_CONTENT => Ok(true),
                 _ => Ok(false),
             },
-            Err(e) => Err(e),
+            Err(e) => match e {
+                Error::Fault {
+                    code: StatusCode::NOT_FOUND,
+                    message: _,
+                } => Ok(false),
+                e => Err(e),
+            },
         }
     }
 
