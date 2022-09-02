@@ -2,7 +2,7 @@
 
 use crate::{
     api::{self, ApiResource},
-    conn::{get_http_connector, Headers, Payload, RequestClient, Transport},
+    conn::{self, get_http_connector, Headers, Payload, RequestClient, Transport},
     models,
     opts::*,
     ApiVersion, Error, Result, Value, LATEST_API_VERSION,
@@ -18,7 +18,9 @@ use bytes::Bytes;
 use containers_api::url;
 use futures_util::{stream::Stream, AsyncRead, AsyncWrite, TryStreamExt};
 use serde::de::DeserializeOwned;
+use std::future::Future;
 use std::path::Path;
+use std::pin::Pin;
 
 /// Entrypoint interface for communicating with podman daemon
 #[derive(Debug, Clone)]
@@ -106,12 +108,15 @@ impl Podman {
     {
         Podman {
             version: version.into(),
-            client: RequestClient::new(Transport::Unix {
-                client: Client::builder()
-                    .pool_max_idle_per_host(0)
-                    .build(get_unix_connector()),
-                path: socket_path.as_ref().to_path_buf(),
-            }),
+            client: RequestClient::new(
+                Transport::Unix {
+                    client: Client::builder()
+                        .pool_max_idle_per_host(0)
+                        .build(get_unix_connector()),
+                    path: socket_path.as_ref().to_path_buf(),
+                },
+                Box::new(validate_response),
+            ),
         }
     }
 
@@ -153,11 +158,15 @@ impl Podman {
     {
         Ok(Podman {
             version: version.into(),
-            client: RequestClient::new(Transport::EncryptedTcp {
-                client: Client::builder().build(get_https_connector(cert_path.as_ref(), verify)?),
-                host: url::url::Url::parse(&format!("https://{}", host.as_ref()))
-                    .map_err(Error::InvalidUrl)?,
-            }),
+            client: RequestClient::new(
+                Transport::EncryptedTcp {
+                    client: Client::builder()
+                        .build(get_https_connector(cert_path.as_ref(), verify)?),
+                    host: url::url::Url::parse(&format!("https://{}", host.as_ref()))
+                        .map_err(Error::InvalidUrl)?,
+                },
+                Box::new(validate_response),
+            ),
         })
     }
 
@@ -185,11 +194,14 @@ impl Podman {
     {
         Ok(Podman {
             version: version.into(),
-            client: RequestClient::new(Transport::Tcp {
-                client: Client::builder().build(get_http_connector()),
-                host: url::url::Url::parse(&format!("tcp://{}", host.as_ref()))
-                    .map_err(Error::InvalidUrl)?,
-            }),
+            client: RequestClient::new(
+                Transport::Tcp {
+                    client: Client::builder().build(get_http_connector()),
+                    host: url::url::Url::parse(&format!("tcp://{}", host.as_ref()))
+                        .map_err(Error::InvalidUrl)?,
+                },
+                Box::new(validate_response),
+            ),
         })
     }
 
@@ -683,6 +695,53 @@ impl Podman {
             .delete_json(self.version.make_endpoint(endpoint))
             .await
     }
+}
+
+fn validate_response(
+    response: Response<Body>,
+) -> Pin<Box<dyn Future<Output = Result<Response<Body>>>>> {
+    Box::pin(async move {
+        log::trace!(
+            "got response {} {:?}",
+            response.status(),
+            response.headers()
+        );
+        let status = response.status();
+
+        use crate::conn::hyper::{self, StatusCode};
+        match status {
+            // Success case: pass on the response
+            StatusCode::OK
+            | StatusCode::CREATED
+            | StatusCode::SWITCHING_PROTOCOLS
+            | StatusCode::NO_CONTENT => Ok(response),
+            // Error case: try to deserialize error message
+            _ => {
+                let body = response.into_body();
+                let bytes = hyper::body::to_bytes(body)
+                    .await
+                    .map_err(conn::Error::from)?;
+                let message_body = String::from_utf8(bytes.to_vec()).map_err(conn::Error::from)?;
+                log::trace!("{message_body:#?}");
+                let error: models::ErrorModel = serde_json::from_str(&message_body)?;
+                let mut message = format!(
+                    "{}: {}",
+                    error.message.unwrap_or_default(),
+                    error.cause.unwrap_or_default(),
+                );
+                if message == ": " {
+                    message = status
+                        .canonical_reason()
+                        .unwrap_or("unknown error code")
+                        .to_owned();
+                }
+                Err(Error::Fault {
+                    code: status,
+                    message,
+                })
+            }
+        }
+    })
 }
 
 #[cfg(test)]
