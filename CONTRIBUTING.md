@@ -22,7 +22,7 @@ $ cd podman-api
 1. open an issue describing the feature/bug you wish to contribute first to start a discussion, explain why, what and how
 2. use rustfmt, see below how to configure
 3. try to write tests covering code you produce as much as possible, especially critical code branches
-4. add notes/hightlights for the changelog in the pull request description
+4. update the CHANGELOG with any breaking changes or fixes/additions
 
 
 ### Configuring rustfmt

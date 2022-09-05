@@ -8,4 +8,6 @@ Closes: #xxx
 
 ## How did you verify your change:
 
-## What (if anything) would need to be called out in the CHANGELOG for the next release:
+<!--
+Please update the CHANGELOG with notes about breaking changes, fixes or additions
+-->
