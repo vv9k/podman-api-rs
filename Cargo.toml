@@ -51,7 +51,7 @@ tempdir = "0.3"
 gethostname = "0.2"
 
 [target.'cfg(unix)'.dev-dependencies]
-nix = "0.15"
+nix = "0.25"
 
 [features]
 default = ["chrono"]
