@@ -20,39 +20,7 @@ on:
       - master
 
 jobs:
-  codestyle:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add rustfmt
-        shell: bash
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
-
   lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add clippy
-        shell: bash
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --all-features --all-targets -- -Dclippy::all
-
-  check:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest, windows-latest ]
@@ -64,27 +32,22 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --all-targets --all-features
+      - run: rustup component add rustfmt
+        shell: bash
+      - run: make lint
 
   test:
-    needs: [codestyle, lint, check]
-    strategy:
-      matrix:
-        rust: [stable, beta, nightly]
+    needs: [lint]
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ matrix.rust }}
+          toolchain: stable
           override: true
       - name: Install podman 4.2.0
         run: |
-          sudo mkdir -p /usr/share/keyrings
           sudo bash -c 'echo "deb [trusted=yes] http://ftp.us.debian.org/debian/ experimental main" >> /etc/apt/sources.list.d/experimental.list'
           sudo apt -y update
           sudo apt -y install podman=4.2.0+ds1-3
@@ -92,9 +55,6 @@ jobs:
         run: |
           systemctl restart --user podman
           systemctl restart --user podman.socket
-          podman --version
-      - name: Build tests
-        run: cargo t --no-run --all-targets --all-features
       - name: Test
         run: |
           podman pull ubuntu:latest
