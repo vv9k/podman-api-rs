@@ -1,10 +1,13 @@
+.PHONY: all
+all: clean codegen lint test doc
+
 .PHONY: doc
 doc:
 	cargo doc --no-deps
 
 .PHONY: codegen
 codegen:
-	cd codegen && ./build.sh
+	cd podman-api-stubs && ./build.sh
 
 .PHONY: test
 test:
@@ -15,3 +18,7 @@ test:
 lint:
 	cargo fmt -- --check
 	cargo clippy --all-targets --all-features -- -Dclippy::all
+
+.PHONY: clean
+clean:
+	rm -rf target podman-api-stubs/target
