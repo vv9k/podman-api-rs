@@ -1,4 +1,3 @@
-#![cfg(unix)] //temporary
 mod common;
 
 use common::{api::Pod, init_runtime, opts::PodCreateOpts, Podman, StreamExt, DEFAULT_IMAGE};

@@ -198,7 +198,7 @@ async fn network_connect_disconnect() {
     assert!(connect_result.is_ok());
     connect_result.unwrap();
 
-    let container_data = container.inspect().await;
+    //let container_data = container.inspect().await;
     //log::error!("{container_data:#?}");
 
     let _ = network.remove().await;

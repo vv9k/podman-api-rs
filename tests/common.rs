@@ -1,6 +1,7 @@
-#![cfg(unix)] //temporary
 #![allow(dead_code)]
+
 use std::env;
+use std::path::PathBuf;
 
 pub use futures_util::{StreamExt, TryStreamExt};
 pub use podman_api::{api, conn, models, opts, Podman};
@@ -11,11 +12,35 @@ pub const DEFAULT_CMD: &str = "sleep inf";
 pub const DEFAULT_CMD_ARRAY: &[&str] = &["sleep", "inf"];
 pub const TEST_IMAGE_PATH: &str = "/var/test123";
 
+const URI_ENV_VAR: &str = "PODMAN_API_URI";
+
 pub fn init_runtime() -> Podman {
     let _ = env_logger::try_init();
-    let podman_uri = env::var("PODMAN_API_URI").expect("podman socket location PODMAN_API_URI");
-
-    Podman::new(podman_uri).unwrap()
+    if let Ok(uri) = env::var(URI_ENV_VAR) {
+        Podman::new(uri).unwrap()
+    } else {
+        #[cfg(unix)]
+        {
+            let uid = nix::unistd::Uid::effective();
+            let podman_dir = PathBuf::from(format!("/run/user/{uid}/podman"));
+            let podman_root_dir = PathBuf::from("/run/podman");
+            if podman_dir.exists() {
+                Podman::unix(podman_dir.join("podman.sock"))
+            } else if podman_root_dir.exists() {
+                Podman::unix(podman_root_dir.join("podman.sock"))
+            } else {
+                panic!(
+                    "Podman socket not found. Tried {URI_ENV_VAR} env variable, {} and {}",
+                    podman_dir.display(),
+                    podman_root_dir.display()
+                );
+            }
+        }
+        #[cfg(not(unix))]
+        {
+            panic!("Podman socket not found. Try setting the {URI_ENV_VAR} env variable",);
+        }
+    }
 }
 
 pub async fn create_base_container(

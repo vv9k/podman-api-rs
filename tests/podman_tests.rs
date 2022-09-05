@@ -1,4 +1,3 @@
-#![cfg(unix)] //temporary
 mod common;
 
 use common::init_runtime;

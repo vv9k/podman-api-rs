@@ -1,4 +1,3 @@
-#![cfg(unix)] //temporary
 mod common;
 
 use common::{api::Manifest, init_runtime, opts, Podman, DEFAULT_IMAGE};

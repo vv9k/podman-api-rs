@@ -1,4 +1,3 @@
-#![cfg(unix)] //temporary
 mod common;
 
 use common::{create_base_volume, init_runtime, opts};

@@ -58,4 +58,4 @@ jobs:
       - name: Test
         run: |
           podman pull ubuntu:latest
-          PODMAN_API_URI="unix:///run/user/$UID/podman/podman.sock" make test
+          make test
