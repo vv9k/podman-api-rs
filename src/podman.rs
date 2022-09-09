@@ -705,7 +705,7 @@ impl Podman {
 
 fn validate_response(
     response: Response<Body>,
-) -> Pin<Box<dyn Future<Output = Result<Response<Body>>>>> {
+) -> Pin<Box<dyn Future<Output = Result<Response<Body>>> + Send + Sync>> {
     Box::pin(async move {
         log::trace!(
             "got response {} {:?}",
