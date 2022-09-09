@@ -1,3 +1,6 @@
+# 0.7.0
+* Make futures returned by methods Send + Sync
+
 # 0.6.0
 * Add `Container::restore`, `Container::resize`, `Container::export`
 * Add support for `!=` filters like `label!=key=val` or `label!=key`
