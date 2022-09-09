@@ -27,13 +27,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: hecrj/setup-rust-action@v1
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - run: rustup component add rustfmt
-        shell: bash
+          components: clippy,rustfmt
       - run: make lint
 
   test:
@@ -41,11 +37,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+      - uses: hecrj/setup-rust-action@v1
       - name: Install podman 4.2.0
         run: |
           sudo bash -c 'echo "deb [trusted=yes] http://ftp.us.debian.org/debian/ experimental main" >> /etc/apt/sources.list.d/experimental.list'
