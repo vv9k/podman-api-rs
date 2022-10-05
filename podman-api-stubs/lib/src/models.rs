@@ -11,6 +11,26 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 use chrono::{DateTime, Utc};
+
+fn deserialize_nonoptional_vec<
+    'de,
+    D: serde::de::Deserializer<'de>,
+    T: serde::de::DeserializeOwned,
+>(
+    d: D,
+) -> Result<Vec<T>, D::Error> {
+    serde::de::Deserialize::deserialize(d).map(|x: Option<_>| x.unwrap_or_default())
+}
+
+fn deserialize_nonoptional_map<
+    'de,
+    D: serde::de::Deserializer<'de>,
+    T: serde::de::DeserializeOwned,
+>(
+    d: D,
+) -> Result<HashMap<String, T>, D::Error> {
+    serde::de::Deserialize::deserialize(d).map(|x: Option<_>| x.unwrap_or_default())
+}
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Address {
     #[serde(rename = "Addr")]
@@ -565,6 +585,7 @@ pub struct ContainerCreateCreatedBody {
     pub id: String,
     #[serde(rename = "Warnings")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// Warnings encountered when creating the container
     pub warnings: Vec<String>,
 }
@@ -577,6 +598,7 @@ pub struct ContainerCreateResponse {
     pub id: String,
     #[serde(rename = "Warnings")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// Warnings during container creation
     pub warnings: Vec<String>,
 }
@@ -1263,11 +1285,13 @@ pub struct ContainerStore {
 pub struct ContainerTopOkBody {
     #[serde(rename = "Processes")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// Each process running in the container, where each is process
     /// is an array of values corresponding to the titles.
     pub processes: Vec<Vec<String>>,
     #[serde(rename = "Titles")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// The ps column titles
     pub titles: Vec<String>,
 }
@@ -1277,6 +1301,7 @@ pub struct ContainerTopOkBody {
 pub struct ContainerUpdateOkBody {
     #[serde(rename = "Warnings")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// warnings
     pub warnings: Vec<String>,
 }
@@ -1618,10 +1643,10 @@ pub struct ExecStartLibpodControlParam {
     pub tty: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Height of the TTY session in characters. Tty must be set to true to use it.
-    pub h: Option<usize>,
+    pub h: Option<isize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Width of the TTY session in characters. Tty must be set to true to use it.
-    pub w: Option<usize>,
+    pub w: Option<isize>,
 }
 
 /// The bits have the same definition on all systems, so that
@@ -1640,6 +1665,7 @@ pub type GenerateSystemdLibpod200Response = HashMap<String, String>;
 pub struct GraphDriverData {
     #[serde(rename = "Data")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// data
     pub data: HashMap<String, String>,
     #[serde(rename = "Name")]
@@ -1805,6 +1831,7 @@ pub struct HistoryResponseItem {
     pub size: i64,
     #[serde(rename = "Tags")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// tags
     pub tags: Vec<String>,
 }
@@ -2473,6 +2500,7 @@ pub struct ImageSummary {
     pub id: String,
     #[serde(rename = "Labels")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// labels
     pub labels: HashMap<String, String>,
     #[serde(rename = "ParentId")]
@@ -2480,10 +2508,12 @@ pub struct ImageSummary {
     pub parent_id: String,
     #[serde(rename = "RepoDigests")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// repo digests
     pub repo_digests: Vec<String>,
     #[serde(rename = "RepoTags")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// repo tags
     pub repo_tags: Vec<String>,
     #[serde(rename = "SharedSize")]
@@ -5328,10 +5358,12 @@ pub struct PluginConfig {
     pub documentation: String,
     #[serde(rename = "Entrypoint")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// entrypoint
     pub entrypoint: Vec<String>,
     #[serde(rename = "Env")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// env
     pub env: Vec<PluginEnv>,
     #[serde(rename = "Interface")]
@@ -5343,6 +5375,7 @@ pub struct PluginConfig {
     pub linux: PluginConfigLinux,
     #[serde(rename = "Mounts")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// mounts
     pub mounts: Vec<PluginMount>,
     #[serde(rename = "Network")]
@@ -5372,10 +5405,12 @@ pub struct PluginConfigArgs {
     pub name: String,
     #[serde(rename = "Settable")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// settable
     pub settable: Vec<String>,
     #[serde(rename = "Value")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// value
     pub value: Vec<String>,
 }
@@ -5392,6 +5427,7 @@ pub struct PluginConfigInterface {
     pub socket: String,
     #[serde(rename = "Types")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// types
     pub types: Vec<PluginInterfaceType>,
 }
@@ -5404,10 +5440,12 @@ pub struct PluginConfigLinux {
     pub allow_all_devices: bool,
     #[serde(rename = "Capabilities")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// capabilities
     pub capabilities: Vec<String>,
     #[serde(rename = "Devices")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// devices
     pub devices: Vec<PluginDevice>,
 }
@@ -5459,6 +5497,7 @@ pub struct PluginDevice {
     pub path: String,
     #[serde(rename = "Settable")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// settable
     pub settable: Vec<String>,
 }
@@ -5474,6 +5513,7 @@ pub struct PluginEnv {
     pub name: String,
     #[serde(rename = "Settable")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// settable
     pub settable: Vec<String>,
     #[serde(rename = "Value")]
@@ -5509,10 +5549,12 @@ pub struct PluginMount {
     pub name: String,
     #[serde(rename = "Options")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// options
     pub options: Vec<String>,
     #[serde(rename = "Settable")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// settable
     pub settable: Vec<String>,
     #[serde(rename = "Source")]
@@ -5527,18 +5569,22 @@ pub struct PluginMount {
 pub struct PluginSettings {
     #[serde(rename = "Args")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// args
     pub args: Vec<String>,
     #[serde(rename = "Devices")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// devices
     pub devices: Vec<PluginDevice>,
     #[serde(rename = "Env")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// env
     pub env: Vec<String>,
     #[serde(rename = "Mounts")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// mounts
     pub mounts: Vec<PluginMount>,
 }
@@ -6177,11 +6223,13 @@ pub struct PodStorageConfig {
 pub struct PodTopOkBody {
     #[serde(rename = "Processes")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// Each process running in the container, where each is process
     /// is an array of values corresponding to the titles.
     pub processes: Vec<Vec<String>>,
     #[serde(rename = "Titles")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// The ps column titles
     pub titles: Vec<String>,
 }
@@ -7498,6 +7546,7 @@ pub struct Volume {
     pub driver: String,
     #[serde(rename = "Labels")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// User-defined key/value metadata.
     pub labels: HashMap<String, String>,
     #[serde(rename = "Mountpoint")]
@@ -7508,6 +7557,7 @@ pub struct Volume {
     pub name: String,
     #[serde(rename = "Options")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// The driver specific options used when creating the volume.
     pub options: HashMap<String, String>,
     #[serde(rename = "Scope")]
@@ -7620,11 +7670,13 @@ pub struct VolumeCreateBody {
     pub driver: String,
     #[serde(rename = "DriverOpts")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// A mapping of driver options and values. These options are
     /// passed directly to the driver and are driver specific.
     pub driver_opts: HashMap<String, String>,
     #[serde(rename = "Labels")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// User-defined key/value metadata.
     pub labels: HashMap<String, String>,
     #[serde(rename = "Name")]
@@ -7662,10 +7714,12 @@ pub struct VolumeCreateOptions {
 pub struct VolumeListOkBody {
     #[serde(rename = "Volumes")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// List of volumes
     pub volumes: Vec<Volume>,
     #[serde(rename = "Warnings")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
     /// Warnings that occurred when fetching the list of volumes.
     pub warnings: Vec<String>,
 }
@@ -7893,11 +7947,13 @@ pub struct VolumeCreate {
     pub driver: String,
     #[serde(rename = "DriverOpts")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// A mapping of driver options and values. These options are
     /// passed directly to the driver and are driver specific.
     pub driver_opts: HashMap<String, String>,
     #[serde(rename = "Labels")]
     #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_map")]
     /// User-defined key/value metadata.
     pub labels: HashMap<String, String>,
     #[serde(rename = "Name")]
