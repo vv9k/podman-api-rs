@@ -35,6 +35,7 @@
 * Add `ImagesRemoveOptsBuilder::lookup_manifest`
 * Add `ImagePushOptsBuilder::quiet`
 * Add `NetworkCreateOptsBuilder::created`
+* Add `NetworkCreateOptsBuilder::subnets`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

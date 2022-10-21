@@ -1,4 +1,4 @@
-use crate::Value;
+use crate::{models, Value};
 
 use containers_api::opts::{Filter, FilterItem};
 use containers_api::{
@@ -66,7 +66,10 @@ impl NetworkCreateOptsBuilder {
         options => "options"
     );
 
-    // #TODO: subnets
+    impl_vec_field!(
+        /// Subnets to use for this network.
+        subnets: models::Subnet => "subnets"
+    );
 }
 
 #[derive(Debug)]
