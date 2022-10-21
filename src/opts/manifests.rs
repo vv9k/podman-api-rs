@@ -93,4 +93,9 @@ impl ManifestPushOptsBuilder {
         /// Push all images.
         all => "all"
     );
+
+    impl_url_bool_field!(
+        /// Silences extra stream data on push.
+        quiet => "quiet"
+    );
 }
