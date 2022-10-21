@@ -542,6 +542,11 @@ impl ContainerCreateOptsBuilder {
         hostname => "hostname"
     );
 
+    impl_vec_field!(
+        /// List of host usernames or UIDs to add to the container etc/passwd file.
+        hostusers => "hostusers"
+    );
+
     impl_field!(
         /// Indicates that the http host proxy environment variables should be added to container.
         http_proxy: bool => "httpproxy"
