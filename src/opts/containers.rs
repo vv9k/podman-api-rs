@@ -513,6 +513,11 @@ impl ContainerCreateOptsBuilder {
     );
 
     impl_field!(
+        /// Defines how Podman reacts when a container's health status turns unhealthy.
+        health_check_on_failure_action: i64 => "health_check_on_failure_action"
+    );
+
+    impl_field!(
         /// Health config which holds configuration settings for the HEALTHCHECK feature, from
         /// docker/docker/api/types/container.
         health_config: models::Schema2HealthConfig => "healthconfig"

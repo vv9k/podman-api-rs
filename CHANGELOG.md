@@ -16,6 +16,7 @@
 * Add `ContainerCreateOptsBuilder::chroot_directories`
 * Add `ContainerCreateOptsBuilder::envmerge`
 * Add `ContainerCreateOptsBuilder::groups`
+* Add `ContainerCreateOptsBuilder::health_check_on_failure_action`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
