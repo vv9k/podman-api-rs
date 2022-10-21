@@ -502,6 +502,11 @@ impl ContainerCreateOptsBuilder {
         env_host: bool => "env_host"
     );
 
+    impl_vec_field!(
+        /// Takes the specified environment variables from image and preprocess them before injecting them into the container.
+        envmerge => "envmerge"
+    );
+
     impl_field!(
         /// Health config which holds configuration settings for the HEALTHCHECK feature, from
         /// docker/docker/api/types/container.
