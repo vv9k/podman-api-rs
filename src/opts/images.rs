@@ -633,6 +633,11 @@ impl ImagesRemoveOptsBuilder {
         /// Images IDs or names to remove.
         images => "images"
     );
+
+    impl_url_bool_field!(
+        /// Resolves to manifest list instead of image.
+        lookup_manifest => "lookupManifest"
+    );
 }
 
 #[derive(Default, Debug)]
