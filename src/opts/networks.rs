@@ -11,7 +11,10 @@ impl_opts_builder!(json =>
 );
 
 impl NetworkCreateOptsBuilder {
-    // #TODO: creted
+    impl_str_field!(
+        /// The timestamp when this network was created. Example: `"2019-08-24T14:15:22Z"`
+        created => "created"
+    );
 
     impl_field!(
         /// Whether name resolution is active for container on this Network.
