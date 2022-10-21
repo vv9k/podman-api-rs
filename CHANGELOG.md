@@ -10,6 +10,7 @@
 * Add `PodCreateOptsBuilder::share_parent`
 * Add `PodCreateOptsBuilder::shm_size`
 * Add `PodCreateOptsBuilder::utsns`
+* Add `PodCreateOptsBuilder::volumes`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

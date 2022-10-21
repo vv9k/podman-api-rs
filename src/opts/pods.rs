@@ -342,7 +342,12 @@ impl PodCreateOptsBuilder {
         utsns: models::Namespace => "utsns"
     );
 
-    // TODO: volumes
+    impl_vec_field!(
+        /// Volumes are named volumes that will be added to the pod. These will supersede
+        /// [`image_volumes`](PodCreateOptsBuilder::image_volumes) and [`volumes_from`](PodCreateOptsBuilder::volumes_from)
+        /// volumes where there are conflicts.
+        volumes: models::NamedVolume => "volumes"
+    );
 
     impl_vec_field!(
         /// Set of containers whose volumes will be added to this pod. The name or ID of the
