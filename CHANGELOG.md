@@ -8,6 +8,7 @@
 * Add `PodCreateOptsBuilder::security_opt`
 * Add `PodCreateOptsBuilder::service_container_id`
 * Add `PodCreateOptsBuilder::share_parent`
+* Add `PodCreateOptsBuilder::shm_size`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

@@ -327,6 +327,11 @@ impl PodCreateOptsBuilder {
         shared_namespaces => "shared_namespaces"
     );
 
+    impl_field!(
+        /// The size of the tmpfs to mount in at /dev/shm, in bytes.
+        shm_size: i64 => "shm_size"
+    );
+
     // TODO: throttleReadBpsDevice
 
     impl_field!(
