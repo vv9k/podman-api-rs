@@ -305,6 +305,10 @@ impl PodCreateOptsBuilder {
     );
 
     impl_vec_field!(
+        security_opt => "security_opt"
+    );
+
+    impl_vec_field!(
         /// Instructs the pod to share a set of namespaces. Shared namespaces will be joined (by
         /// default) by every container which joins the pod. If not set and NoInfra is false, the
         /// pod will set a default set of namespaces to share. Conflicts with
