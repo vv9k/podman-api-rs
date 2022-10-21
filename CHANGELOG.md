@@ -29,6 +29,7 @@
 * Add `ManifestCreateOptsBuilder::amend`
 * Add `ManifestImageAddOptsBuilder::os_features`
 * Add `ManifestPushOptsBuilder::quiet`
+* Add `ManifestPushOptsBuilder::tls_verify`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

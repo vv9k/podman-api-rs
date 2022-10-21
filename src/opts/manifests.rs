@@ -98,4 +98,9 @@ impl ManifestPushOptsBuilder {
         /// Silences extra stream data on push.
         quiet => "quiet"
     );
+
+    impl_url_bool_field!(
+        /// Require HTTPS and verify signatures when contacting registries.
+        tls_verify => "tlsVerify"
+    );
 }
