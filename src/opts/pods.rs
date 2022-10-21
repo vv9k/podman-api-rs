@@ -292,7 +292,12 @@ impl PodCreateOptsBuilder {
         pod_devices => "pod_devices"
     );
 
-    // TODO: portmappings
+    impl_vec_field!(
+        /// PortMappings is a set of ports to map into the infra container. As, by default,
+        /// containers share their network with the infra container, this will forward
+        /// the ports to the entire pod. Only available if NetNS is set to Bridge or Slirp.
+        portmappings: models::PortMapping => "portmappings"
+    );
 
     impl_field!(
         /// Container runtime resource constraints.

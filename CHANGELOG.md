@@ -4,6 +4,7 @@
 * Add `PodCreateOptsBuilder::image_volumes`
 * Add `PodCreateOptsBuilder::mounts`
 * Add `PodCreateOptsBuilder::overlay_volumes`
+* Add `PodCreateOptsBuilder::portmappings`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
