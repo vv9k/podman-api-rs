@@ -36,34 +36,42 @@ impl_opts_builder!(json =>
 
 impl ManifestImageAddOptsBuilder {
     impl_field!(
+        /// True when operating on a list to include all images.
         all: bool => "all"
     );
 
     impl_vec_field!(
+        /// Annotation to add to manifest list.
         annotation => "annotation"
     );
 
     impl_str_field!(
+        /// Overrides the architecture for the image.
         arch => "arch"
     );
 
     impl_vec_field!(
+        /// Feature list for the image.
         features => "features"
     );
 
     impl_vec_field!(
+        /// Optional list of images to add to manifest list.
         images => "images"
     );
 
     impl_str_field!(
+        /// Overrides the operating system for the image.
         os => "os"
     );
 
     impl_str_field!(
+        /// Overrides the operating system for the image.
         os_version => "os_version"
     );
 
     impl_str_field!(
+        /// Variant for the image.
         variant => "variant"
     );
 }
