@@ -572,6 +572,11 @@ impl ContainerCreateOptsBuilder {
         image_os => "image_os"
     );
 
+    impl_str_field!(
+        /// User-specified image variant
+        image_variant => "image_variant"
+    );
+
     impl_str_enum_field!(
         /// Indicates how image volumes will be created. The default if unset is
         /// [`anonymous`](ImageVolumeMode::Anonymous).
