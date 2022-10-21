@@ -36,6 +36,7 @@
 * Add `ImagePushOptsBuilder::quiet`
 * Add `NetworkCreateOptsBuilder::created`
 * Add `NetworkCreateOptsBuilder::subnets`
+* Add `SecretCreateOptsBuilder::driver_opts`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

@@ -243,4 +243,9 @@ impl SecretCreateOptsBuilder {
         /// Secret driver. Default is `file`.
         driver => "driver"
     );
+
+    impl_url_str_field!(
+        /// Secret driver options.
+        driver_opts => "driveropts"
+    );
 }
