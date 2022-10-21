@@ -111,7 +111,7 @@ impl_opts_builder!(url =>
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Used with [`SystemdUnitsOptsBuilder::restart_policy`](SystemdUnitsOptsBuilder::restart_policy).
-pub enum RestartPolicy {
+pub enum SystemdRestartPolicy {
     No,
     OnSuccess,
     OnFailure,
@@ -121,9 +121,9 @@ pub enum RestartPolicy {
     Always,
 }
 
-impl AsRef<str> for RestartPolicy {
+impl AsRef<str> for SystemdRestartPolicy {
     fn as_ref(&self) -> &str {
-        use RestartPolicy::*;
+        use SystemdRestartPolicy::*;
         match self {
             No => "no",
             OnSuccess => "on-success",
@@ -136,13 +136,13 @@ impl AsRef<str> for RestartPolicy {
     }
 }
 
-impl Default for RestartPolicy {
+impl Default for SystemdRestartPolicy {
     fn default() -> Self {
-        RestartPolicy::OnFailure
+        SystemdRestartPolicy::OnFailure
     }
 }
 
-impl fmt::Display for RestartPolicy {
+impl fmt::Display for SystemdRestartPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_ref())
     }
@@ -186,7 +186,7 @@ impl SystemdUnitsOptsBuilder {
 
     impl_url_enum_field!(
         /// Systemd restart-policy.
-        restart_policy: RestartPolicy => "restartPolicy"
+        restart_policy: SystemdRestartPolicy => "restartPolicy"
     );
 
     impl_url_field!(

@@ -45,6 +45,7 @@
 * Rename `SocketNotifyMode::ConmonOnly` -> `SocketNotifyMode::Conmon` and fix it's key when serialized
 * Add default implementations for `DiffType`, `RestartPolicy`, `ImageVolumeMode`, `SeccompPolicy`, `SystemdEnabled`, `NetworkMode`, `PullPolicy`
 * Change `ContainerCreateOptsBuilder::restart_policy` function to take a strongly typed `opts::container::ContainerRestartPolicy`
+* Rename `opts::RestartPolicy` -> `opts::SystemdRestartPolicy` to avoid name collision
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
