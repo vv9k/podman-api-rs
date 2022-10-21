@@ -189,7 +189,10 @@ impl PodCreateOptsBuilder {
         hostname => "hostname"
     );
 
-    // TODO: image_volumes
+    impl_vec_field!(
+        /// Image volumes bind-mount a container-image mount into the pod's infra container.
+        image_volumes: models::ImageVolume => "image_volumes"
+    );
 
     impl_vec_field!(
         /// Sets the command that will be used to start the infra container. If not set, the

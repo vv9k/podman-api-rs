@@ -1,6 +1,7 @@
 #
 * Deserialize Vec and HashMap to Option in case a value is null and unwrap a default if it is missing
 * Add `PodCreateOptsBuilder::dns_server`
+* Add `PodCreateOptsBuilder::image_volumes`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
