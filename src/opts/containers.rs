@@ -353,7 +353,7 @@ impl fmt::Display for SeccompPolicy {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-/// Used with [`ContainerCreateOptsBuilder::seccomp_policy`](ContainerCreateOptsBuilder::seccomp_policy).
+/// Used with [`ContainerCreateOptsBuilder::systemd`](ContainerCreateOptsBuilder::systemd).
 pub enum SystemdEnabled {
     True,
     False,
