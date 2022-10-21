@@ -627,6 +627,12 @@ impl ContainerCreateOptsBuilder {
         log_configuration: models::LogConfig => "log_configuration"
     );
 
+    impl_field!(
+        /// Container run option that determines if we are validating users/groups before
+        /// running the container.
+        manage_password: bool => "manage_password"
+    );
+
     impl_vec_field!(
         /// The path we want to mask in the container. This masks the paths given in addition to
         /// the default list.
