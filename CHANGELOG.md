@@ -22,6 +22,7 @@
 * Add `ContainerCreateOptsBuilder::image_variant`
 * Add `ContainerCreateOptsBuilder::image_arch`
 * Add `ContainerCreateOptsBuilder::manage_password`
+* Add `ContainerCreateOptsBuilder::mounts`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

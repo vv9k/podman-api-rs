@@ -639,6 +639,14 @@ impl ContainerCreateOptsBuilder {
         mask => "mask"
     );
 
+    impl_vec_field!(
+        /// Mounts that will be added to the container. These will supersede
+        /// [`image_volumes`](ContainerCreateOptsBuilder::image_volumes) and
+        /// [`volumes_from`](ContainerCreateOptsBuilder::volumes_from) volumes where there
+        /// are conflicts.
+        mounts: models::Mount => "mounts"
+    );
+
     impl_str_field!(
         /// The name the container will be given. If no name is provided, one will be randomly
         /// generated.
