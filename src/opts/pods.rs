@@ -225,7 +225,11 @@ impl PodCreateOptsBuilder {
         labels => "labels"
     );
 
-    // TODO: mounts
+    impl_vec_field!(
+        /// Mounts are mounts that will be added to the pod. These will supersede [`image_volumes`](PodCreateOptsBuilder::image_volumes)
+        /// and [`volumes_from`](PodCreateOptsBuilder::volumes_from) volumes where there are conflicts.
+        mounts: models::Mount => "mounts"
+    );
 
     impl_str_field!(
         /// The name of the pod. If not provided, a name will be generated when the pod is created.
