@@ -382,6 +382,39 @@ impl fmt::Display for SystemdEnabled {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+/// Used with
+/// [`ContainerCreateOptsBuilder::restart_policy`](ContainerCreateOptsBuilder::restart_policy).
+pub enum ContainerRestartPolicy {
+    Always,
+    No,
+    OnFailure,
+    UnlessStopped,
+}
+
+impl Default for ContainerRestartPolicy {
+    fn default() -> Self {
+        ContainerRestartPolicy::No
+    }
+}
+
+impl AsRef<str> for ContainerRestartPolicy {
+    fn as_ref(&self) -> &str {
+        match self {
+            ContainerRestartPolicy::Always => "always",
+            ContainerRestartPolicy::No => "no",
+            ContainerRestartPolicy::OnFailure => "on-failure",
+            ContainerRestartPolicy::UnlessStopped => "unless-stopped",
+        }
+    }
+}
+
+impl fmt::Display for ContainerRestartPolicy {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_ref())
+    }
+}
+
 impl ContainerCreateOptsBuilder {
     impl_map_field!(json
         /// Annotations are key-value options passed into the container runtime that can be used to
@@ -787,10 +820,10 @@ impl ContainerCreateOptsBuilder {
         resource_limits: models::LinuxResources => "resource_limits"
     );
 
-    impl_str_field!(
+    impl_str_enum_field!(
         /// An action which will be taken when the container exits. If not given, the default
         /// policy, which does nothing, will be used.
-        restart_policy => "restart_policy"
+        restart_policy: ContainerRestartPolicy => "restart_policy"
     );
 
     impl_field!(

@@ -44,6 +44,7 @@
 * Add `SystemdUnitsOptsBuilder::wants`
 * Rename `SocketNotifyMode::ConmonOnly` -> `SocketNotifyMode::Conmon` and fix it's key when serialized
 * Add default implementations for `DiffType`, `RestartPolicy`, `ImageVolumeMode`, `SeccompPolicy`, `SystemdEnabled`, `NetworkMode`, `PullPolicy`
+* Change `ContainerCreateOptsBuilder::restart_policy` function to take a strongly typed `opts::container::ContainerRestartPolicy`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
