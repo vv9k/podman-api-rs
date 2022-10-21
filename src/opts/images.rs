@@ -247,6 +247,11 @@ impl ImageBuildOptsBuilder {
         /// Target build stage
         target => "target"
     );
+
+    impl_url_vec_field!(
+        /// Unset environment variables from the final image.
+        unset_env => "unsetenv"
+    );
 }
 
 impl_opts_builder!(url =>
