@@ -137,6 +137,11 @@ impl fmt::Display for RestartPolicy {
 }
 
 impl SystemdUnitsOptsBuilder {
+    impl_url_vec_field!(
+        /// Set environment variables to the systemd unit files.
+        additional_env_variables => "additionalEnvVariables"
+    );
+
     impl_url_str_field!(
         /// Systemd unit name prefix for containers.
         container_prefix => "containerPrefix"
