@@ -338,6 +338,10 @@ impl PodCreateOptsBuilder {
         userns: models::Namespace => "userns"
     );
 
+    impl_field!(
+        utsns: models::Namespace => "utsns"
+    );
+
     // TODO: volumes
 
     impl_vec_field!(
