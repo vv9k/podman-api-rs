@@ -698,6 +698,11 @@ impl ContainerCreateOptsBuilder {
         overlay_volumes : models::OverlayVolume => "overlay_volumes"
     );
 
+    impl_str_field!(
+        /// Specifies arbitrary data to append to a file.
+        passwd_entry => "passwd_entry"
+    );
+
     impl_field!(
         /// Specify the Linux personality syscall input.
         personality: models::LinuxPersonality => "personality"
