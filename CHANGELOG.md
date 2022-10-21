@@ -39,6 +39,7 @@
 * Add `SecretCreateOptsBuilder::driver_opts`
 * Add `SecretCreateOptsBuilder::labels`
 * Add `SystemdUnitsOptsBuilder::additional_env_variables`
+* Add `SystemdUnitsOptsBuilder::after`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

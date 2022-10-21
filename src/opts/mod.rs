@@ -142,6 +142,11 @@ impl SystemdUnitsOptsBuilder {
         additional_env_variables => "additionalEnvVariables"
     );
 
+    impl_url_vec_field!(
+        /// Systemd After list for the container or pods.
+        after => "after"
+    );
+
     impl_url_str_field!(
         /// Systemd unit name prefix for containers.
         container_prefix => "containerPrefix"
