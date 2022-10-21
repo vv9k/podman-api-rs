@@ -19,8 +19,8 @@ pub use volumes::*;
 pub type EventsConstraint = (String, Vec<String>);
 
 use containers_api::{
-    impl_opts_builder, impl_url_bool_field, impl_url_enum_field, impl_url_field,
-    impl_url_str_field, impl_url_vec_field,
+    impl_opts_builder, impl_opts_required_builder, impl_url_bool_field, impl_url_enum_field,
+    impl_url_field, impl_url_str_field, impl_url_vec_field,
 };
 use std::fmt;
 
@@ -231,58 +231,16 @@ impl PlayKubernetesYamlOptsBuilder {
 //
 //####################################################################################################
 
-#[derive(serde::Serialize, Debug, Clone)]
-pub struct SecretCreateOpts {
-    name: String,
-    driver: Option<String>,
-}
-
-impl SecretCreateOpts {
-    /// Returns a new instance of a buildetr for `SecretCreateOpts`.
-    ///
-    /// Parameters:
-    /// * name - User-defined name of the secret.
-    ///
-    pub fn builder(name: impl Into<String>) -> SecretCreateOptsBuilder {
-        SecretCreateOptsBuilder {
-            name: name.into(),
-            driver: None,
-        }
-    }
-
-    pub fn serialize(&self) -> Option<String> {
-        if self.name.is_empty() {
-            return None;
-        }
-
-        let mut params = vec![("name", self.name.clone())];
-
-        if let Some(driver) = &self.driver {
-            params.push(("driver", driver.clone()));
-        }
-
-        Some(containers_api::url::encoded_pairs(params))
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct SecretCreateOptsBuilder {
-    name: String,
-    driver: Option<String>,
-}
+impl_opts_required_builder!(url =>
+    /// Used to create a [Secret](crate::api::Secret).
+    SecretCreate,
+    /// The name of the secret
+    name => "name"
+);
 
 impl SecretCreateOptsBuilder {
-    /// Secret driver. Default is `file`.
-    pub fn driver(mut self, driver: impl Into<String>) -> Self {
-        self.driver = Some(driver.into());
-        self
-    }
-
-    /// Finish building `SecretCreateOpts`.
-    pub fn build(self) -> SecretCreateOpts {
-        SecretCreateOpts {
-            name: self.name,
-            driver: self.driver,
-        }
-    }
+    impl_url_str_field!(
+        /// Secret driver. Default is `file`.
+        driver => "driver"
+    );
 }
