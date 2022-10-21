@@ -189,6 +189,11 @@ impl PodCreateOptsBuilder {
         hostname => "hostname"
     );
 
+    impl_field!(
+        /// Used for specifying how ID mapping should be set up for a layer or container.
+        idmappings: models::IdMappingOptions => "idmappings"
+    );
+
     impl_vec_field!(
         /// Image volumes bind-mount a container-image mount into the pod's infra container.
         image_volumes: models::ImageVolume => "image_volumes"
