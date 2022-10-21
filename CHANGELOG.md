@@ -37,6 +37,7 @@
 * Add `NetworkCreateOptsBuilder::created`
 * Add `NetworkCreateOptsBuilder::subnets`
 * Add `SecretCreateOptsBuilder::driver_opts`
+* Add `SecretCreateOptsBuilder::labels`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

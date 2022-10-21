@@ -248,4 +248,9 @@ impl SecretCreateOptsBuilder {
         /// Secret driver options.
         driver_opts => "driveropts"
     );
+
+    impl_url_str_field!(
+        /// Labels on the secret.
+        labels => "labels"
+    );
 }
