@@ -18,6 +18,7 @@
 * Add `ContainerCreateOptsBuilder::groups`
 * Add `ContainerCreateOptsBuilder::health_check_on_failure_action`
 * Add `ContainerCreateOptsBuilder::hostusers`
+* Add `ContainerCreateOptsBuilder::image_os`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
