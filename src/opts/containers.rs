@@ -406,6 +406,12 @@ impl ContainerCreateOptsBuilder {
     );
 
     impl_vec_field!(
+        /// Additional set of directories that need to be treated as root directories.
+        /// Standard bind mounts will be mounted into paths relative to these directories.
+        chroot_directories => "chroot_directories"
+    );
+
+    impl_vec_field!(
         /// Command that the container should run. If not given and Image is specified, this will
         /// be populated by the image's configuration.
         command => "command"

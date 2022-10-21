@@ -13,6 +13,7 @@
 * Add `PodCreateOptsBuilder::volumes`
 * Add `PodCreateOptsBuilder::idmappings`
 * Add `PodCreateOptsBuilder::exit_policy`
+* Add `ContainerCreateOptsBuilder::chroot_directories`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
