@@ -163,7 +163,15 @@ impl PodCreateOptsBuilder {
         dns_search => "dns_search"
     );
 
-    // TODO: dns_server
+    impl_vec_field!(
+        /// Set of DNS servers that will be used in the infra container's resolv.conf, which
+        /// will, by default, be shared with all containers in the pod. If not provided,
+        /// the host's DNS servers will be used, unless the only server set is a
+        /// localhost address. As the container cannot connect to the host's localhost,
+        /// a default server will instead be set. Conflicts with
+        /// [`no_infra`](PodCreateOptsBuilder::no_infra) == true.
+        dns_server => "dns_server"
+    );
 
     impl_vec_field!(
         /// Set of hosts that will be added to the infra container's etc/hosts that will, by
