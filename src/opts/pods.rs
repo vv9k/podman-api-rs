@@ -271,7 +271,10 @@ impl PodCreateOptsBuilder {
         no_manage_resolv_conf: bool => "no_manage_resolv_conf"
     );
 
-    // TODO: overlay_volumes
+    impl_vec_field!(
+        /// Overlay volumes are named volumes that will be added to the pod.
+        overlay_volumes: models::OverlayVolume => "overlay_volumes"
+    );
 
     impl_field!(
         pidns: models::Namespace => "pidns"
