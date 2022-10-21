@@ -313,6 +313,12 @@ impl PodCreateOptsBuilder {
         service_container_id => "serviceContainerID"
     );
 
+    impl_field!(
+        /// ShareParent determines if all containers in the pod will share the pod's cgroup
+        /// as the cgroup parent.
+        share_parent: bool => "share_parent"
+    );
+
     impl_vec_field!(
         /// Instructs the pod to share a set of namespaces. Shared namespaces will be joined (by
         /// default) by every container which joins the pod. If not set and NoInfra is false, the
