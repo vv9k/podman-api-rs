@@ -93,6 +93,14 @@ impl fmt::Display for Platform {
 }
 
 impl ImageBuildOptsBuilder {
+    impl_url_bool_field!(
+        /// Instead of building for a set of platforms specified using the platform option,
+        /// inspect the build's base images, and build for all of the platforms that are available.
+        /// Stages that use scratch as a starting point can not be inspected, so at least one
+        /// non-scratch stage must be present for detection to work usefully.
+        all_platforms => "allplatforms"
+    );
+
     impl_map_field!(url
         /// Key-value build time variables.
         build_args => "buildargs"
