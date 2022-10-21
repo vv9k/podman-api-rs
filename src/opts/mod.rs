@@ -201,6 +201,11 @@ impl SystemdUnitsOptsBuilder {
         /// Use container/pod names instead of IDs.
         use_name => "useName"
     );
+
+    impl_url_vec_field!(
+        /// Systemd Wants list for the container or pods.
+        wants => "wants"
+    );
 }
 
 impl_opts_builder!(url =>
