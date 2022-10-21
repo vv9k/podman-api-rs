@@ -33,6 +33,7 @@
 * Add `ContainerRestoreOptsBuilder::pod`
 * Add `ImagesRemoveOptsBuilder::ignore`
 * Add `ImagesRemoveOptsBuilder::lookup_manifest`
+* Add `ImagePushOptsBuilder::quiet`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

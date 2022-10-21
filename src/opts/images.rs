@@ -682,6 +682,11 @@ impl ImagePushOptsBuilder {
     );
 
     impl_url_bool_field!(
+        /// Silences extra stream data on push.
+        quiet => "quiet"
+    );
+
+    impl_url_bool_field!(
         /// Require TLS verification.
         tls_verify => "tlsVerify"
     );
