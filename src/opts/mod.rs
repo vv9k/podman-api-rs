@@ -80,6 +80,12 @@ impl AsRef<str> for DiffType {
     }
 }
 
+impl Default for DiffType {
+    fn default() -> Self {
+        DiffType::All
+    }
+}
+
 impl fmt::Display for DiffType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_ref())
@@ -127,6 +133,12 @@ impl AsRef<str> for RestartPolicy {
             OnAbort => "on-abort",
             Always => "always",
         }
+    }
+}
+
+impl Default for RestartPolicy {
+    fn default() -> Self {
+        RestartPolicy::OnFailure
     }
 }
 

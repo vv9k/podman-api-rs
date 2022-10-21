@@ -272,6 +272,12 @@ pub enum ImageVolumeMode {
     Anonymous,
 }
 
+impl Default for ImageVolumeMode {
+    fn default() -> Self {
+        ImageVolumeMode::Anonymous
+    }
+}
+
 impl AsRef<str> for ImageVolumeMode {
     fn as_ref(&self) -> &str {
         match self {
@@ -334,6 +340,12 @@ impl AsRef<str> for SeccompPolicy {
     }
 }
 
+impl Default for SeccompPolicy {
+    fn default() -> Self {
+        SeccompPolicy::Default
+    }
+}
+
 impl fmt::Display for SeccompPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_ref())
@@ -346,6 +358,12 @@ pub enum SystemdEnabled {
     True,
     False,
     Always,
+}
+
+impl Default for SystemdEnabled {
+    fn default() -> Self {
+        SystemdEnabled::False
+    }
 }
 
 impl AsRef<str> for SystemdEnabled {
