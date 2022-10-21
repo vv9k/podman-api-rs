@@ -20,6 +20,7 @@
 * Add `ContainerCreateOptsBuilder::hostusers`
 * Add `ContainerCreateOptsBuilder::image_os`
 * Add `ContainerCreateOptsBuilder::image_variant`
+* Add `ContainerCreateOptsBuilder::image_arch`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

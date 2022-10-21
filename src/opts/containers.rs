@@ -568,6 +568,11 @@ impl ContainerCreateOptsBuilder {
     );
 
     impl_str_field!(
+        /// User-specified image architecture
+        image_arch => "image_arch"
+    );
+
+    impl_str_field!(
         /// User-specified image OS
         image_os => "image_os"
     );
