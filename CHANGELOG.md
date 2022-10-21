@@ -15,6 +15,7 @@
 * Add `PodCreateOptsBuilder::exit_policy`
 * Add `ContainerCreateOptsBuilder::chroot_directories`
 * Add `ContainerCreateOptsBuilder::envmerge`
+* Add `ContainerCreateOptsBuilder::groups`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

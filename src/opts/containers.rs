@@ -507,6 +507,11 @@ impl ContainerCreateOptsBuilder {
         envmerge => "envmerge"
     );
 
+    impl_vec_field!(
+        /// Groups are a list of supplemental groups the container's user will be granted access to.
+        groups => "groups"
+    );
+
     impl_field!(
         /// Health config which holds configuration settings for the HEALTHCHECK feature, from
         /// docker/docker/api/types/container.
