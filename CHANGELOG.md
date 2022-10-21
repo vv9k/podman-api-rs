@@ -27,6 +27,7 @@
 * Add `ImageBuildOptsBuilder::all_platforms`
 * Add `ImageBuildOptsBuilder::unset_env`
 * Add `ManifestCreateOptsBuilder::amend`
+* Add `ManifestImageAddOptsBuilder::os_features`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

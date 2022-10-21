@@ -66,6 +66,11 @@ impl ManifestImageAddOptsBuilder {
     );
 
     impl_str_field!(
+        /// OS features for the image.
+        os_features => "os_features"
+    );
+
+    impl_str_field!(
         /// Overrides the operating system for the image.
         os_version => "os_version"
     );
