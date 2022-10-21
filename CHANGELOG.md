@@ -26,6 +26,7 @@
 * Add `ContainerCreateOptsBuilder::passwd_entry`
 * Add `ImageBuildOptsBuilder::all_platforms`
 * Add `ImageBuildOptsBuilder::unset_env`
+* Add `ManifestCreateOptsBuilder::amend`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

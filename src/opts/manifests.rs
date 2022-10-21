@@ -18,6 +18,11 @@ impl ManifestCreateOptsBuilder {
         all => "all"
     );
 
+    impl_url_bool_field!(
+        /// Modify an existing list if one with the desired name already exists.
+        amend => "amend"
+    );
+
     impl_url_vec_field!(
         /// One or more names of an image or a manifest list. Repeat parameter as needed.
         images => "images"
