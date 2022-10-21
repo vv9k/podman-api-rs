@@ -295,7 +295,7 @@ pub enum SocketNotifyMode {
     /// Let the OCI runtime deal with it, advertise conmon's MAINPID.
     Container,
     /// Advertise conmon's MAINPID, send READY when started, don't pass to OCI.
-    ConmonOnly,
+    Conmon,
     /// Unset `NOTIFY_SOCKET`
     Ignore,
 }
@@ -304,7 +304,7 @@ impl AsRef<str> for SocketNotifyMode {
     fn as_ref(&self) -> &str {
         match self {
             SocketNotifyMode::Container => "container",
-            SocketNotifyMode::ConmonOnly => "conmon-only",
+            SocketNotifyMode::Conmon => "conmon",
             SocketNotifyMode::Ignore => "ignore",
         }
     }
