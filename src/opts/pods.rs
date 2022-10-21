@@ -173,6 +173,11 @@ impl PodCreateOptsBuilder {
         dns_server => "dns_server"
     );
 
+    impl_str_field!(
+        /// Determines the pod's exit and stop behaviour.
+        exit_policy => "exit_policy"
+    );
+
     impl_vec_field!(
         /// Set of hosts that will be added to the infra container's etc/hosts that will, by
         /// default, be shared with all containers in the pod. Conflicts with
