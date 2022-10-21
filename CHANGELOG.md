@@ -31,6 +31,7 @@
 * Add `ManifestPushOptsBuilder::quiet`
 * Add `ManifestPushOptsBuilder::tls_verify`
 * Add `ContainerRestoreOptsBuilder::pod`
+* Add `ImagesRemoveOptsBuilder::ignore`
 
 # 0.7.0
 * Make futures returned by methods Send + Sync

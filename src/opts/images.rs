@@ -624,6 +624,11 @@ impl ImagesRemoveOptsBuilder {
         force => "force"
     );
 
+    impl_url_bool_field!(
+        /// Ignore if a specified image does not exist and do not throw an error.
+        ignore => "ignore"
+    );
+
     impl_url_vec_field!(
         /// Images IDs or names to remove.
         images => "images"
