@@ -167,6 +167,11 @@ impl SystemdUnitsOptsBuilder {
         pod_prefix => "podPrefix"
     );
 
+    impl_url_vec_field!(
+        /// Systemd Requires list for the container or pods.
+        requires => "requires"
+    );
+
     impl_url_enum_field!(
         /// Systemd restart-policy.
         restart_policy: RestartPolicy => "restartPolicy"
