@@ -1221,6 +1221,11 @@ impl ContainerRestoreOptsBuilder {
         name => "name"
     );
 
+    impl_url_str_field!(
+        /// Pod to restore into.
+        pod => "pod"
+    );
+
     impl_url_bool_field!(
         /// Add restore statistics to the response.
         print_stats => "printStats"
