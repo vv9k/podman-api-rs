@@ -695,7 +695,7 @@ impl ContainerCreateOptsBuilder {
         /// [`image_volumes`](ContainerCreateOptsBuilder::image_volumes) and
         /// [`volumes_from`](ContainerCreateOptsBuilder::volumes_from) volumes where there
         /// are conflicts.
-        mounts: models::Mount => "mounts"
+        mounts: models::ContainerMount => "mounts"
     );
 
     impl_str_field!(
