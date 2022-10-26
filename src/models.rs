@@ -182,3 +182,25 @@ impl AsRef<str> for PodStatus {
         }
     }
 }
+
+#[derive(Clone, Debug, Serialize)]
+// Actual type used by ContainerCreate mount parameter.
+//
+// See: https://github.com/containers/podman/issues/13717
+pub struct ContainerMount {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub destination: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub options: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub source: Option<String>,
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub _type: Option<String>,
+    #[serde(rename = "UIDMappings")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uid_mappings: Option<Vec<IdMap>>,
+    #[serde(rename = "GIDMappings")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gid_mappings: Option<Vec<IdMap>>,
+}
