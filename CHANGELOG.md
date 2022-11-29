@@ -47,6 +47,7 @@
 * Add default implementations for `DiffType`, `RestartPolicy`, `ImageVolumeMode`, `SeccompPolicy`, `SystemdEnabled`, `NetworkMode`, `PullPolicy`
 * Change `ContainerCreateOptsBuilder::restart_policy` function to take a strongly typed `opts::container::ContainerRestartPolicy`
 * Rename `opts::RestartPolicy` -> `opts::SystemdRestartPolicy` to avoid name collision
+* Fix `Container::attach` when connecting to a container that has allocated TTY
 
 # 0.7.0
 * Make futures returned by methods Send + Sync
