@@ -684,10 +684,20 @@ impl Container {
             format!("/libpod/containers/{}/attach", &self.id),
             opts.stream().serialize(),
         );
+        let inspect = self.inspect().await?;
+        let is_tty = inspect.config.and_then(|c| c.tty).unwrap_or_default();
         self.podman
             .post_upgrade_stream(ep, Payload::empty())
             .await
-            .map(tty::Multiplexer::new)
+            .map(|x| {
+                // When the container allocates a TTY the stream doesn't come in the standard
+                // Docker format but rather as a raw stream of bytes.
+                if is_tty {
+                    tty::Multiplexer::new(x, tty::decode_raw)
+                } else {
+                    tty::Multiplexer::new(x, tty::decode_chunk)
+                }
+            })
     }}
 
     api_doc! {
