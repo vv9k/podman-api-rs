@@ -390,7 +390,7 @@ impl Images {
         let path = opts
             .get_param("path")
             .ok_or_else(|| Error::OptsSerialization("expected a path to build context".into()))?;
-        tarball::dir(&mut bytes, &path)?;
+        tarball::dir(&mut bytes, path)?;
 
         let ep = url::construct_ep("/libpod/build", opts.serialize());
         let reader = Box::pin(
