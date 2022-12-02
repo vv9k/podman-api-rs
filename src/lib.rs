@@ -69,6 +69,8 @@ pub enum Error {
     Error(#[from] containers_api::conn::Error),
     #[error("{0}")]
     StringError(String),
+    #[error(transparent)]
+    ServerError(#[from] models::JsonError),
 }
 
 impl Clone for Error {

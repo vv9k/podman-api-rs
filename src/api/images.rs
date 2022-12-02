@@ -404,7 +404,13 @@ impl Images {
             futures_codec::FramedRead::new(reader, futures_codec::LinesCodec)
                 .map_err(Error::IO)
                 .and_then(|s: String| async move {
-                    serde_json::from_str(&s).map_err(Error::SerdeJsonError)
+                    match serde_json::from_str(&s) {
+                        Ok(s) => Ok(s),
+                        Err(e) => match serde_json::from_str::<models::JsonError>(&s) {
+                            Ok(e) => Err(Error::ServerError(e)),
+                            Err(_) => Err(e.into())
+                        }
+                    }
                 }),
         ))
     }}
