@@ -13,6 +13,7 @@ use {
 use crate::conn::hyper::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fmt;
 use std::string::ToString;
 
 pub type Attributes = HashMap<String, String>;
@@ -203,4 +204,38 @@ pub struct ContainerMount {
     #[serde(rename = "GIDMappings")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gid_mappings: Option<Vec<IdMap>>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct JsonErrorDetail {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    message: Option<String>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct JsonError {
+    #[serde(rename = "errorDetail")]
+    error_detail: Option<JsonErrorDetail>,
+    error: Option<String>,
+}
+
+impl std::error::Error for JsonError {}
+
+impl fmt::Display for JsonError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let error = self.error.as_deref().unwrap_or_default();
+        let detail = self
+            .error_detail
+            .as_ref()
+            .and_then(|e| e.message.as_deref())
+            .unwrap_or_default();
+
+        write!(
+            f,
+            "{}{}{}",
+            error,
+            if !error.is_empty() { "-" } else { "" },
+            detail
+        )
+    }
 }
