@@ -137,6 +137,6 @@ impl Exec {
                 ("w", width.to_string()),
             ])),
         );
-        self.podman.get_json(&ep).await
+        self.podman.post(&ep, Payload::None::<&str>, Headers::none()).await.map(|_| ())
     }}
 }
