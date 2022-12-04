@@ -30,7 +30,7 @@ async fn volume_inspect() {
     let inspect_result = volume.inspect().await;
     assert!(inspect_result.is_ok());
     let inspect_data = inspect_result.unwrap();
-    assert!(inspect_data.name.contains(&volume_name));
+    assert!(inspect_data.name.contains(volume_name));
     assert!(volume.remove().await.is_ok());
 }
 
