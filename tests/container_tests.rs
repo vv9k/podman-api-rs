@@ -387,7 +387,7 @@ async fn container_exec() {
     assert!(exec_result.is_ok());
     let exec = exec_result.unwrap();
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts);
+    let mut exec_stream = exec.start(&opts).await.unwrap();
     while exec_stream.next().await.is_some() {}
 
     let exec_inspect_result = exec.inspect().await;
@@ -407,7 +407,7 @@ async fn container_exec() {
         .await;
     assert!(exec_result.is_ok());
     let exec = exec_result.unwrap();
-    let mut exec_stream = exec.start(&opts);
+    let mut exec_stream = exec.start(&opts).await.unwrap();
     let chunk = exec_stream.next().await;
     assert!(chunk.is_some());
     match chunk.unwrap() {
@@ -458,7 +458,7 @@ async fn container_copy_from() {
         .await
         .expect("valid exec instance");
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts);
+    let mut exec_stream = exec.start(&opts).await.unwrap();
     while exec_stream.next().await.is_some() {}
 
     let tar_stream = container.copy_from("/tmp/test123");
@@ -498,7 +498,7 @@ async fn container_copy_file_into() {
         .await
         .expect("valid exec instance");
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts);
+    let mut exec_stream = exec.start(&opts).await.unwrap();
     let chunk = exec_stream.next().await;
     assert!(chunk.is_some());
     match chunk.unwrap() {
@@ -539,7 +539,7 @@ async fn container_changes() {
         .expect("valid exec instance");
 
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts);
+    let mut exec_stream = exec.start(&opts).await.unwrap();
     while exec_stream.next().await.is_some() {}
 
     use podman_api::models::ContainerChangeResponseItem;
@@ -745,13 +745,15 @@ async fn container_healthcheck() {
         .create_exec(
             &ExecCreateOpts::builder()
                 .command(["rm", "/etc/xattr.conf"])
+                .attach_stdout(true)
+                .attach_stderr(true)
                 .build(),
         )
         .await
         .expect("valid exec instance");
 
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts);
+    let mut exec_stream = exec.start(&opts).await.unwrap();
     while exec_stream.next().await.is_some() {}
 
     tokio::time::sleep(std::time::Duration::from_secs(2)).await;
