@@ -5,8 +5,8 @@
 
 > Rust interface to Podman
 
-Latest version of this crate targets libpod API version: v4.2
-Master branch targets libpod API version: v4.3.1
+Latest version of this crate targets libpod API version: **v4.2**  
+Master branch targets libpod API version: **v4.3.1**
 
 # Usage
 
