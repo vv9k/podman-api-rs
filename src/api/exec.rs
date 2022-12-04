@@ -1,11 +1,73 @@
 use crate::{
     conn::{tty, Headers, Payload},
-    opts, Result, Stream, TryFutureExt, TryStreamExt, Value,
+    opts, Result, Value,
 };
 
 use containers_api::url;
 
-impl_api_ty!(Exec => id);
+#[derive(Debug)]
+/// [Api Reference](https://docs.podman.io/en/latest/_static/api.html?version=v4.2#tag/Exec)
+pub struct Exec {
+    podman: crate::Podman,
+    id: crate::Id,
+    is_tty: bool,
+    is_unchecked: bool,
+}
+
+impl Exec {
+    ///Exports an interface exposing operations against a Exec instance with TTY
+    pub(crate) fn new_tty(podman: crate::Podman, id: impl Into<crate::Id>) -> Self {
+        Exec {
+            podman,
+            id: id.into(),
+            is_tty: true,
+            is_unchecked: false,
+        }
+    }
+
+    ///Exports an interface exposing operations against a Exec instance without TTY
+    pub(crate) fn new_raw(podman: crate::Podman, id: impl Into<crate::Id>) -> Self {
+        Exec {
+            podman,
+            id: id.into(),
+            is_tty: false,
+            is_unchecked: false,
+        }
+    }
+
+    ///Exports an interface exposing operations against a Exec instance with unchecked TTY state
+    pub(crate) fn new_unchecked(podman: crate::Podman, id: impl Into<crate::Id>) -> Self {
+        Exec {
+            podman,
+            id: id.into(),
+            is_tty: false,
+            is_unchecked: true,
+        }
+    }
+
+    ///A getter for Exec id
+    pub fn id(&self) -> &crate::Id {
+        &self.id
+    }
+}
+
+#[derive(Debug)]
+/// Handle for Podman Execs.
+pub struct Execs {
+    podman: crate::Podman,
+}
+
+impl Execs {
+    ///Exports an interface for interacting with Podman Execs.
+    pub fn new(podman: crate::Podman) -> Self {
+        Execs { podman }
+    }
+
+    ///Returns a reference to a set of operations available to a specific Exec.
+    pub fn get(&self, id: impl Into<crate::Id>) -> Exec {
+        Exec::new_unchecked(self.podman.clone(), id)
+    }
+}
 
 impl Exec {
     api_doc! {
@@ -43,27 +105,28 @@ impl Exec {
     ///     }
     /// };
     /// ```
-    pub fn start<'exec>(
+    pub async fn start<'exec>(
         &'exec self,
         opts: &'exec opts::ExecStartOpts,
-    ) -> impl Stream<Item = crate::conn::Result<tty::TtyChunk>> + 'exec {
-        let ep = format!("/libpod/exec/{}/start", &self.id);
-        Box::pin(
-            async move {
-                let payload = Payload::Json(
-                    opts.serialize()
-                        .map_err(|e| crate::conn::Error::Any(Box::new(e)))?,
-                );
-                let stream = Box::pin(
-                    self.podman
-                        .post_stream(ep, payload, Headers::none())
-                        .map_err(|e| crate::conn::Error::Any(Box::new(e))),
-                );
+    ) -> Result<tty::Multiplexer<'exec>> {
+        if self.is_unchecked {
+            return Err(crate::Error::UncheckedExec);
+        }
 
-                Ok(tty::decode(stream))
+        let ep = format!("/libpod/exec/{}/start", &self.id);
+
+        let payload = Payload::Json(
+            opts.serialize()
+                .map_err(|e| crate::conn::Error::Any(Box::new(e)))?,
+        );
+
+        self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
+            if self.is_tty {
+                tty::Multiplexer::new(x, tty::decode_raw)
+            } else {
+                tty::Multiplexer::new(x, tty::decode_chunk)
             }
-            .try_flatten_stream(),
-        )
+        })
     }}
 
     api_doc! {
