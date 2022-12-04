@@ -522,7 +522,14 @@ impl Container {
         self.podman
             .post_json(&ep, Payload::Json(opts.serialize()?), Headers::none())
             .await
-            .map(|resp: models::IdResponse| Exec::new(self.podman.clone(), resp.id))
+            .map(|resp: models::IdResponse| {
+                let is_tty = opts.params.get("Tty").and_then(|v| v.as_bool()).unwrap_or_default();
+                if is_tty {
+                    Exec::new_tty(self.podman.clone(), resp.id)
+                } else {
+                    Exec::new_raw(self.podman.clone(), resp.id)
+                }
+            })
     }}
 
     api_doc! {

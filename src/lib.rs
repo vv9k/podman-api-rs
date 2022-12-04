@@ -71,6 +71,8 @@ pub enum Error {
     StringError(String),
     #[error(transparent)]
     ServerError(#[from] models::JsonError),
+    #[error("Cannot start an unchecked exec instance")]
+    UncheckedExec,
 }
 
 impl Clone for Error {
