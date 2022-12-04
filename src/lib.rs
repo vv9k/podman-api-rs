@@ -20,10 +20,10 @@ pub use containers_api::version::{ApiVersion, Error as VersionError};
 pub use podman::Podman;
 
 /// Latest libpod API version supported by this crate
-pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(4, Some(2), Some(0));
+pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(4, Some(3), Some(1));
 macro_rules! _version {
     () => {
-        "v4.2"
+        "v4.3.1"
     };
 }
 pub(crate) use _version as version;
@@ -32,7 +32,6 @@ pub(crate) use _version as version;
 pub type Result<T> = std::result::Result<T, Error>;
 
 // common crate imports
-pub(crate) use futures_util::future::TryFutureExt;
 pub(crate) use futures_util::stream::{Stream, TryStreamExt};
 pub(crate) use serde_json::Value;
 

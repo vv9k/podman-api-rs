@@ -6,7 +6,7 @@ use crate::{
 use containers_api::url;
 
 #[derive(Debug)]
-/// [Api Reference](https://docs.podman.io/en/latest/_static/api.html?version=v4.2#tag/Exec)
+/// [Api Reference](https://docs.podman.io/en/latest/_static/api.html?version=v4.3.1#tag/Exec)
 pub struct Exec {
     podman: crate::Podman,
     id: crate::Id,
@@ -98,7 +98,7 @@ impl Exec {
     ///         .unwrap();
     ///
     ///     let opts = Default::default();
-    ///     let mut stream = exec.start(&opts);
+    ///     let mut stream = exec.start(&opts).await.unwrap();
     ///
     ///     while let Some(chunk) = stream.next().await {
     ///         println!("{:?}", chunk.unwrap());
