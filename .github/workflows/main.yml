@@ -38,11 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: hecrj/setup-rust-action@v1
-      - name: Install podman 4.2.0
+      - name: Install podman 4.3.1
         run: |
-          sudo bash -c 'echo "deb [trusted=yes] http://ftp.us.debian.org/debian/ experimental main" >> /etc/apt/sources.list.d/experimental.list'
+          echo 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_22.04/ /' | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list
+          curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_22.04/Release.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/devel_kubic_libcontainers_unstable.gpg > /dev/null
           sudo apt -y update
-          sudo apt -y install podman=4.2.0+ds1-3
+          sudo apt -y install podman=4:4.3.1-0ubuntu22.04+obs64.10
       - name: Start podman
         run: |
           systemctl restart --user podman

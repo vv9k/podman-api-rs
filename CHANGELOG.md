@@ -2,6 +2,7 @@
 * Change `Exec::start` to async fn returning a tty::Multiplexer (the same as `Container::attach`)
 * Remove `Exec::new` to avoid creation of invalid execs.
 * Execs retrieved by id from `Execs::get` cannot be started due to no knowledge of their tty state. To start an exec instance retrieve it from `Container::create_exec`.
+* Bump models to v4.3.1
 
 # 0.8.0
 * Add `Pod::generate_kube_yaml`
