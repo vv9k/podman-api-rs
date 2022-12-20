@@ -3289,7 +3289,7 @@ pub struct InspectContainerHostConfig {
     /// The string key here is formatted as <integer port number>/<protocol>
     /// and represents the container port. A single container port may be
     /// bound to multiple host ports (on different IPs).
-    pub port_bindings: Option<HashMap<String, Vec<InspectHostPort>>>,
+    pub port_bindings: Option<HashMap<String, Option<Vec<InspectHostPort>>>>,
     #[serde(rename = "Privileged")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Privileged indicates whether the container is running with elevated
@@ -3703,7 +3703,7 @@ pub struct InspectNetworkSettings {
     pub networks: Option<HashMap<String, InspectAdditionalNetwork>>,
     #[serde(rename = "Ports")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub ports: Option<HashMap<String, Vec<InspectHostPort>>>,
+    pub ports: Option<HashMap<String, Option<Vec<InspectHostPort>>>>,
     #[serde(rename = "SandboxID")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sandbox_id: Option<String>,
@@ -3919,7 +3919,7 @@ pub struct InspectPodInfraConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// PortBindings are ports that will be forwarded to the infra container
     /// and then shared with the pod.
-    pub port_bindings: Option<HashMap<String, Vec<InspectHostPort>>>,
+    pub port_bindings: Option<HashMap<String, Option<Vec<InspectHostPort>>>>,
     #[serde(rename = "StaticIP")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// StaticIP is a static IPv4 that will be assigned to the infra
