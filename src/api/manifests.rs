@@ -120,7 +120,7 @@ impl Manifest {
     /// ```
     pub async fn remove_image(&self, digest: impl Into<String>) -> Result<models::ManifestRemoveReport> {
         let ep = url::construct_ep(
-            &format!("/libpod/manifests/{}", &self.name),
+            format!("/libpod/manifests/{}", &self.name),
             Some(url::encoded_pair("digest", digest.into())),
         );
 
@@ -152,7 +152,7 @@ impl Manifest {
     /// ```
     pub async fn push(&self, opts: &opts::ManifestPushOpts) -> Result<models::IdResponse> {
         let ep = url::construct_ep(
-            &format!("/libpod/manifests/{}/push", &self.name),
+            format!("/libpod/manifests/{}/push", &self.name),
             opts.serialize(),
         );
         self.podman

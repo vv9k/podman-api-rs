@@ -35,7 +35,7 @@ impl Container {
     /// ```
     pub async fn start(&self, detach_keys: Option<String>) -> Result<()> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/start", &self.id),
+            format!("/libpod/containers/{}/start", &self.id),
             detach_keys.map(|d| url::encoded_pair("detachKeys", d)),
         );
         self.podman
@@ -63,7 +63,7 @@ impl Container {
     /// ```
     pub async fn stop(&self, opts: &opts::ContainerStopOpts) -> Result<()> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/stop", &self.id),
+            format!("/libpod/containers/{}/stop", &self.id),
             opts.serialize(),
         );
         self.podman
@@ -92,7 +92,7 @@ impl Container {
     /// ```
     pub async fn inspect(&self) -> Result<models::ContainerInspectResponseLibpod> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/json", &self.id),
+            format!("/libpod/containers/{}/json", &self.id),
             Some(url::encoded_pair("size", "true")),
         );
         self.podman.get_json(&ep).await
@@ -228,7 +228,7 @@ impl Container {
     /// ```
     pub async fn restart_with_timeout(&self, t: usize) -> Result<()> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/restart", &self.id),
+            format!("/libpod/containers/{}/restart", &self.id),
             Some(url::encoded_pair("t", t.to_string())),
         );
         self.podman
@@ -554,7 +554,7 @@ impl Container {
     /// ```
     pub async fn rename(&self, new_name: impl AsRef<str>) -> Result<()> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/rename", &self.id),
+            format!("/libpod/containers/{}/rename", &self.id),
             Some(url::encoded_pair("name", new_name.as_ref())),
         );
         self.podman
@@ -622,7 +622,7 @@ impl Container {
     /// ```
     pub async fn wait(&self, opts: &opts::ContainerWaitOpts) -> Result<()> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/wait", &self.id),
+            format!("/libpod/containers/{}/wait", &self.id),
             opts.serialize(),
         );
         self.podman
@@ -735,7 +735,7 @@ impl Container {
         opts: &opts::ChangesOpts,
     ) -> Result<Vec<models::ContainerChangeResponseItem>> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/changes", &self.id),
+            format!("/libpod/containers/{}/changes", &self.id),
             opts.serialize(),
         );
         self.podman.get_json(&ep).await
@@ -1317,7 +1317,7 @@ impl Container {
     /// ```
     pub async fn restore(&self, opts: &opts::ContainerRestoreOpts) -> Result<Value> {
         let ep = url::construct_ep(
-            &format!("/libpod/containers/{}/restore", &self.id),
+            format!("/libpod/containers/{}/restore", &self.id),
             opts.serialize(),
         );
         self.podman

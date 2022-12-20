@@ -57,7 +57,7 @@ impl Network {
     /// ```
     pub async fn remove(&self) -> Result<Vec<models::NetworkRmReport>> {
         let ep = url::construct_ep(
-            &format!("/libpod/networks/{}", &self.name),
+            format!("/libpod/networks/{}", &self.name),
             Some(url::encoded_pair("force", true.to_string())),
         );
         self.podman.delete_json(&ep).await

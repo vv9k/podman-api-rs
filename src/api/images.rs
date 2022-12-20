@@ -266,7 +266,7 @@ impl Image {
         opts: &opts::ChangesOpts,
     ) -> Result<Vec<models::ContainerChangeResponseItem>> {
         let ep = url::construct_ep(
-            &format!("/libpod/images/{}/changes", &self.id),
+            format!("/libpod/images/{}/changes", &self.id),
             opts.serialize(),
         );
         self.podman.get_json(&ep).await

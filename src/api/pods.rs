@@ -44,7 +44,7 @@ impl Pod {
 
     async fn _stop(&self, timeout: Option<usize>) -> Result<models::PodStopReport> {
         let ep = url::construct_ep(
-            &format!("/libpod/pods/{}/stop", &self.id),
+            format!("/libpod/pods/{}/stop", &self.id),
             timeout.map(|t| url::encoded_pair("t", t.to_string())),
         );
         self.podman
@@ -137,7 +137,7 @@ impl Pod {
     /// ```
     pub async fn send_signal(&self, signal: impl Into<String>) -> Result<models::PodKillReport> {
         let ep = url::construct_ep(
-            &format!("/libpod/pods/{}/kill", &self.id),
+            format!("/libpod/pods/{}/kill", &self.id),
             Some(url::encoded_pair("signal", signal.into())),
         );
         self.podman
