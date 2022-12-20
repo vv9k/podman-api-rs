@@ -32,4 +32,7 @@ cargo fmt
 
 sed -r -i 's/(PortMap = HashMap<String, )(Vec<PortBinding>)/\1Option<\2>/g' src/models.rs
 
+# issue 148
+sed -r -i 's/((ports|port_bindings): Option<HashMap<String, )(Vec<InspectHostPort>)/\1Option<\3>/g' src/models.rs
+
 cargo fmt
