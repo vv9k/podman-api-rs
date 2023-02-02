@@ -138,6 +138,11 @@ impl ContainerDeleteOptsBuilder {
         /// Delete associated volumes.
         volumes => "v"
     );
+
+    impl_url_field!(
+        /// Delete associated volumes.
+        timeout: usize => "timeout"
+    );
 }
 
 impl_opts_builder!(url =>
