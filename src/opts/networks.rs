@@ -102,9 +102,9 @@ impl Filter for NetworkListFilter {
             Id(id) => FilterItem::new("id", id.to_string()),
             Driver(driver) => FilterItem::new("driver", driver.clone()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
             Until(until) => FilterItem::new("until", until.clone()),
         }
     }
@@ -139,9 +139,9 @@ impl Filter for NetworkPruneFilter {
         use NetworkPruneFilter::*;
         match &self {
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
             Until(until) => FilterItem::new("until", until.clone()),
         }
     }

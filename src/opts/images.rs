@@ -19,8 +19,10 @@ impl_opts_required_builder!(url =>
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// The networking mode for the run commands during image build.
+#[derive(Default)]
 pub enum NetworkMode {
     /// Limited to containers within a single host, port mapping required for external access.
+    #[default]
     Bridge,
     /// No isolation between host and containers on this network.
     Host,
@@ -32,11 +34,7 @@ pub enum NetworkMode {
     Custom(String),
 }
 
-impl Default for NetworkMode {
-    fn default() -> Self {
-        NetworkMode::Bridge
-    }
-}
+
 
 impl AsRef<str> for NetworkMode {
     fn as_ref(&self) -> &str {
@@ -277,9 +275,9 @@ impl fmt::Display for ImageOpt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use ImageOpt::*;
         match self {
-            Name(id) => write!(f, "{}", id),
-            Tag(id, tag) => write!(f, "{}:{}", id, tag),
-            Digest(id, digest) => write!(f, "{}@{}", id, digest),
+            Name(id) => write!(f, "{id}"),
+            Tag(id, tag) => write!(f, "{id}:{tag}"),
+            Digest(id, digest) => write!(f, "{id}@{digest}"),
         }
     }
 }
@@ -310,13 +308,13 @@ impl Filter for ImageListFilter {
             Before(image) => FilterItem::new("before", image.to_string()),
             Dangling(dangling) => FilterItem::new("dangling", dangling.to_string()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
             Reference(image, tag) => FilterItem::new(
                 "reference",
                 if let Some(tag) = tag {
-                    format!("{}:{}", image, tag)
+                    format!("{image}:{tag}")
                 } else {
                     image.to_string()
                 },
@@ -469,7 +467,9 @@ impl PullOpts {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 /// The networking mode for the run commands during image build.
+#[derive(Default)]
 pub enum PullPolicy {
+    #[default]
     Always,
     Missing,
     Newer,
@@ -487,11 +487,7 @@ impl AsRef<str> for PullPolicy {
     }
 }
 
-impl Default for PullPolicy {
-    fn default() -> Self {
-        PullPolicy::Always
-    }
-}
+
 
 impl fmt::Display for PullPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -744,9 +740,9 @@ impl Filter for ImagePruneFilter {
             Dangling(dangling) => FilterItem::new("dangling", dangling.to_string()),
             Until(until) => FilterItem::new("until", until.to_string()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
         }
     }
 }

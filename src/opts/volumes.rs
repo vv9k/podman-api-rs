@@ -34,9 +34,9 @@ impl Filter for VolumeListFilter {
         match &self {
             Driver(driver) => FilterItem::new("driver", driver.clone()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
             Name(name) => FilterItem::new("name", name.clone()),
             Opt(opt) => FilterItem::new("opt", opt.clone()),
             Until(t) => FilterItem::new("until", t.clone()),
@@ -101,9 +101,9 @@ impl Filter for VolumePruneFilter {
         use VolumePruneFilter::*;
         match &self {
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             Until(t) => FilterItem::new("until", t.clone()),
         }
     }
