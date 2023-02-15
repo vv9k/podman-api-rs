@@ -82,8 +82,6 @@ impl AsRef<str> for DiffType {
     }
 }
 
-
-
 impl fmt::Display for DiffType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_ref())
@@ -135,8 +133,6 @@ impl AsRef<str> for SystemdRestartPolicy {
         }
     }
 }
-
-
 
 impl fmt::Display for SystemdRestartPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

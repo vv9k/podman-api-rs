@@ -34,8 +34,6 @@ pub enum NetworkMode {
     Custom(String),
 }
 
-
-
 impl AsRef<str> for NetworkMode {
     fn as_ref(&self) -> &str {
         match self {
@@ -486,8 +484,6 @@ impl AsRef<str> for PullPolicy {
         }
     }
 }
-
-
 
 impl fmt::Display for PullPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
