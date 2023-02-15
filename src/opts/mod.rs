@@ -64,7 +64,9 @@ impl_opts_builder!(url =>
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Used with [`ChangesOptsBuilder::diff_type`](ChangesOptsBuilder::diff_type).
+#[derive(Default)]
 pub enum DiffType {
+    #[default]
     All,
     Container,
     Image,
@@ -80,11 +82,7 @@ impl AsRef<str> for DiffType {
     }
 }
 
-impl Default for DiffType {
-    fn default() -> Self {
-        DiffType::All
-    }
-}
+
 
 impl fmt::Display for DiffType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -111,9 +109,11 @@ impl_opts_builder!(url =>
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Used with [`SystemdUnitsOptsBuilder::restart_policy`](SystemdUnitsOptsBuilder::restart_policy).
+#[derive(Default)]
 pub enum SystemdRestartPolicy {
     No,
     OnSuccess,
+    #[default]
     OnFailure,
     OnAbnormal,
     OnWatchdog,
@@ -136,11 +136,7 @@ impl AsRef<str> for SystemdRestartPolicy {
     }
 }
 
-impl Default for SystemdRestartPolicy {
-    fn default() -> Self {
-        SystemdRestartPolicy::OnFailure
-    }
-}
+
 
 impl fmt::Display for SystemdRestartPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

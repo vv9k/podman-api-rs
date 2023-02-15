@@ -63,9 +63,9 @@ impl Filter for ContainerListFilter {
             Id(id) => FilterItem::new("id", id.to_string()),
             IsTask(is_task) => FilterItem::new("is-task", is_task.to_string()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}",)),
             Name(name) => FilterItem::new("name", name.clone()),
             Network(net) => FilterItem::new("network", net.clone()),
             Pod(pod) => FilterItem::new("pod", pod.clone()),
@@ -250,7 +250,7 @@ impl ContainerWaitOptsBuilder {
             .map(|it| format!("\"{}\"", it.as_ref()))
             .collect::<Vec<_>>()
             .join(",");
-        self.params.insert("condition", format!("[{}]", joined));
+        self.params.insert("condition", format!("[{joined}]"));
         self
     }
 
@@ -268,19 +268,15 @@ impl_opts_builder!(json =>
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Mode used to configure image volume with
 /// [`image_volume_mode`](ContainerCreateOptsBuilder::image_volume_mode).
+#[derive(Default)]
 pub enum ImageVolumeMode {
     /// Do not create
     Ignore,
     /// Create a tmpfs
     Tmpfs,
     /// Create as anonymous volumes
+    #[default]
     Anonymous,
-}
-
-impl Default for ImageVolumeMode {
-    fn default() -> Self {
-        ImageVolumeMode::Anonymous
-    }
 }
 
 impl AsRef<str> for ImageVolumeMode {
@@ -329,8 +325,10 @@ impl fmt::Display for SocketNotifyMode {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Used with [`ContainerCreateOptsBuilder::seccomp_policy`](ContainerCreateOptsBuilder::seccomp_policy).
+#[derive(Default)]
 pub enum SeccompPolicy {
     Empty,
+    #[default]
     Default,
     Image,
 }
@@ -345,12 +343,6 @@ impl AsRef<str> for SeccompPolicy {
     }
 }
 
-impl Default for SeccompPolicy {
-    fn default() -> Self {
-        SeccompPolicy::Default
-    }
-}
-
 impl fmt::Display for SeccompPolicy {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_ref())
@@ -359,16 +351,12 @@ impl fmt::Display for SeccompPolicy {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Used with [`ContainerCreateOptsBuilder::systemd`](ContainerCreateOptsBuilder::systemd).
+#[derive(Default)]
 pub enum SystemdEnabled {
     True,
+    #[default]
     False,
     Always,
-}
-
-impl Default for SystemdEnabled {
-    fn default() -> Self {
-        SystemdEnabled::False
-    }
 }
 
 impl AsRef<str> for SystemdEnabled {
@@ -390,17 +378,13 @@ impl fmt::Display for SystemdEnabled {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 /// Used with
 /// [`ContainerCreateOptsBuilder::restart_policy`](ContainerCreateOptsBuilder::restart_policy).
+#[derive(Default)]
 pub enum ContainerRestartPolicy {
     Always,
+    #[default]
     No,
     OnFailure,
     UnlessStopped,
-}
-
-impl Default for ContainerRestartPolicy {
-    fn default() -> Self {
-        ContainerRestartPolicy::No
-    }
 }
 
 impl AsRef<str> for ContainerRestartPolicy {
@@ -1217,9 +1201,9 @@ impl Filter for ContainerPruneFilter {
         match &self {
             Until(until) => FilterItem::new("until", until.to_string()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
         }
     }
 }

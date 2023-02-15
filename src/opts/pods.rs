@@ -48,9 +48,9 @@ impl Filter for PodListFilter {
         match &self {
             Id(id) => FilterItem::new("id", id.to_string()),
             LabelKey(key) => FilterItem::new("label", key.clone()),
-            LabelKeyVal(key, val) => FilterItem::new("label", format!("{}={}", key, val)),
+            LabelKeyVal(key, val) => FilterItem::new("label", format!("{key}={val}")),
             NoLabelKey(key) => FilterItem::new("label!", key.clone()),
-            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{}={}", key, val)),
+            NoLabelKeyVal(key, val) => FilterItem::new("label!", format!("{key}={val}")),
             Name(name) => FilterItem::new("name", name.clone()),
             Until(until) => FilterItem::new("until", until.clone()),
             Network(net) => FilterItem::new("network", net.clone()),

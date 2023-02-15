@@ -21,10 +21,10 @@ impl fmt::Display for UserOpt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use UserOpt::*;
         match self {
-            User(user) => write!(f, "{}", user),
-            Uid(uid) => write!(f, "{}", uid),
-            UserGroup(user, group) => write!(f, "{}:{}", user, group),
-            UidGid(uid, gid) => write!(f, "{}:{}", uid, gid),
+            User(user) => write!(f, "{user}"),
+            Uid(uid) => write!(f, "{uid}"),
+            UserGroup(user, group) => write!(f, "{user}:{group}"),
+            UidGid(uid, gid) => write!(f, "{uid}:{gid}"),
         }
     }
 }
