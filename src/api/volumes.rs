@@ -151,7 +151,7 @@ impl Volumes {
         self.podman
             .post_json(
                 "/libpod/volumes/create",
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await

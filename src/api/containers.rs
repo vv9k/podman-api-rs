@@ -520,7 +520,7 @@ impl Container {
         let ep = format!("/libpod/containers/{}/exec", self.id);
 
         self.podman
-            .post_json(&ep, Payload::Json(opts.serialize()?), Headers::none())
+            .post_json(&ep, Payload::Json(opts.serialize_vec()?), Headers::none())
             .await
             .map(|resp: models::IdResponse| {
                 let is_tty = opts.params.get("Tty").and_then(|v| v.as_bool()).unwrap_or_default();
@@ -1366,7 +1366,7 @@ impl Containers {
         self.podman
             .post_json(
                 &"/libpod/containers/create",
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await

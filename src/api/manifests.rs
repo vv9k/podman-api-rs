@@ -90,7 +90,7 @@ impl Manifest {
         self.podman
             .post_json(
                 &format!("/libpod/manifests/{}/add", &self.name),
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await

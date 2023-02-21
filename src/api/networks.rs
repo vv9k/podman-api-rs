@@ -147,7 +147,7 @@ impl Network {
         self.podman
             .post(
                 &format!("/libpod/networks/{}/disconnect", &self.name),
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await
@@ -186,7 +186,7 @@ impl Network {
         self.podman
             .post(
                 &format!("/libpod/networks/{}/connect", &self.name),
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await
@@ -222,7 +222,7 @@ impl Networks {
         self.podman
             .post_json(
                 "/libpod/networks/create",
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await

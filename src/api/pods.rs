@@ -558,7 +558,7 @@ impl Pods {
         self.podman
             .post_json(
                 &"/libpod/pods/create",
-                Payload::Json(opts.serialize()?),
+                Payload::Json(opts.serialize_vec()?),
                 Headers::none(),
             )
             .await
