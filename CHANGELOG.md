@@ -1,4 +1,4 @@
-#
+# 0.9.0
 * Add `ContainerDeleteOpts::timeout`
 * Change `Exec::start` to async fn returning a tty::Multiplexer (the same as `Container::attach`)
 * Remove `Exec::new` to avoid creation of invalid execs.
