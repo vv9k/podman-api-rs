@@ -1,6 +1,8 @@
+use bytes::Bytes;
+
 use crate::{
     conn::{tty, Headers, Payload},
-    opts, Result, Value,
+    opts, Error, Result, Value,
 };
 
 use containers_api::url;
@@ -98,7 +100,7 @@ impl Exec {
     ///         .unwrap();
     ///
     ///     let opts = Default::default();
-    ///     let mut stream = exec.start(&opts).await.unwrap();
+    ///     let mut stream = exec.start(&opts).await.unwrap().unwrap();
     ///
     ///     while let Some(chunk) = stream.next().await {
     ///         println!("{:?}", chunk.unwrap());
@@ -108,7 +110,7 @@ impl Exec {
     pub async fn start<'exec>(
         &'exec self,
         opts: &'exec opts::ExecStartOpts,
-    ) -> Result<tty::Multiplexer<'exec>> {
+    ) -> Result<Option<tty::Multiplexer<'exec>>> {
         if self.is_unchecked {
             return Err(crate::Error::UncheckedExec);
         }
@@ -120,13 +122,27 @@ impl Exec {
                 .map_err(|e| crate::conn::Error::Any(Box::new(e)))?,
         );
 
-        self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
-            if self.is_tty {
-                tty::Multiplexer::new(x, tty::decode_raw)
+        let detach = opts.params.get("Detach").map(|value| value.as_bool().unwrap_or(false)).unwrap_or(false);
+
+        if !detach {
+            self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
+                if self.is_tty {
+                    Some(tty::Multiplexer::new(x, tty::decode_raw))
+                } else {
+                    Some(tty::Multiplexer::new(x, tty::decode_chunk))
+                }
+            })
+        } else {
+            let res = self.podman.post(ep, payload, None).await?;
+            if res.status().is_success() {
+                Ok(None)
             } else {
-                tty::Multiplexer::new(x, tty::decode_chunk)
+                let code = res.status();
+                let body = containers_api::conn::hyper::body::to_bytes(res.into_body()).await.unwrap_or(Bytes::new()).to_vec();
+                let message = String::from_utf8(body).unwrap_or(String::new());
+                Err(Error::Fault { code, message })
             }
-        })
+        }
     }}
 
     api_doc! {
