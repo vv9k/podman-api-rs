@@ -439,7 +439,7 @@ async fn container_exec() {
 async fn container_exec_detach() {
     let podman = init_runtime();
 
-    let container_name = "test-exec-container";
+    let container_name = "test-exec-detach-container";
     let container = create_base_container(&podman, container_name, None).await;
 
     let _ = container.start(None).await;
