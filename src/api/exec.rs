@@ -122,7 +122,7 @@ impl Exec {
                 .map_err(|e| crate::conn::Error::Any(Box::new(e)))?,
         );
 
-        let detach = opts.params.get("Detach").map(|value| value.as_bool().unwrap_or(false)).unwrap_or(false);
+        let detach = opts.params.get("Detach").and_then(|value| value.as_bool()).unwrap_or(false);
 
         if !detach {
             self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
