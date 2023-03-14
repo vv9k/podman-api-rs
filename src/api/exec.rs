@@ -133,15 +133,7 @@ impl Exec {
                 }
             })
         } else {
-            let res = self.podman.post(ep, payload, None).await?;
-            if res.status().is_success() {
-                Ok(None)
-            } else {
-                let code = res.status();
-                let body = containers_api::conn::hyper::body::to_bytes(res.into_body()).await.unwrap_or(Bytes::new()).to_vec();
-                let message = String::from_utf8(body).unwrap_or(String::new());
-                Err(Error::Fault { code, message })
-            }
+            self.podman.post(ep, payload, None).await.map(|_| None)
         }
     }}
 
