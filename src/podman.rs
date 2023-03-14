@@ -729,22 +729,29 @@ fn validate_response(
                     .map_err(conn::Error::from)?;
                 let message_body = String::from_utf8(bytes.to_vec()).map_err(conn::Error::from)?;
                 log::trace!("{message_body:#?}");
-                let error: models::ErrorModel = serde_json::from_str(&message_body)?;
-                let mut message = format!(
-                    "{}: {}",
-                    error.message.unwrap_or_default(),
-                    error.cause.unwrap_or_default(),
-                );
-                if message == ": " {
-                    message = status
-                        .canonical_reason()
-                        .unwrap_or("unknown error code")
-                        .to_owned();
+                match serde_json::from_str::<models::ErrorModel>(&message_body) {
+                    Ok(error) => {
+                        let mut message = format!(
+                            "{}: {}",
+                            error.message.unwrap_or_default(),
+                            error.cause.unwrap_or_default(),
+                        );
+                        if message == ": " {
+                            message = status
+                                .canonical_reason()
+                                .unwrap_or("unknown error code")
+                                .to_owned();
+                        }
+                        Err(Error::Fault {
+                            code: status,
+                            message,
+                        })
+                    }
+                    Err(_) => Err(Error::Fault {
+                        code: status,
+                        message: message_body,
+                    }),
                 }
-                Err(Error::Fault {
-                    code: status,
-                    message,
-                })
             }
         }
     })
