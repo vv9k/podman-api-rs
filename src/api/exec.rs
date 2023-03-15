@@ -1,8 +1,6 @@
-use bytes::Bytes;
-
 use crate::{
     conn::{tty, Headers, Payload},
-    opts, Error, Result, Value,
+    opts, Result, Value,
 };
 
 use containers_api::url;
