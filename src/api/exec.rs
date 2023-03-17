@@ -98,7 +98,7 @@ impl Exec {
     ///         .unwrap();
     ///
     ///     let opts = Default::default();
-    ///     let mut stream = exec.start(&opts).await.unwrap();
+    ///     let mut stream = exec.start(&opts).await.unwrap().unwrap();
     ///
     ///     while let Some(chunk) = stream.next().await {
     ///         println!("{:?}", chunk.unwrap());
@@ -108,7 +108,7 @@ impl Exec {
     pub async fn start<'exec>(
         &'exec self,
         opts: &'exec opts::ExecStartOpts,
-    ) -> Result<tty::Multiplexer<'exec>> {
+    ) -> Result<Option<tty::Multiplexer<'exec>>> {
         if self.is_unchecked {
             return Err(crate::Error::UncheckedExec);
         }
@@ -120,13 +120,19 @@ impl Exec {
                 .map_err(|e| crate::conn::Error::Any(Box::new(e)))?,
         );
 
-        self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
-            if self.is_tty {
-                tty::Multiplexer::new(x, tty::decode_raw)
-            } else {
-                tty::Multiplexer::new(x, tty::decode_chunk)
-            }
-        })
+        let detach = opts.params.get("Detach").and_then(|value| value.as_bool()).unwrap_or(false);
+
+        if !detach {
+            self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
+                if self.is_tty {
+                    Some(tty::Multiplexer::new(x, tty::decode_raw))
+                } else {
+                    Some(tty::Multiplexer::new(x, tty::decode_chunk))
+                }
+            })
+        } else {
+            self.podman.post(ep, payload, None).await.map(|_| None)
+        }
     }}
 
     api_doc! {

@@ -7,6 +7,7 @@ use common::{
     opts::{ContainerCreateOpts, ExecCreateOpts},
     StreamExt, TryStreamExt, DEFAULT_CMD, DEFAULT_CMD_ARRAY, DEFAULT_IMAGE,
 };
+use podman_api::opts::ExecStartOpts;
 
 #[tokio::test]
 async fn container_create_exists_remove() {
@@ -387,7 +388,7 @@ async fn container_exec() {
     assert!(exec_result.is_ok());
     let exec = exec_result.unwrap();
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts).await.unwrap();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     while exec_stream.next().await.is_some() {}
 
     let exec_inspect_result = exec.inspect().await;
@@ -407,7 +408,81 @@ async fn container_exec() {
         .await;
     assert!(exec_result.is_ok());
     let exec = exec_result.unwrap();
-    let mut exec_stream = exec.start(&opts).await.unwrap();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
+    let chunk = exec_stream.next().await;
+    assert!(chunk.is_some());
+    match chunk.unwrap() {
+        Ok(TtyChunk::StdOut(chunk)) => {
+            let testfile_content = String::from_utf8_lossy(&chunk);
+            assert_eq!(testfile_content, "1234\n");
+        }
+        Ok(chunk) => {
+            let fd = match chunk {
+                TtyChunk::StdIn(_) => "stdin",
+                TtyChunk::StdOut(_) => "stdOut",
+                TtyChunk::StdErr(_) => "stderr",
+            };
+            let chunk = String::from_utf8_lossy(&chunk);
+            eprintln!("invalid chunk, fd: {fd}, content: `{chunk:?}`");
+            std::process::exit(1);
+        }
+        chunk => {
+            eprintln!("invalid chunk {chunk:?}");
+            std::process::exit(1);
+        }
+    }
+
+    cleanup_container(&podman, container_name).await;
+}
+
+#[tokio::test]
+async fn container_exec_detach() {
+    let podman = init_runtime();
+
+    let container_name = "test-exec-detach-container";
+    let container = create_base_container(&podman, container_name, None).await;
+
+    let _ = container.start(None).await;
+
+    let exec_result = container
+        .create_exec(
+            &ExecCreateOpts::builder()
+                .attach_stdin(false)
+                .attach_stderr(false)
+                .attach_stdout(false)
+                .command([
+                    "bash",
+                    "-c",
+                    "mkdir /tmp/test123 && echo 1234 >> /tmp/test123/testfile",
+                ])
+                .build(),
+        )
+        .await;
+    assert!(exec_result.is_ok());
+    let exec = exec_result.unwrap();
+    let opts = ExecStartOpts::builder().detach(true).build();
+    let exec_stream = exec.start(&opts).await.unwrap();
+    assert!(exec_stream.is_none());
+
+    let exec_inspect_result = exec.inspect().await;
+    assert!(exec_inspect_result.is_ok());
+    let exec_inspect_data = exec_inspect_result.unwrap();
+    assert_eq!(exec_inspect_data.get("ExitCode").unwrap(), 0);
+
+    let exec_result = container
+        .create_exec(
+            &ExecCreateOpts::builder()
+                .attach_stderr(true)
+                .attach_stdout(true)
+                .command(["cat", "test123/testfile"])
+                .working_dir("/tmp")
+                .build(),
+        )
+        .await;
+    assert!(exec_result.is_ok());
+    let exec = exec_result.unwrap();
+    let opts = Default::default();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     let chunk = exec_stream.next().await;
     assert!(chunk.is_some());
     match chunk.unwrap() {
@@ -458,7 +533,7 @@ async fn container_copy_from() {
         .await
         .expect("valid exec instance");
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts).await.unwrap();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     while exec_stream.next().await.is_some() {}
 
     let tar_stream = container.copy_from("/tmp/test123");
@@ -498,7 +573,7 @@ async fn container_copy_file_into() {
         .await
         .expect("valid exec instance");
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts).await.unwrap();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     let chunk = exec_stream.next().await;
     assert!(chunk.is_some());
     match chunk.unwrap() {
@@ -539,7 +614,7 @@ async fn container_changes() {
         .expect("valid exec instance");
 
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts).await.unwrap();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     while exec_stream.next().await.is_some() {}
 
     use podman_api::models::ContainerChangeResponseItem;
@@ -753,7 +828,7 @@ async fn container_healthcheck() {
         .expect("valid exec instance");
 
     let opts = Default::default();
-    let mut exec_stream = exec.start(&opts).await.unwrap();
+    let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     while exec_stream.next().await.is_some() {}
 
     tokio::time::sleep(std::time::Duration::from_secs(2)).await;
