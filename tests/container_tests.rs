@@ -266,6 +266,24 @@ async fn container_mount_unmount() {
     let mount_path = mount_result.unwrap();
     assert!(mount_path.exists());
 
+    let full_id = get_container_full_id(&podman, container_name).await;
+
+    let mut list_mounted_result = podman.containers().list_mounted().await;
+    if let Err(e) = list_mounted_result.as_ref() {
+        if e.to_string().contains("does not exist in database") {
+            // wait a bit in case a kill is executed at the same time
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            list_mounted_result = podman.containers().list_mounted().await;
+        }
+    }
+    println!("{list_mounted_result:?}");
+    assert!(list_mounted_result.is_ok());
+    let list_mounted_data = list_mounted_result.unwrap();
+    assert_eq!(
+        list_mounted_data.get(full_id).unwrap().as_str().unwrap(),
+        mount_path.to_string_lossy()
+    );
+
     let unmount_result = container.unmount().await;
     assert!(unmount_result.is_ok());
     assert!(!mount_path.exists());
@@ -921,24 +939,6 @@ async fn containers_list() {
         .as_ref()
         .unwrap()
         .contains(&second_name.to_string()));
-
-    let container = podman.containers().get(container_name);
-    let _ = container.start(None).await;
-    let full_id = get_container_full_id(&podman, container_name).await;
-
-    let mount_result = container.mount().await;
-    assert!(mount_result.is_ok());
-    let mount_path = mount_result.unwrap();
-    assert!(mount_path.exists());
-
-    let list_mounted_result = podman.containers().list_mounted().await;
-    assert!(list_mounted_result.is_ok());
-    let list_mounted_data = list_mounted_result.unwrap();
-    assert_eq!(
-        list_mounted_data.get(full_id).unwrap().as_str().unwrap(),
-        mount_path.to_string_lossy()
-    );
-    container.unmount().await.unwrap();
 
     cleanup_container(&podman, container_name).await;
     cleanup_container(&podman, second_name).await;

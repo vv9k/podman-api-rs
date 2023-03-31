@@ -326,7 +326,14 @@ async fn image_list() {
         .filter([filter])
         .all(true)
         .build();
-    let list_result = images.list(&list_opts).await;
+    let mut list_result = images.list(&list_opts).await;
+    if let Err(e) = list_result.as_ref() {
+        if e.to_string().contains("does not exist in database") {
+            // wait a bit in case a kill is executed at the same time
+            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            list_result = images.list(&list_opts).await;
+        }
+    }
     assert!(list_result.is_ok());
     let list_data = list_result.unwrap();
     assert_eq!(list_data.len(), 2);
