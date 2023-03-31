@@ -1,5 +1,6 @@
 # 0.10.0
 * *BREAKING* `Exec::start` now returns `Result<Option<tty::Multiplexer>>` (was `Result<tty::Multiplexer>`) [#155](https://github.com/vv9k/podman-api-rs/pull/155)
+* Bump models to v4.4.4
 
 # 0.9.0
 * Add `ContainerDeleteOpts::timeout`
