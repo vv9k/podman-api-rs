@@ -495,7 +495,7 @@ impl Pods {
     /// };
     /// ```
     pub async fn prune(&self) -> Result<Vec<models::PodPruneReport>> {
-        self.podman.get_json("/libpod/pods/prune").await
+        self.podman.post_json("/libpod/pods/prune", Payload::empty(), Headers::none()).await
     }}
 
     api_doc! {
