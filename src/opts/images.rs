@@ -682,7 +682,7 @@ pub struct ImagePushOptsBuilder {
 impl ImagePushOptsBuilder {
     impl_url_str_field!(
         /// Allows for pushing the image to a different destination than the image refers to.
-        destinations => "destinations"
+        destination => "destination"
     );
 
     impl_url_bool_field!(
