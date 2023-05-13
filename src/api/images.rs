@@ -312,13 +312,14 @@ impl Image {
     ///
     /// ```no_run
     /// async {
+    ///     use podman_api::opts::{ImagePushOpts, RegistryAuth};
     ///     use podman_api::Podman;
-    ///     use podman_api::opts::{RegistryAuth, ImagePushOpts};
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
-    ///     match podman.images().get("alpine").push(
+    ///     let image = podman.images().get("alpine");
+    ///     let mut events = image.push(
     ///         &ImagePushOpts::builder()
-    ///             .destinations("my-destination")
+    ///             .destination("my-destination")
     ///             .tls_verify(true)
     ///             .auth(
     ///                 RegistryAuth::builder()
@@ -328,13 +329,17 @@ impl Image {
     ///                     .build(),
     ///             )
     ///             .build(),
-    ///     ).await {
-    ///         Ok(s) => println!("{}", s),
-    ///         Err(e) => eprintln!("{}", e),
-    ///     };
+    ///     );
+    ///
+    ///     for event in events.next().await {
+    ///         match event {
+    ///             Ok(line) => println!("{line}"),
+    ///             Err(e) => eprintln!("{e}"),
+    ///         }
+    ///     }
     /// };
     /// ```
-    pub async fn push(&self, opts: &opts::ImagePushOpts) -> Result<String> {
+    pub fn push(&self, opts: &opts::ImagePushOpts) -> impl Stream<Item = Result<String>> + Unpin + '_ {
         let headers = opts
             .auth_header()
             .map(|a| Headers::single(crate::conn::AUTH_HEADER, a));
@@ -344,9 +349,21 @@ impl Image {
             opts.serialize(),
         );
 
-        self.podman
-            .post_string(&ep, Payload::empty(), headers)
-            .await
+        let reader = Box::pin(
+            self.podman
+                .post_stream(
+                    ep,
+                    Payload::empty(),
+                    headers,
+                )
+                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e)),
+        )
+        .into_async_read();
+
+        Box::pin(
+            futures_codec::FramedRead::new(reader, futures_codec::LinesCodec)
+                .map_err(Error::IO)
+        )
     }}
 }
 
