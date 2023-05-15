@@ -1,3 +1,8 @@
+#
+* `Pods::prune` now correctly uses POST to make the request [#157](https://github.com/vv9k/podman-api-rs/pull/157)
+* `ImagePushOptsBuilder` option `destination` was renamed to `destinations` [#158](https://github.com/vv9k/podman-api-rs/pull/158)
+* `Images::push` signature changed and now it returns a stream instead of a single response [#159](https://github.com/vv9k/podman-api-rs/pull/159)
+
 # 0.10.0
 * *BREAKING* `Exec::start` now returns `Result<Option<tty::Multiplexer>>` (was `Result<tty::Multiplexer>`) [#155](https://github.com/vv9k/podman-api-rs/pull/155)
 * Bump models to v4.4.4
