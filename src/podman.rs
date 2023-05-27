@@ -661,17 +661,16 @@ impl Podman {
             .post_stream(self.version.make_endpoint(endpoint), body, headers)
     }
 
-    pub(crate) async fn post_upgrade_stream<'client, B>(
-        &'client self,
-        endpoint: impl AsRef<str> + 'client,
+    pub(crate) async fn post_upgrade_stream<B>(
+        self,
+        endpoint: impl AsRef<str>,
         body: Payload<B>,
-    ) -> Result<impl AsyncRead + AsyncWrite + 'client>
+    ) -> Result<impl AsyncRead + AsyncWrite>
     where
-        B: Into<Body> + 'client,
+        B: Into<Body>,
     {
-        self.client
-            .post_upgrade_stream(self.version.make_endpoint(endpoint), body)
-            .await
+        let ep = self.version.make_endpoint(endpoint);
+        self.client.post_upgrade_stream(ep, body).await
     }
 
     pub(crate) async fn put<B>(

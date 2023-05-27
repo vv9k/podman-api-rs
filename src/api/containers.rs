@@ -686,7 +686,7 @@ impl Container {
     ///     }
     /// };
     /// ```
-    pub async fn attach(&self, opts: &opts::ContainerAttachOpts) -> Result<tty::Multiplexer<'_>> {
+    pub async fn attach(&self, opts: &opts::ContainerAttachOpts) -> Result<tty::Multiplexer> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/attach", &self.id),
             opts.stream().serialize(),
@@ -694,6 +694,7 @@ impl Container {
         let inspect = self.inspect().await?;
         let is_tty = inspect.config.and_then(|c| c.tty).unwrap_or_default();
         self.podman
+            .clone()
             .post_upgrade_stream(ep, Payload::empty())
             .await
             .map(|x| {

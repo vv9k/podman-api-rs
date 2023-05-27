@@ -108,7 +108,7 @@ impl Exec {
     pub async fn start<'exec>(
         &'exec self,
         opts: &'exec opts::ExecStartOpts,
-    ) -> Result<Option<tty::Multiplexer<'exec>>> {
+    ) -> Result<Option<tty::Multiplexer>> {
         if self.is_unchecked {
             return Err(crate::Error::UncheckedExec);
         }
@@ -123,7 +123,7 @@ impl Exec {
         let detach = opts.params.get("Detach").and_then(|value| value.as_bool()).unwrap_or(false);
 
         if !detach {
-            self.podman.post_upgrade_stream(ep, payload).await.map(|x| {
+            self.podman.clone().post_upgrade_stream(ep, payload).await.map(|x| {
                 if self.is_tty {
                     Some(tty::Multiplexer::new(x, tty::decode_raw))
                 } else {
