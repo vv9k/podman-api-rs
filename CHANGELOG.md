@@ -3,6 +3,7 @@
 * `ImagePushOptsBuilder` option `destination` was renamed to `destinations` [#158](https://github.com/vv9k/podman-api-rs/pull/158)
 * `Images::push` signature changed and now it returns a stream instead of a single response [#159](https://github.com/vv9k/podman-api-rs/pull/159)
 * `tty::Multiplexer` now owns a copy of Podman client. It mean's that signature of `Container::attach` and `Exec::start` changed.
+* Fixed `ContainerWaitOpts::conditions` parameter serialization
 
 # 0.10.0
 * *BREAKING* `Exec::start` now returns `Result<Option<tty::Multiplexer>>` (was `Result<tty::Multiplexer>`) [#155](https://github.com/vv9k/podman-api-rs/pull/155)

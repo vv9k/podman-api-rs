@@ -245,12 +245,10 @@ impl ContainerWaitOptsBuilder {
         mut self,
         conditions: impl IntoIterator<Item = models::ContainerStatus>,
     ) -> Self {
-        let joined = conditions
-            .into_iter()
-            .map(|it| format!("\"{}\"", it.as_ref()))
-            .collect::<Vec<_>>()
-            .join(",");
-        self.params.insert("condition", format!("[{joined}]"));
+        self.vec_params.insert(
+            "condition",
+            conditions.into_iter().map(|c| c.as_ref().into()).collect(),
+        );
         self
     }
 
