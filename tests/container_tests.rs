@@ -4,7 +4,8 @@ use common::{
     cleanup_container,
     conn::TtyChunk,
     create_base_container, get_container_full_id, init_runtime,
-    opts::{ContainerCreateOpts, ExecCreateOpts},
+    models::ContainerStatus,
+    opts::{ContainerCreateOpts, ContainerWaitOpts, ExecCreateOpts},
     StreamExt, TryStreamExt, DEFAULT_CMD, DEFAULT_CMD_ARRAY, DEFAULT_IMAGE,
 };
 use podman_api::opts::ExecStartOpts;
@@ -1045,4 +1046,23 @@ async fn containers_stats() {
 
     cleanup_container(&podman, container_name).await;
     cleanup_container(&podman, second_name).await;
+}
+
+#[tokio::test]
+async fn container_wait() {
+    let podman = init_runtime();
+    let container_name = "test-wait-container";
+
+    let container = create_base_container(&podman, container_name, None).await;
+
+    let wait_result = container
+        .wait(
+            &ContainerWaitOpts::builder()
+                .interval("500ms")
+                .conditions([ContainerStatus::Running, ContainerStatus::Exited])
+                .build(),
+        )
+        .await;
+    assert!(wait_result.is_ok());
+    cleanup_container(&podman, container_name).await;
 }
