@@ -314,6 +314,8 @@ impl Image {
     /// async {
     ///     use podman_api::opts::{ImagePushOpts, RegistryAuth};
     ///     use podman_api::Podman;
+    ///     use futures_util::StreamExt;
+    ///
     ///     let podman = Podman::unix("/run/user/1000/podman/podman.sock");
     ///
     ///     let image = podman.images().get("alpine");
