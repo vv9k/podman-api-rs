@@ -32,6 +32,18 @@ fn deserialize_nonoptional_map<
     serde::de::Deserialize::deserialize(d).map(|x: Option<_>| x.unwrap_or_default())
 }
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AccessMode {
+    #[serde(rename = "BlockVolume")]
+    pub block_volume: Option<TypeBlock>,
+    #[serde(rename = "MountVolume")]
+    pub mount_volume: Option<TypeMount>,
+    #[serde(rename = "Scope")]
+    pub scope: Option<String>,
+    #[serde(rename = "Sharing")]
+    pub sharing: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Address {
     #[serde(rename = "Addr")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -121,8 +133,13 @@ pub struct AutoUserNsOptions {
     pub size: Option<u32>,
 }
 
+pub type Availability = String;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct BindOptions {
+    #[serde(rename = "CreateMountpoint")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub create_mountpoint: Option<bool>,
     #[serde(rename = "NonRecursive")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub non_recursive: Option<bool>,
@@ -131,22 +148,82 @@ pub struct BindOptions {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct CpuUsage {
-    #[serde(rename = "idlePercent")]
+/// CapacityRange describes the minimum and maximum capacity a volume should be
+/// created with
+pub struct CapacityRange {
+    #[serde(rename = "LimitBytes")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub idle_percent: Option<f64>,
-    #[serde(rename = "systemPercent")]
+    /// LimitBytes specifies that a volume must not be bigger than this. The
+    /// value of 0 indicates an unspecified maximum
+    pub limit_bytes: Option<i64>,
+    #[serde(rename = "RequiredBytes")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub system_percent: Option<f64>,
-    #[serde(rename = "userPercent")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user_percent: Option<f64>,
+    /// RequiredBytes specifies that a volume must be at least this big. The
+    /// value of 0 indicates an unspecified minimum.
+    pub required_bytes: Option<i64>,
 }
 
 pub type CgroupSpec = String;
 
 /// CgroupnsMode represents the cgroup namespace mode of the container
 pub type CgroupnsMode = String;
+
+pub type ClusterOptions = Value;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// ClusterVolume contains options and information specific to, and only present
+/// on, Swarm CSI cluster volumes.
+pub struct ClusterVolume {
+    #[serde(rename = "CreatedAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+    #[serde(rename = "ID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ID is the Swarm ID of the volume. Because cluster volumes are Swarm
+    /// objects, they have an ID, unlike non-cluster volumes, which only have a
+    /// Name. This ID can be used to refer to the cluster volume.
+    pub id: Option<String>,
+    #[serde(rename = "Info")]
+    pub info: Option<Info>,
+    #[serde(rename = "PublishStatus")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// PublishStatus contains the status of the volume as it pertains to its
+    /// publishing on Nodes.
+    pub publish_status: Option<Vec<PublishStatus>>,
+    #[serde(rename = "Spec")]
+    pub spec: Option<ClusterVolumeSpec>,
+    #[serde(rename = "UpdatedAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(rename = "Version")]
+    pub version: Option<Version>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct ClusterVolumeSpec {
+    #[serde(rename = "AccessMode")]
+    pub access_mode: Option<AccessMode>,
+    #[serde(rename = "AccessibilityRequirements")]
+    pub accessibility_requirements: Option<TopologyRequirement>,
+    #[serde(rename = "Availability")]
+    pub availability: Option<String>,
+    #[serde(rename = "CapacityRange")]
+    pub capacity_range: Option<CapacityRange>,
+    #[serde(rename = "Group")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Group defines the volume group of this volume. Volumes belonging to the
+    /// same group can be referred to by group name when creating Services.
+    /// Referring to a volume by group instructs swarm to treat volumes in that
+    /// group interchangeably for the purpose of scheduling. Volumes with an
+    /// empty string for a group technically all belong to the same, emptystring
+    /// group.
+    pub group: Option<String>,
+    #[serde(rename = "Secrets")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Secrets defines Swarm Secrets that are passed to the CSI storage plugin
+    /// when operating on this volume.
+    pub secrets: Option<Vec<Secret>>,
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ComponentVersion {
@@ -275,17 +352,6 @@ pub struct ConfigReference {
     pub network: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// ConmonInfo describes the conmon executable being used
-pub struct ConmonInfo {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
-}
-
 pub type Consistency = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -408,6 +474,9 @@ pub struct ContainerBasicConfig {
     /// container.
     pub envmerge: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// GroupEntry specifies arbitrary data to append to a file.
+    pub group_entry: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// Hostname is the container's hostname. If not set, the hostname will
     /// not be modified (if UtsNS is not private) or will be set to the
     /// container ID (if UtsNS is private).
@@ -415,7 +484,7 @@ pub struct ContainerBasicConfig {
     /// Optional.
     pub hostname: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// HostUses is a list of host usernames or UIDs to add to the container
+    /// HostUsers is a list of host usernames or UIDs to add to the container
     /// etc/passwd file
     pub hostusers: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -579,19 +648,6 @@ pub struct ContainerChangeResponseItem {
     #[serde(rename = "Path")]
     /// Path to file that has changed
     pub path: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// ContainerCreateCreatedBody OK response to ContainerCreate operation
-pub struct ContainerCreateCreatedBody {
-    #[serde(rename = "Id")]
-    /// The ID of the created container
-    pub id: String,
-    #[serde(rename = "Warnings")]
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
-    /// Warnings encountered when creating the container
-    pub warnings: Vec<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -978,6 +1034,10 @@ pub struct ContainerSecurityConfig {
     pub groups: Option<Vec<String>>,
     pub idmappings: Option<IdMappingOptions>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// LabelNested indicates whether or not the container is allowed to
+    /// run fully nested containers including labelling
+    pub label_nested: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// Mask is the path we want to mask in the container. This masks the paths
     /// given in addition to the default list.
     /// Optional
@@ -1233,6 +1293,9 @@ pub struct ContainerStorageConfig {
     /// At least one of Image or Rootfs must be specified.
     pub rootfs: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// RootfsMapping specifies if there are mappings to apply to the rootfs.
+    pub rootfs_mapping: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// RootfsOverlay tells if rootfs is actually an overlay on top of base path
     pub rootfs_overlay: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1249,6 +1312,11 @@ pub struct ContainerStorageConfig {
     /// Conflicts with ShmSize if IpcNS is not private.
     /// Optional.
     pub shm_size: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ShmSizeSystemd is the size of systemd-specific tmpfs mounts
+    /// specifically /run, /run/lock, /var/log/journal and /tmp.
+    /// Optional
+    pub shm_size_systemd: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// StorageOpts is the container's storage options
     /// Optional.
@@ -1275,20 +1343,6 @@ pub struct ContainerStorageConfig {
     /// If unset, the default, /, will be used.
     /// Optional.
     pub work_dir: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// ContainerStore describes the quantity of containers in the
-/// store by status
-pub struct ContainerStore {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub paused: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub running: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stopped: Option<i64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -1319,25 +1373,6 @@ pub struct ContainerUpdateOkBody {
 
 /// Status code
 pub type ContainerWaitLibpod200Response = i32;
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// ContainerWaitOKBody OK response to ContainerWait operation
-pub struct ContainerWaitOkBody {
-    #[serde(rename = "Error")]
-    pub error: ContainerWaitOkBodyError,
-    #[serde(rename = "StatusCode")]
-    /// Exit code of the container
-    pub status_code: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// ContainerWaitOKBodyError container waiting error, if any
-pub struct ContainerWaitOkBodyError {
-    #[serde(rename = "Message")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Details of an error
-    pub message: Option<String>,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ContainersPruneReport {
@@ -1456,6 +1491,43 @@ pub struct CreateContainerConfig {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Volume configuration
+pub struct CreateOptions {
+    #[serde(rename = "ClusterVolumeSpec")]
+    pub cluster_volume_spec: Option<ClusterVolumeSpec>,
+    #[serde(rename = "Driver")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Name of the volume driver to use.
+    pub driver: Option<String>,
+    #[serde(rename = "DriverOpts")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// A mapping of driver options and values. These options are
+    /// passed directly to the driver and are driver specific.
+    pub driver_opts: Option<HashMap<String, String>>,
+    #[serde(rename = "Labels")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// User-defined key/value metadata.
+    pub labels: Option<HashMap<String, String>>,
+    #[serde(rename = "Name")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// The new volume's name. If not specified, Docker generates a name.
+    pub name: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// OK response to ContainerCreate operation
+pub struct CreateResponse {
+    #[serde(rename = "Id")]
+    /// The ID of the created container
+    pub id: String,
+    #[serde(rename = "Warnings")]
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
+    /// Warnings encountered when creating the container
+    pub warnings: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DeviceMapping {
     #[serde(rename = "CgroupPermissions")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1495,19 +1567,6 @@ pub struct DeviceRequest {
 /// This allows to abstract the digest behind this type and work only in those
 /// terms.
 pub type Digest = String;
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// DistributionInfo describes the host distribution for libpod
-pub struct DistributionInfo {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub codename: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub distribution: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub variant: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Driver {
@@ -1676,14 +1735,19 @@ pub type GenerateKubeLibpod200Response = Vec<u8>;
 pub type GenerateSystemdLibpod200Response = HashMap<String, String>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// GraphDriverData Information about the storage driver used to store the container's and
+/// image's filesystem.
 pub struct GraphDriverData {
     #[serde(rename = "Data")]
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_nonoptional_map")]
-    /// data
+    /// Low-level storage metadata, provided as key/value pairs.
+    ///
+    /// This information is driver-specific, and depends on the storage-driver
+    /// in use, and should be used for informational purposes only.
     pub data: HashMap<String, String>,
     #[serde(rename = "Name")]
-    /// name
+    /// Name of the storage driver.
     pub name: String,
 }
 
@@ -1741,7 +1805,7 @@ pub struct HealthCheckResults {
     pub log: Option<Vec<HealthCheckLog>>,
     #[serde(rename = "Status")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// Status healthy or unhealthy
+    /// Status starting, healthy or unhealthy
     pub status: Option<String>,
 }
 
@@ -1897,7 +1961,6 @@ pub struct HostConfig {
     pub cgroupns_mode: Option<String>,
     #[serde(rename = "ConsoleSize")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// Applicable to Windows
     pub console_size: Option<Vec<u64>>,
     #[serde(rename = "ContainerIDFile")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1971,6 +2034,8 @@ pub struct HostConfig {
     pub isolation: Option<String>,
     #[serde(rename = "KernelMemory")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// KernelMemory specifies the kernel memory limit (in bytes) for the container.
+    /// Deprecated: kernel 5.4 deprecated kmem.limit_in_bytes.
     pub kernel_memory: Option<i64>,
     #[serde(rename = "KernelMemoryTCP")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2067,78 +2132,6 @@ pub struct HostConfig {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// HostInfo describes the libpod host
-pub struct HostInfo {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arch: Option<String>,
-    #[serde(rename = "buildahVersion")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub buildah_version: Option<String>,
-    #[serde(rename = "cgroupControllers")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cgroup_controllers: Option<Vec<String>>,
-    #[serde(rename = "cgroupManager")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cgroup_manager: Option<String>,
-    #[serde(rename = "cgroupVersion")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cgroup_version: Option<String>,
-    pub conmon: Option<ConmonInfo>,
-    #[serde(rename = "cpuUtilization")]
-    pub cpu_utilization: Option<CpuUsage>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub cpus: Option<i64>,
-    pub distribution: Option<DistributionInfo>,
-    #[serde(rename = "eventLogger")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub event_logger: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub hostname: Option<String>,
-    #[serde(rename = "idMappings")]
-    pub id_mappings: Option<IdMappings>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub kernel: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub linkmode: Option<String>,
-    #[serde(rename = "logDriver")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub log_driver: Option<String>,
-    #[serde(rename = "memFree")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mem_free: Option<i64>,
-    #[serde(rename = "memTotal")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub mem_total: Option<i64>,
-    #[serde(rename = "networkBackend")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub network_backend: Option<String>,
-    #[serde(rename = "ociRuntime")]
-    pub oci_runtime: Option<OciRuntimeInfo>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub os: Option<String>,
-    #[serde(rename = "remoteSocket")]
-    pub remote_socket: Option<RemoteSocket>,
-    #[serde(rename = "runtimeInfo")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub runtime_info: Option<Value>,
-    pub security: Option<SecurityInfo>,
-    #[serde(rename = "serviceIsRemote")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// ServiceIsRemote is true when the podman/libpod service is remote to the client
-    pub service_is_remote: Option<bool>,
-    #[serde(rename = "slirp4netns")]
-    pub slirp_4_netns: Option<SlirpInfo>,
-    #[serde(rename = "swapFree")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub swap_free: Option<i64>,
-    #[serde(rename = "swapTotal")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub swap_total: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub uptime: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// IDMap contains a single entry for user namespace range remapping. An array
 /// of IDMap entries represents the structure that will be provided to the Linux
 /// kernel for creating a user namespace.
@@ -2181,15 +2174,6 @@ pub struct IdMappingOptions {
     #[serde(rename = "UIDMap")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub uid_map: Option<Vec<IdMap>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// IDMappings describe the GID and UID mappings
-pub struct IdMappings {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub gidmap: Option<Vec<IdMap>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub uidmap: Option<Vec<IdMap>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -2261,6 +2245,16 @@ pub struct ImageBuildLibpod200Response {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ImageConfig {
+    #[serde(rename = "ArgsEscaped")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ArgsEscaped `[Deprecated]` - This field is present only for legacy
+    /// compatibility with Docker and should not be used by new image builders.
+    /// It is used by Docker for Windows images to indicate that the `Entrypoint`
+    /// or `Cmd` or both, contains only a single element array, that is a
+    /// pre-escaped, and combined into a single string `CommandLine`. If `true`
+    /// the value in `Entrypoint` or `Cmd` should be used as-is to avoid double
+    /// escaping.
+    pub args_escaped: Option<bool>,
     #[serde(rename = "Cmd")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Cmd defines the default arguments to the entrypoint of the container.
@@ -2410,58 +2404,112 @@ pub struct ImageImportReport {
 pub struct ImageInspect {
     #[serde(rename = "Architecture")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Architecture is the hardware CPU architecture that the image runs on.
     pub architecture: Option<String>,
     #[serde(rename = "Author")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Author is the name of the author that was specified when committing the
+    /// image, or as specified through MAINTAINER (deprecated) in the Dockerfile.
     pub author: Option<String>,
     #[serde(rename = "Comment")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Comment is an optional message that can be set when committing or
+    /// importing the image.
     pub comment: Option<String>,
     #[serde(rename = "Config")]
     pub config: Option<Config>,
     #[serde(rename = "Container")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Container is the ID of the container that was used to create the image.
+    ///
+    /// Depending on how the image was created, this field may be empty.
     pub container: Option<String>,
     #[serde(rename = "ContainerConfig")]
     pub container_config: Option<Config>,
     #[serde(rename = "Created")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Created is the date and time at which the image was created, formatted in
+    /// RFC 3339 nano-seconds (time.RFC3339Nano).
     pub created: Option<String>,
     #[serde(rename = "DockerVersion")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// DockerVersion is the version of Docker that was used to build the image.
+    ///
+    /// Depending on how the image was created, this field may be empty.
     pub docker_version: Option<String>,
     #[serde(rename = "GraphDriver")]
     pub graph_driver: Option<GraphDriverData>,
     #[serde(rename = "Id")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// ID is the content-addressable ID of an image.
+    ///
+    /// This identifier is a content-addressable digest calculated from the
+    /// image's configuration (which includes the digests of layers used by
+    /// the image).
+    ///
+    /// Note that this digest differs from the `RepoDigests` below, which
+    /// holds digests of image manifests that reference the image.
     pub id: Option<String>,
     #[serde(rename = "Metadata")]
     pub metadata: Option<ImageMetadata>,
     #[serde(rename = "Os")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// OS is the Operating System the image is built to run on.
     pub os: Option<String>,
     #[serde(rename = "OsVersion")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// OsVersion is the version of the Operating System the image is built to
+    /// run on (especially for Windows).
     pub os_version: Option<String>,
     #[serde(rename = "Parent")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Parent is the ID of the parent image.
+    ///
+    /// Depending on how the image was created, this field may be empty and
+    /// is only set for images that were built/created locally. This field
+    /// is empty if the image was pulled from an image registry.
     pub parent: Option<String>,
     #[serde(rename = "RepoDigests")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// RepoDigests is a list of content-addressable digests of locally available
+    /// image manifests that the image is referenced from. Multiple manifests can
+    /// refer to the same image.
+    ///
+    /// These digests are usually only available if the image was either pulled
+    /// from a registry, or if the image was pushed to a registry, which is when
+    /// the manifest is generated and its digest calculated.
     pub repo_digests: Option<Vec<String>>,
     #[serde(rename = "RepoTags")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// RepoTags is a list of image names/tags in the local image cache that
+    /// reference this image.
+    ///
+    /// Multiple image tags can refer to the same image, and this list may be
+    /// empty if no tags reference the image, in which case the image is
+    /// "untagged", in which case it can still be referenced by its ID.
     pub repo_tags: Option<Vec<String>>,
     #[serde(rename = "RootFS")]
     pub root_fs: Option<RootFs>,
     #[serde(rename = "Size")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Size is the total size of the image including all layers it is composed of.
     pub size: Option<i64>,
     #[serde(rename = "Variant")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Variant is the CPU architecture variant (presently ARM-only).
     pub variant: Option<String>,
     #[serde(rename = "VirtualSize")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// VirtualSize is the total size of the image including all layers it is
+    /// composed of.
+    ///
+    /// In versions of Docker before v1.10, this field was calculated from
+    /// the image itself and all of its parent images. Docker v1.10 and up
+    /// store images self-contained, and no longer use a parent-chain, making
+    /// this field an equivalent of the Size field.
+    ///
+    /// This field is kept for backward compatibility, but may be removed in
+    /// a future version of the API.
     pub virtual_size: Option<i64>,
 }
 
@@ -2481,6 +2529,7 @@ pub type ImageLoadRequestParam = String;
 pub struct ImageMetadata {
     #[serde(rename = "LastTagTime")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// LastTagTime is the date and time at which the image was last tagged.
     pub last_tag_time: Option<DateTime<Utc>>,
 }
 
@@ -2491,51 +2540,82 @@ pub type ImagePush200Response = Vec<u8>;
 pub type ImagePushLibpod200Response = Vec<u8>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// ImageStore describes the image store.  Right now only the number
-/// of images present
-pub struct ImageStore {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub number: Option<i64>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// ImageSummary image summary
 pub struct ImageSummary {
     #[serde(rename = "Containers")]
-    /// containers
+    /// Number of containers using this image. Includes both stopped and running
+    /// containers.
+    ///
+    /// This size is not calculated by default, and depends on which API endpoint
+    /// is used. `-1` indicates that the value has not been set / calculated.
     pub containers: i64,
     #[serde(rename = "Created")]
-    /// created
+    /// Date and time at which the image was created as a Unix timestamp
+    /// (number of seconds sinds EPOCH).
     pub created: i64,
     #[serde(rename = "Id")]
-    /// Id
+    /// ID is the content-addressable ID of an image.
+    ///
+    /// This identifier is a content-addressable digest calculated from the
+    /// image's configuration (which includes the digests of layers used by
+    /// the image).
+    ///
+    /// Note that this digest differs from the `RepoDigests` below, which
+    /// holds digests of image manifests that reference the image.
     pub id: String,
     #[serde(rename = "Labels")]
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_nonoptional_map")]
-    /// labels
+    /// User-defined key/value metadata.
     pub labels: HashMap<String, String>,
     #[serde(rename = "ParentId")]
-    /// parent Id
+    /// ID of the parent image.
+    ///
+    /// Depending on how the image was created, this field may be empty and
+    /// is only set for images that were built/created locally. This field
+    /// is empty if the image was pulled from an image registry.
     pub parent_id: String,
     #[serde(rename = "RepoDigests")]
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_nonoptional_vec")]
-    /// repo digests
+    /// List of content-addressable digests of locally available image manifests
+    /// that the image is referenced from. Multiple manifests can refer to the
+    /// same image.
+    ///
+    /// These digests are usually only available if the image was either pulled
+    /// from a registry, or if the image was pushed to a registry, which is when
+    /// the manifest is generated and its digest calculated.
     pub repo_digests: Vec<String>,
     #[serde(rename = "RepoTags")]
     #[serde(default)]
     #[serde(deserialize_with = "deserialize_nonoptional_vec")]
-    /// repo tags
+    /// List of image names/tags in the local image cache that reference this
+    /// image.
+    ///
+    /// Multiple image tags can refer to the same image, and this list may be
+    /// empty if no tags reference the image, in which case the image is
+    /// "untagged", in which case it can still be referenced by its ID.
     pub repo_tags: Vec<String>,
     #[serde(rename = "SharedSize")]
-    /// shared size
+    /// Total size of image layers that are shared between this image and other
+    /// images.
+    ///
+    /// This size is not calculated by default. `-1` indicates that the value
+    /// has not been set / calculated.
     pub shared_size: i64,
     #[serde(rename = "Size")]
-    /// size
+    /// Total size of the image including all layers it is composed of.
     pub size: i64,
     #[serde(rename = "VirtualSize")]
-    /// virtual size
+    /// Total size of the image including all layers it is composed of.
+    ///
+    /// In versions of Docker before v1.10, this field was calculated from
+    /// the image itself and all of its parent images. Docker v1.10 and up
+    /// store images self-contained, and no longer use a parent-chain, making
+    /// this field an equivalent of the Size field.
+    ///
+    /// This field is kept for backward compatibility, but may be removed in
+    /// a future version of the API.
     pub virtual_size: i64,
 }
 
@@ -2568,15 +2648,31 @@ pub struct ImageVolume {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// Info is the overall struct that describes the host system
-/// running libpod/podman
+/// Info contains information about the Volume as a whole as provided by
+/// the CSI storage plugin.
 pub struct Info {
-    pub host: Option<HostInfo>,
-    pub plugins: Option<Plugins>,
+    #[serde(rename = "AccessibleTopology")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub registries: Option<Value>,
-    pub store: Option<StoreInfo>,
-    pub version: Option<Version>,
+    /// AccessibleTopolgoy is the topology this volume is actually accessible
+    /// from.
+    pub accessible_topology: Option<Vec<Topology>>,
+    #[serde(rename = "CapacityBytes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// CapacityBytes is the capacity of the volume in bytes. A value of 0
+    /// indicates that the capacity is unknown.
+    pub capacity_bytes: Option<i64>,
+    #[serde(rename = "VolumeContext")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// VolumeContext is the context originating from the CSI storage plugin
+    /// when the Volume is created.
+    pub volume_context: Option<HashMap<String, String>>,
+    #[serde(rename = "VolumeID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// VolumeID is the ID of the Volume as seen by the CSI storage plugin. This
+    /// is distinct from the Volume's Swarm ID, which is the ID used by all of
+    /// the Docker Engine to refer to the Volume. If this field is blank, then
+    /// the Volume has not been successfully created yet.
+    pub volume_id: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -3167,7 +3263,7 @@ pub struct InspectContainerHostConfig {
     pub dns_search: Option<Vec<String>>,
     #[serde(rename = "ExtraHosts")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// ExtraHosts contains hosts that will be aded to the container's
+    /// ExtraHosts contains hosts that will be added to the container's
     /// etc/hosts.
     pub extra_hosts: Option<Vec<String>>,
     #[serde(rename = "GroupAdd")]
@@ -4186,6 +4282,10 @@ pub struct LinuxBlockIoDevice {
 /// LinuxCPU for Linux cgroup 'cpu' resource management
 pub struct LinuxCpu {
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// CPU hardcap burst limit (in usecs). Allowed accumulated cpu time additionally for burst in a
+    /// given period.
+    pub burst: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// CPUs to use within the cpuset. Default is to use any CPU available.
     pub cpus: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4304,6 +4404,12 @@ pub struct LinuxInterfacePriority {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// LinuxMemory for Linux cgroup 'memory' resource management
 pub struct LinuxMemory {
+    #[serde(rename = "checkBeforeUpdate")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// CheckBeforeUpdate enables checking if a new memory limit is lower
+    /// than the current usage during update, and if so, rejecting the new
+    /// limit.
+    pub check_before_update: Option<bool>,
     #[serde(rename = "disableOOMKiller")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// DisableOOMKiller disables the OOM killer for out of memory conditions
@@ -4618,6 +4724,19 @@ pub struct ListPodsReport {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Volume list response
+pub struct ListResponse {
+    #[serde(rename = "Volumes")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// List of volumes
+    pub volumes: Option<Vec<Volume>>,
+    #[serde(rename = "Warnings")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Warnings that occurred when fetching the list of volumes.
+    pub warnings: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LogConfig {
     #[serde(rename = "Config")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4810,9 +4929,23 @@ pub struct ManifestRemoveReport {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Meta {
+    #[serde(rename = "CreatedAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<DateTime<Utc>>,
+    #[serde(rename = "UpdatedAt")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_at: Option<DateTime<Utc>>,
+    #[serde(rename = "Version")]
+    pub version: Option<Version>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Mount {
     #[serde(rename = "BindOptions")]
     pub bind_options: Option<BindOptions>,
+    #[serde(rename = "ClusterOptions")]
+    pub cluster_options: Option<ClusterOptions>,
     #[serde(rename = "Consistency")]
     pub consistency: Option<String>,
     #[serde(rename = "ReadOnly")]
@@ -4840,23 +4973,39 @@ pub struct Mount {
 pub struct MountPoint {
     #[serde(rename = "Destination")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Destination is the path relative to the container root (`/`) where the
+    /// Source is mounted inside the container.
     pub destination: Option<String>,
     #[serde(rename = "Driver")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Driver is the volume driver used to create the volume (if it is a volume).
     pub driver: Option<String>,
     #[serde(rename = "Mode")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Mode is a comma separated list of options supplied by the user when
+    /// creating the bind/volume mount.
+    ///
+    /// The default is platform-specific (`"z"` on Linux, empty on Windows).
     pub mode: Option<String>,
     #[serde(rename = "Name")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Name is the name reference to the underlying data defined by `Source`
+    /// e.g., the volume name.
     pub name: Option<String>,
     #[serde(rename = "Propagation")]
     pub propagation: Option<String>,
     #[serde(rename = "RW")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// RW indicates whether the mount is mounted writable (read-write).
     pub rw: Option<bool>,
     #[serde(rename = "Source")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Source is the source location of the mount.
+    ///
+    /// For volumes, this contains the storage location of the volume (within
+    /// `/var/lib/docker/volumes/`). For bind-mounts, and `npipe`, this contains
+    /// the source (host) part of the bind-mount. For `tmpfs` mount points, this
+    /// field is empty.
     pub source: Option<String>,
     #[serde(rename = "Type")]
     pub type_: Option<String>,
@@ -5309,20 +5458,6 @@ pub struct NoSuchSecret {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// OCIRuntimeInfo describes the runtime (crun or runc) being
-/// used with podman
-pub struct OciRuntimeInfo {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// OverlayVolume holds information about an overlay volume that will be mounted into
 /// the container.
 pub struct OverlayVolume {
@@ -5448,9 +5583,17 @@ pub struct PlayKubeReport {
     #[serde(rename = "RmReport")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub rm_report: Option<Vec<PodRmReport>>,
+    #[serde(rename = "SecretRmReport")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub secret_rm_report: Option<Vec<SecretRmReport>>,
     #[serde(rename = "Secrets")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// Secrets - secrets created by play kube
     pub secrets: Option<Vec<PlaySecret>>,
+    #[serde(rename = "ServiceContainerID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ServiceContainerID - ID of the service container if one is created
+    pub service_container_id: Option<String>,
     #[serde(rename = "StopReport")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop_report: Option<Vec<PodStopReport>>,
@@ -5748,19 +5891,6 @@ pub struct PluginSettings {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Plugins {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// Authorization is provided for compatibility, will always be nil as Podman has no daemon
-    pub authorization: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub log: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub network: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub volume: Option<Vec<String>>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PodBasicConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// ExitPolicy determines the pod's exit and stop behaviour.
@@ -5798,6 +5928,7 @@ pub struct PodBasicConfig {
     /// Conflicts with NoInfra=true.
     /// Optional.
     pub infra_name: Option<String>,
+    pub ipcns: Option<Namespace>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Labels are key-value pairs that are used to add metadata to pods.
     /// Optional.
@@ -5887,6 +6018,8 @@ pub struct PodCreateOptions {
     pub infra: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub infra_image: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ipc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub labels: Option<HashMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6167,6 +6300,7 @@ pub struct PodSpecGenerator {
     /// Conflicts with NoInfra=true.
     /// Optional.
     pub infra_name: Option<String>,
+    pub ipcns: Option<Namespace>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Labels are key-value pairs that are used to add metadata to pods.
     /// Optional.
@@ -6253,6 +6387,11 @@ pub struct PodSpecGenerator {
     /// Conflicts with ShmSize if IpcNS is not private.
     /// Optional.
     pub shm_size: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ShmSizeSystemd is the size of systemd-specific tmpfs mounts
+    /// specifically /run, /run/lock, /var/log/journal and /tmp.
+    /// Optional
+    pub shm_size_systemd: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Sysctl sets kernel parameters for the pod
     pub sysctl: Option<HashMap<String, String>>,
@@ -6362,6 +6501,11 @@ pub struct PodStorageConfig {
     /// Conflicts with ShmSize if IpcNS is not private.
     /// Optional.
     pub shm_size: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ShmSizeSystemd is the size of systemd-specific tmpfs mounts
+    /// specifically /run, /run/lock, /var/log/journal and /tmp.
+    /// Optional
+    pub shm_size_systemd: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Volumes are named volumes that will be added to the pod.
     /// These will supersede Image Volumes and VolumesFrom  volumes where
@@ -6490,18 +6634,30 @@ pub struct PruneReport {
     pub size: Option<u64>,
 }
 
+/// PublishState represents the state of a Volume as it pertains to its
+/// use on a particular Node.
+pub type PublishState = String;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// PublishStatus represents the status of the volume as published to an
+/// individual node
+pub struct PublishStatus {
+    #[serde(rename = "NodeID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// NodeID is the ID of the swarm node this Volume is published to.
+    pub node_id: Option<String>,
+    #[serde(rename = "PublishContext")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// PublishContext is the PublishContext returned by the CSI plugin when
+    /// a volume is published.
+    pub publish_context: Option<HashMap<String, String>>,
+    #[serde(rename = "State")]
+    pub state: Option<String>,
+}
+
 pub type PutContainerArchiveLibpodRequestParam = String;
 
 pub type PutContainerArchiveRequestParam = String;
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// RemoteSocket describes information about the API socket
-pub struct RemoteSocket {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exists: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub path: Option<String>,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Resources contains container's resources (cgroups config, ulimits...)
@@ -6574,6 +6730,8 @@ pub struct Resources {
     pub io_maximum_i_ops: Option<u64>,
     #[serde(rename = "KernelMemory")]
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// KernelMemory specifies the kernel memory limit (in bytes) for the container.
+    /// Deprecated: kernel 5.4 deprecated kmem.limit_in_bytes.
     pub kernel_memory: Option<i64>,
     #[serde(rename = "KernelMemoryTCP")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6652,7 +6810,9 @@ pub struct Schema2HealthConfig {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Schema2List {
+/// This is publicly visible as c/image/manifest.Schema2List.
+/// Internal users should usually use Schema2List instead.
+pub struct Schema2ListPublic {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub manifests: Option<Vec<Schema2ManifestDescriptor>>,
     #[serde(rename = "mediaType")]
@@ -6664,6 +6824,7 @@ pub struct Schema2List {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// This is publicly visible as c/image/manifest.Schema2ManifestDescriptor.
 pub struct Schema2ManifestDescriptor {
     pub digest: Option<String>,
     #[serde(rename = "mediaType")]
@@ -6679,6 +6840,7 @@ pub struct Schema2ManifestDescriptor {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Schema2PlatformSpec describes the platform which a particular manifest is
 /// specialized for.
+/// This is publicly visible as c/image/manifest.Schema2PlatformSpec.
 pub struct Schema2PlatformSpec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub architecture: Option<String>,
@@ -6696,6 +6858,10 @@ pub struct Schema2PlatformSpec {
     pub variant: Option<String>,
 }
 
+/// Scope defines the Scope of a Cluster Volume. This is how many nodes a
+/// Volume can be accessed simultaneously on.
+pub type Scope = String;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ScpReport {
     #[serde(rename = "Id")]
@@ -6704,22 +6870,20 @@ pub struct ScpReport {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Secret represents a Swarm Secret value that must be passed to the CSI
+/// storage plugin when operating on this Volume. It represents one key-value
+/// pair of possibly many.
 pub struct Secret {
-    #[serde(rename = "GID")]
+    #[serde(rename = "Key")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub gid: Option<u32>,
-    #[serde(rename = "Mode")]
+    /// Key is the name of the key of the key-value pair passed to the plugin.
+    pub key: Option<String>,
+    #[serde(rename = "Secret")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub mode: Option<u32>,
-    #[serde(rename = "Source")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub source: Option<String>,
-    #[serde(rename = "Target")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub target: Option<String>,
-    #[serde(rename = "UID")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub uid: Option<u32>,
+    /// Secret is the swarm Secret object from which to read data. This can be a
+    /// Secret name or ID. The Secret data is retrieved by Swarm and used as the
+    /// value of the key-value pair passed to the plugin.
+    pub secret: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -6820,6 +6984,16 @@ pub type SecretListCompatResponse = Vec<SecretInfoReportCompat>;
 pub type SecretListResponse = Vec<SecretInfoReport>;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct SecretRmReport {
+    #[serde(rename = "Err")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub err: Option<String>,
+    #[serde(rename = "ID")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SecretSpec {
     #[serde(rename = "Driver")]
     pub driver: Option<SecretDriverSpec>,
@@ -6836,27 +7010,6 @@ pub struct SecretVersion {
     #[serde(rename = "Index")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub index: Option<i64>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// SecurityInfo describes the libpod host
-pub struct SecurityInfo {
-    #[serde(rename = "apparmorEnabled")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub apparmor_enabled: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub capabilities: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub rootless: Option<bool>,
-    #[serde(rename = "seccompEnabled")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub seccomp_enabled: Option<bool>,
-    #[serde(rename = "seccompProfilePath")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub seccomp_profile_path: Option<String>,
-    #[serde(rename = "selinuxEnabled")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub selinux_enabled: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -6885,19 +7038,12 @@ pub struct ServiceUpdateResponse {
     pub warnings: Option<Vec<String>>,
 }
 
+/// SharingMode defines the Sharing of a Cluster Volume. This is how Tasks using a
+/// Volume at the same time can use it.
+pub type SharingMode = String;
+
 /// It implements the os.Signal interface.
 pub type Signal = i64;
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// SlirpInfo describes the slirp executable that is being used
-pub struct SlirpInfo {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub executable: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub package: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
-}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// SpecGenerator creates an OCI spec and Libpod configuration options to create
@@ -7058,6 +7204,9 @@ pub struct SpecGenerator {
     /// Optional.
     pub expose: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// GroupEntry specifies arbitrary data to append to a file.
+    pub group_entry: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// Groups are a list of supplemental groups the container's user will
     /// be granted access to.
     /// Optional.
@@ -7081,7 +7230,7 @@ pub struct SpecGenerator {
     /// Optional.
     pub hostname: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    /// HostUses is a list of host usernames or UIDs to add to the container
+    /// HostUsers is a list of host usernames or UIDs to add to the container
     /// etc/passwd file
     pub hostusers: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7132,6 +7281,10 @@ pub struct SpecGenerator {
     /// Optional.
     pub init_path: Option<String>,
     pub ipcns: Option<Namespace>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// LabelNested indicates whether or not the container is allowed to
+    /// run fully nested containers including labelling
+    pub label_nested: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Labels are key-value pairs that are used to add metadata to
     /// containers.
@@ -7261,6 +7414,9 @@ pub struct SpecGenerator {
     /// At least one of Image or Rootfs must be specified.
     pub rootfs: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    /// RootfsMapping specifies if there are mappings to apply to the rootfs.
+    pub rootfs_mapping: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     /// RootfsOverlay tells if rootfs is actually an overlay on top of base path
     pub rootfs_overlay: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7304,6 +7460,11 @@ pub struct SpecGenerator {
     /// Conflicts with ShmSize if IpcNS is not private.
     /// Optional.
     pub shm_size: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// ShmSizeSystemd is the size of systemd-specific tmpfs mounts
+    /// specifically /run, /run/lock, /var/log/journal and /tmp.
+    /// Optional
+    pub shm_size_systemd: Option<i64>,
     #[serde(rename = "startupHealthConfig")]
     pub startup_health_config: Option<StartupHealthCheck>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7471,51 +7632,6 @@ pub struct StartupHealthCheck {
     pub test: Option<Vec<String>>,
     #[serde(rename = "Timeout")]
     pub timeout: Option<i64>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// StoreInfo describes the container storage and its
-/// attributes
-pub struct StoreInfo {
-    #[serde(rename = "configFile")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub config_file: Option<String>,
-    #[serde(rename = "containerStore")]
-    pub container_store: Option<ContainerStore>,
-    #[serde(rename = "graphDriverName")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub graph_driver_name: Option<String>,
-    #[serde(rename = "graphOptions")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub graph_options: Option<Value>,
-    #[serde(rename = "graphRoot")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub graph_root: Option<String>,
-    #[serde(rename = "graphRootAllocated")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// GraphRootAllocated is how much space the graphroot has in bytes
-    pub graph_root_allocated: Option<u64>,
-    #[serde(rename = "graphRootUsed")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    /// GraphRootUsed is how much of graphroot is used in bytes
-    pub graph_root_used: Option<u64>,
-    #[serde(rename = "graphStatus")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub graph_status: Option<HashMap<String, String>>,
-    #[serde(rename = "imageCopyTmpDir")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub image_copy_tmp_dir: Option<String>,
-    #[serde(rename = "imageStore")]
-    pub image_store: Option<ImageStore>,
-    #[serde(rename = "runRoot")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub run_root: Option<String>,
-    #[serde(rename = "transientStore")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub transient_store: Option<bool>,
-    #[serde(rename = "volumePath")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub volume_path: Option<String>,
 }
 
 /// We need to override the json decoder to accept both options.
@@ -7706,7 +7822,208 @@ pub struct TmpfsOptions {
     pub size_bytes: Option<i64>,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// This description is taken verbatim from the CSI Spec:
+///
+/// A topological domain is a sub-division of a cluster, like "region",
+/// "zone", "rack", etc.
+/// A topological segment is a specific instance of a topological domain,
+/// like "zone3", "rack3", etc.
+/// For example {"com.company/zone": "Z1", "com.company/rack": "R3"}
+/// Valid keys have two segments: an OPTIONAL prefix and name, separated
+/// by a slash (/), for example: "com.company.example/zone".
+/// The key name segment is REQUIRED. The prefix is OPTIONAL.
+/// The key name MUST be 63 characters or less, begin and end with an
+/// alphanumeric character ([a-z0-9A-Z]), and contain only dashes (-),
+/// underscores (_), dots (.), or alphanumerics in between, for example
+/// "zone".
+/// The key prefix MUST be 63 characters or less, begin and end with a
+/// lower-case alphanumeric character ([a-z0-9]), contain only
+/// dashes (-), dots (.), or lower-case alphanumerics in between, and
+/// follow domain name notation format
+/// (https://tools.ietf.org/html/rfc1035#section-2.3.1).
+/// The key prefix SHOULD include the plugin's host company name and/or
+/// the plugin name, to minimize the possibility of collisions with keys
+/// from other plugins.
+/// If a key prefix is specified, it MUST be identical across all
+/// topology keys returned by the SP (across all RPCs).
+/// Keys MUST be case-insensitive. Meaning the keys "Zone" and "zone"
+/// MUST not both exist.
+/// Each value (topological segment) MUST contain 1 or more strings.
+/// Each string MUST be 63 characters or less and begin and end with an
+/// alphanumeric character with '-', '_', '.', or alphanumerics in
+/// between.
+pub struct Topology {
+    #[serde(rename = "Segments")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub segments: Option<HashMap<String, String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// TopologyRequirement expresses the user's requirements for a volume's
+/// accessible topology.
+pub struct TopologyRequirement {
+    #[serde(rename = "Preferred")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Preferred is a list of Topologies that the volume should attempt to be
+    /// provisioned in.
+    ///
+    /// Taken from the CSI spec:
+    ///
+    /// Specifies the list of topologies the CO would prefer the volume to
+    /// be provisioned in.
+    ///
+    /// This field is OPTIONAL. If TopologyRequirement is specified either
+    /// requisite or preferred or both MUST be specified.
+    ///
+    /// An SP MUST attempt to make the provisioned volume available using
+    /// the preferred topologies in order from first to last.
+    ///
+    /// If requisite is specified, all topologies in preferred list MUST
+    /// also be present in the list of requisite topologies.
+    ///
+    /// If the SP is unable to to make the provisioned volume available
+    /// from any of the preferred topologies, the SP MAY choose a topology
+    /// from the list of requisite topologies.
+    /// If the list of requisite topologies is not specified, then the SP
+    /// MAY choose from the list of all possible topologies.
+    /// If the list of requisite topologies is specified and the SP is
+    /// unable to to make the provisioned volume available from any of the
+    /// requisite topologies it MUST fail the CreateVolume call.
+    ///
+    /// Example 1:
+    /// Given a volume should be accessible from a single zone, and
+    /// requisite =
+    /// {"region": "R1", "zone": "Z2"},
+    /// {"region": "R1", "zone": "Z3"}
+    /// preferred =
+    /// {"region": "R1", "zone": "Z3"}
+    /// then the the SP SHOULD first attempt to make the provisioned volume
+    /// available from "zone" "Z3" in the "region" "R1" and fall back to
+    /// "zone" "Z2" in the "region" "R1" if that is not possible.
+    ///
+    /// Example 2:
+    /// Given a volume should be accessible from a single zone, and
+    /// requisite =
+    /// {"region": "R1", "zone": "Z2"},
+    /// {"region": "R1", "zone": "Z3"},
+    /// {"region": "R1", "zone": "Z4"},
+    /// {"region": "R1", "zone": "Z5"}
+    /// preferred =
+    /// {"region": "R1", "zone": "Z4"},
+    /// {"region": "R1", "zone": "Z2"}
+    /// then the the SP SHOULD first attempt to make the provisioned volume
+    /// accessible from "zone" "Z4" in the "region" "R1" and fall back to
+    /// "zone" "Z2" in the "region" "R1" if that is not possible. If that
+    /// is not possible, the SP may choose between either the "zone"
+    /// "Z3" or "Z5" in the "region" "R1".
+    ///
+    /// Example 3:
+    /// Given a volume should be accessible from TWO zones (because an
+    /// opaque parameter in CreateVolumeRequest, for example, specifies
+    /// the volume is accessible from two zones, aka synchronously
+    /// replicated), and
+    /// requisite =
+    /// {"region": "R1", "zone": "Z2"},
+    /// {"region": "R1", "zone": "Z3"},
+    /// {"region": "R1", "zone": "Z4"},
+    /// {"region": "R1", "zone": "Z5"}
+    /// preferred =
+    /// {"region": "R1", "zone": "Z5"},
+    /// {"region": "R1", "zone": "Z3"}
+    /// then the the SP SHOULD first attempt to make the provisioned volume
+    /// accessible from the combination of the two "zones" "Z5" and "Z3" in
+    /// the "region" "R1". If that's not possible, it should fall back to
+    /// a combination of "Z5" and other possibilities from the list of
+    /// requisite. If that's not possible, it should fall back  to a
+    /// combination of "Z3" and other possibilities from the list of
+    /// requisite. If that's not possible, it should fall back  to a
+    /// combination of other possibilities from the list of requisite.
+    pub preferred: Option<Vec<Topology>>,
+    #[serde(rename = "Requisite")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Requisite specifies a list of Topologies, at least one of which the
+    /// volume must be accessible from.
+    ///
+    /// Taken verbatim from the CSI Spec:
+    ///
+    /// Specifies the list of topologies the provisioned volume MUST be
+    /// accessible from.
+    /// This field is OPTIONAL. If TopologyRequirement is specified either
+    /// requisite or preferred or both MUST be specified.
+    ///
+    /// If requisite is specified, the provisioned volume MUST be
+    /// accessible from at least one of the requisite topologies.
+    ///
+    /// Given
+    /// x = number of topologies provisioned volume is accessible from
+    /// n = number of requisite topologies
+    /// The CO MUST ensure n >= 1. The SP MUST ensure x >= 1
+    /// If x==n, then the SP MUST make the provisioned volume available to
+    /// all topologies from the list of requisite topologies. If it is
+    /// unable to do so, the SP MUST fail the CreateVolume call.
+    /// For example, if a volume should be accessible from a single zone,
+    /// and requisite =
+    /// {"region": "R1", "zone": "Z2"}
+    /// then the provisioned volume MUST be accessible from the "region"
+    /// "R1" and the "zone" "Z2".
+    /// Similarly, if a volume should be accessible from two zones, and
+    /// requisite =
+    /// {"region": "R1", "zone": "Z2"},
+    /// {"region": "R1", "zone": "Z3"}
+    /// then the provisioned volume MUST be accessible from the "region"
+    /// "R1" and both "zone" "Z2" and "zone" "Z3".
+    ///
+    /// If x<n, then the SP SHALL choose x unique topologies from the list
+    /// of requisite topologies. If it is unable to do so, the SP MUST fail
+    /// the CreateVolume call.
+    /// For example, if a volume should be accessible from a single zone,
+    /// and requisite =
+    /// {"region": "R1", "zone": "Z2"},
+    /// {"region": "R1", "zone": "Z3"}
+    /// then the SP may choose to make the provisioned volume available in
+    /// either the "zone" "Z2" or the "zone" "Z3" in the "region" "R1".
+    /// Similarly, if a volume should be accessible from two zones, and
+    /// requisite =
+    /// {"region": "R1", "zone": "Z2"},
+    /// {"region": "R1", "zone": "Z3"},
+    /// {"region": "R1", "zone": "Z4"}
+    /// then the provisioned volume MUST be accessible from any combination
+    /// of two unique topologies: e.g. "R1/Z2" and "R1/Z3", or "R1/Z2" and
+    /// "R1/Z4", or "R1/Z3" and "R1/Z4".
+    ///
+    /// If x>n, then the SP MUST make the provisioned volume available from
+    /// all topologies from the list of requisite topologies and MAY choose
+    /// the remaining x-n unique topologies from the list of all possible
+    /// topologies. If it is unable to do so, the SP MUST fail the
+    /// CreateVolume call.
+    /// For example, if a volume should be accessible from two zones, and
+    /// requisite =
+    /// {"region": "R1", "zone": "Z2"}
+    /// then the provisioned volume MUST be accessible from the "region"
+    /// "R1" and the "zone" "Z2" and the SP may select the second zone
+    /// independently, e.g. "R1/Z4".
+    pub requisite: Option<Vec<Topology>>,
+}
+
 pub type Type = String;
+
+/// Intentionally empty.
+pub type TypeBlock = Value;
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// TypeMount contains options for using a volume as a Mount-type
+/// volume.
+pub struct TypeMount {
+    #[serde(rename = "FsType")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// FsType specifies the filesystem type for the mount volume. Optional.
+    pub fs_type: Option<String>,
+    #[serde(rename = "MountFlags")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// MountFlags defines flags to pass when mounting the volume. Optional.
+    pub mount_flags: Option<Vec<String>>,
+}
 
 pub type UtsMode = String;
 
@@ -7730,40 +8047,36 @@ pub struct UpdateEntities {
     pub resources: Option<LinuxResources>,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// UsageData Usage details about the volume. This information is used by the
+/// `GET /system/df` endpoint, and omitted in other endpoints.
+pub struct UsageData {
+    #[serde(rename = "RefCount")]
+    /// The number of containers referencing this volume. This field
+    /// is set to `-1` if the reference-count is not available.
+    pub ref_count: i64,
+    #[serde(rename = "Size")]
+    /// Amount of disk space used by the volume (in bytes). This information
+    /// is only available for volumes created with the `"local"` volume
+    /// driver. For volumes created with other volume drivers, this field
+    /// is set to `-1` ("not available")
+    pub size: i64,
+}
+
 pub type UsernsMode = String;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// Version is an output struct for API
 pub struct Version {
-    #[serde(rename = "APIVersion")]
+    #[serde(rename = "Index")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub api_version: Option<String>,
-    #[serde(rename = "Built")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub built: Option<i64>,
-    #[serde(rename = "BuiltTime")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub built_time: Option<String>,
-    #[serde(rename = "GitCommit")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub git_commit: Option<String>,
-    #[serde(rename = "GoVersion")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub go_version: Option<String>,
-    #[serde(rename = "Os")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub os: Option<String>,
-    #[serde(rename = "OsArch")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub os_arch: Option<String>,
-    #[serde(rename = "Version")]
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
+    pub index: Option<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// Volume volume
 pub struct Volume {
+    #[serde(rename = "ClusterVolume")]
+    pub cluster_volume: Option<ClusterVolume>,
     #[serde(rename = "CreatedAt")]
     #[serde(skip_serializing_if = "Option::is_none")]
     /// Date/Time the volume was created.
@@ -7801,7 +8114,7 @@ pub struct Volume {
     /// does not support this feature.
     pub status: Option<Value>,
     #[serde(rename = "UsageData")]
-    pub usage_data: Option<VolumeUsageData>,
+    pub usage_data: Option<UsageData>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -7895,28 +8208,6 @@ pub struct VolumeConfigResponse {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// VolumeCreateBody Volume configuration
-pub struct VolumeCreateBody {
-    #[serde(rename = "Driver")]
-    /// Name of the volume driver to use.
-    pub driver: String,
-    #[serde(rename = "DriverOpts")]
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_nonoptional_map")]
-    /// A mapping of driver options and values. These options are
-    /// passed directly to the driver and are driver specific.
-    pub driver_opts: HashMap<String, String>,
-    #[serde(rename = "Labels")]
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_nonoptional_map")]
-    /// User-defined key/value metadata.
-    pub labels: HashMap<String, String>,
-    #[serde(rename = "Name")]
-    /// The new volume's name. If not specified, Docker generates a name.
-    pub name: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// VolumeCreateOptions provides details for creating volumes
 pub struct VolumeCreateOptions {
     #[serde(rename = "Driver")]
@@ -7946,21 +8237,6 @@ pub struct VolumeCreateOptions {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// VolumeListOKBody Volume list response
-pub struct VolumeListOkBody {
-    #[serde(rename = "Volumes")]
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
-    /// List of volumes
-    pub volumes: Vec<Volume>,
-    #[serde(rename = "Warnings")]
-    #[serde(default)]
-    #[serde(deserialize_with = "deserialize_nonoptional_vec")]
-    /// Warnings that occurred when fetching the list of volumes.
-    pub warnings: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VolumeOptions {
     #[serde(rename = "DriverConfig")]
     pub driver_config: Option<Driver>,
@@ -7983,22 +8259,6 @@ pub struct VolumeRmReport {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-/// VolumeUsageData Usage details about the volume. This information is used by the
-/// `GET /system/df` endpoint, and omitted in other endpoints.
-pub struct VolumeUsageData {
-    #[serde(rename = "RefCount")]
-    /// The number of containers referencing this volume. This field
-    /// is set to `-1` if the reference-count is not available.
-    pub ref_count: i64,
-    #[serde(rename = "Size")]
-    /// Amount of disk space used by the volume (in bytes). This information
-    /// is only available for volumes created with the `"local"` volume
-    /// driver. For volumes created with other volume drivers, this field
-    /// is set to `-1` ("not available")
-    pub size: i64,
-}
-
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 /// POST "/volumes/prune"
 pub struct VolumesPruneReport {
     #[serde(rename = "SpaceReclaimed")]
@@ -8007,6 +8267,25 @@ pub struct VolumesPruneReport {
     #[serde(rename = "VolumesDeleted")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub volumes_deleted: Option<Vec<String>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// WaitExitError container waiting error, if any
+pub struct WaitExitError {
+    #[serde(rename = "Message")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    /// Details of an error
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// OK response to ContainerWait operation
+pub struct WaitResponse {
+    #[serde(rename = "Error")]
+    pub error: Option<WaitExitError>,
+    #[serde(rename = "StatusCode")]
+    /// Exit code of the container
+    pub status_code: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -8306,8 +8585,8 @@ pub type ImagesRemoveResponseLibpod = LibpodImagesRemoveReport;
 
 pub type ImagesScpResponseLibpod = ScpReport;
 
-/// Info is the overall struct that describes the host system
-/// running libpod/podman
+/// Info contains information about the Volume as a whole as provided by
+/// the CSI storage plugin.
 pub type InfoResponse = Info;
 
 pub type InspectImageResponseLibpod = ImageData;
@@ -8315,7 +8594,9 @@ pub type InspectImageResponseLibpod = ImageData;
 /// ErrorModel is used in remote connections with podman
 pub type InternalError = ErrorModel;
 
-pub type ManifestInspect = Schema2List;
+/// This is publicly visible as c/image/manifest.Schema2List.
+/// Internal users should usually use Schema2List instead.
+pub type ManifestInspect = Schema2ListPublic;
 
 /// ErrorModel is used in remote connections with podman
 pub type ManifestNotFound = ErrorModel;
@@ -8394,8 +8675,8 @@ pub type VolumeCreateResponse = VolumeConfigResponse;
 /// Volume volume
 pub type VolumeInspect = Volume;
 
-/// VolumeListOKBody Volume list response
-pub type VolumeList = VolumeListOkBody;
+/// Volume list response
+pub type VolumeList = ListResponse;
 
 /// ErrorModel is used in remote connections with podman
 pub type VolumeNotFound = ErrorModel;
