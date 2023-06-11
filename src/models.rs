@@ -184,7 +184,7 @@ impl AsRef<str> for PodStatus {
     }
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 // Actual type used by ContainerCreate mount parameter.
 //
 // See: https://github.com/containers/podman/issues/13717
