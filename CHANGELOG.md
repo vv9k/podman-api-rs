@@ -4,6 +4,7 @@
 * `Images::push` signature changed and now it returns a stream instead of a single response [#159](https://github.com/vv9k/podman-api-rs/pull/159)
 * `tty::Multiplexer` now owns a copy of Podman client. It mean's that signature of `Container::attach` and `Exec::start` changed.
 * Fixed `ContainerWaitOpts::conditions` parameter serialization
+* Add missing derives for `LibpodPingInfo`, `Event`, `Actor`, `ContainerStatus`, `ContainerHealth`, `PodStatus`, `ContainerMount`, `JsonErrorDetail`, `JsonError`
 
 # 0.10.0
 * *BREAKING* `Exec::start` now returns `Result<Option<tty::Multiplexer>>` (was `Result<tty::Multiplexer>`) [#155](https://github.com/vv9k/podman-api-rs/pull/155)

@@ -18,7 +18,7 @@ use std::string::ToString;
 
 pub type Attributes = HashMap<String, String>;
 
-#[derive(Serialize, Debug)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 /// Data returned from /ping endpoint by libpod
 pub struct LibpodPingInfo {
     /// Max compatibility API Version the server supports
@@ -75,7 +75,7 @@ impl TryFrom<&HeaderMap> for LibpodPingInfo {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Event {
     #[serde(rename = "Type")]
     pub typ: String,
@@ -99,7 +99,7 @@ pub struct Event {
     pub time_nano: u64,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Actor {
     #[serde(rename = "ID")]
     pub id: String,
@@ -107,7 +107,7 @@ pub struct Actor {
     pub attributes: Attributes,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ContainerStatus {
     Created,
@@ -136,7 +136,7 @@ impl AsRef<str> for ContainerStatus {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ContainerHealth {
     Starting,
@@ -157,7 +157,7 @@ impl AsRef<str> for ContainerHealth {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum PodStatus {
     Created,
@@ -206,13 +206,13 @@ pub struct ContainerMount {
     pub gid_mappings: Option<Vec<IdMap>>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct JsonErrorDetail {
     #[serde(skip_serializing_if = "Option::is_none")]
     message: Option<String>,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct JsonError {
     #[serde(rename = "errorDetail")]
     error_detail: Option<JsonErrorDetail>,
