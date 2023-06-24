@@ -160,8 +160,23 @@ impl ContainerCheckpointOpts {
 
 impl ContainerCheckpointOptsBuilder {
     impl_url_bool_field!(
+        /// Export the checkpoint image to a tar.gz
+        export => "export"
+    );
+
+    impl_url_bool_field!(
+        /// Checkpoint a container with filelocks`
+        file_locks => "fileLocks"
+    );
+
+    impl_url_bool_field!(
         /// Do not include root file-system changes when exporting
         ignore_root_fs => "ignoreRootFS"
+    );
+
+    impl_url_bool_field!(
+        /// Do not include associated volumes. can only be used with export
+        ignore_volumes => "ignoreVolumes"
     );
 
     impl_url_bool_field!(
@@ -175,6 +190,11 @@ impl ContainerCheckpointOptsBuilder {
     );
 
     impl_url_bool_field!(
+        /// Dump the container's memory information only, leaving the container running. only works on runc 1.0-rc or higher
+        pre_checkpoint => "preCheckpoint"
+    );
+
+    impl_url_bool_field!(
         /// Add checkpoint statistics to the returned CheckpointReport
         print_stats => "printStats"
     );
@@ -182,6 +202,11 @@ impl ContainerCheckpointOptsBuilder {
     impl_url_bool_field!(
         /// Checkpoint a container with established TCP connections
         tcp_established => "tcpEstablished"
+    );
+
+    impl_url_bool_field!(
+        /// Check out the container with previous criu image files in pre-dump. only works on runc 1.0-rc or higher
+        with_previous => "withPrevious"
     );
 }
 
