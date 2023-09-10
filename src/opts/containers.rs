@@ -6,6 +6,7 @@ use containers_api::{
     impl_str_field, impl_url_bool_field, impl_url_field, impl_url_str_field, impl_url_vec_field,
     impl_vec_field,
 };
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 impl_opts_builder!(url =>
@@ -318,7 +319,7 @@ impl fmt::Display for ImageVolumeMode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 /// How to handle the `NOTIFY_SOCKET`. Used with
 /// [`sdnotify_mode`](ContainerCreateOptsBuilder::sdnotify_mode).
 pub enum SocketNotifyMode {
@@ -346,7 +347,7 @@ impl fmt::Display for SocketNotifyMode {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 /// Used with [`ContainerCreateOptsBuilder::seccomp_policy`](ContainerCreateOptsBuilder::seccomp_policy).
 #[derive(Default)]
 pub enum SeccompPolicy {
@@ -372,7 +373,7 @@ impl fmt::Display for SeccompPolicy {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 /// Used with [`ContainerCreateOptsBuilder::systemd`](ContainerCreateOptsBuilder::systemd).
 #[derive(Default)]
 pub enum SystemdEnabled {
@@ -398,7 +399,7 @@ impl fmt::Display for SystemdEnabled {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 /// Used with
 /// [`ContainerCreateOptsBuilder::restart_policy`](ContainerCreateOptsBuilder::restart_policy).
 #[derive(Default)]
