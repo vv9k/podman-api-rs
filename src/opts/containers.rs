@@ -289,7 +289,7 @@ impl_opts_builder!(json =>
     ContainerCreate
 );
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 /// Mode used to configure image volume with
 /// [`image_volume_mode`](ContainerCreateOptsBuilder::image_volume_mode).
 #[derive(Default)]
@@ -322,8 +322,10 @@ impl fmt::Display for ImageVolumeMode {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 /// How to handle the `NOTIFY_SOCKET`. Used with
 /// [`sdnotify_mode`](ContainerCreateOptsBuilder::sdnotify_mode).
+#[derive(Default)]
 pub enum SocketNotifyMode {
     /// Let the OCI runtime deal with it, advertise conmon's MAINPID.
+    #[default]
     Container,
     /// Advertise conmon's MAINPID, send READY when started, don't pass to OCI.
     Conmon,
