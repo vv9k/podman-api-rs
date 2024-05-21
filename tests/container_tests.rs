@@ -273,7 +273,7 @@ async fn container_mount_unmount() {
     if let Err(e) = list_mounted_result.as_ref() {
         if e.to_string().contains("does not exist in database") {
             // wait a bit in case a kill is executed at the same time
-            tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             list_mounted_result = podman.containers().list_mounted().await;
         }
     }
