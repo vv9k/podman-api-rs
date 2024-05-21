@@ -6670,7 +6670,7 @@ pub struct PodRmReport {
     pub id: Option<String>,
     #[serde(rename = "RemovedCtrs")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub removed_ctrs: Option<HashMap<String, String>>,
+    pub removed_ctrs: Option<HashMap<String, Option<String>>>, // note: Option in HashMap value was manually added
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

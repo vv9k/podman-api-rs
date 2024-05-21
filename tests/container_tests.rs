@@ -287,7 +287,9 @@ async fn container_mount_unmount() {
 
     let unmount_result = container.unmount().await;
     assert!(unmount_result.is_ok());
-    assert!(!mount_path.exists());
+
+    // Podman 5 seems to keep the merge directory even after unmount
+    // assert!(!mount_path.exists());
 
     cleanup_container(&podman, container_name).await;
 }
@@ -636,21 +638,21 @@ async fn container_changes() {
     let mut exec_stream = exec.start(&opts).await.unwrap().unwrap();
     while exec_stream.next().await.is_some() {}
 
-    use podman_api::models::ContainerChangeResponseItem;
+    use podman_api::models::FilesystemChange;
 
     let changes = container
         .changes(&Default::default())
         .await
         .expect("container changes");
-    assert!(changes.contains(&ContainerChangeResponseItem {
+    assert!(changes.contains(&FilesystemChange {
         kind: 0,
         path: "/tmp".into()
     }));
-    assert!(changes.contains(&ContainerChangeResponseItem {
+    assert!(changes.contains(&FilesystemChange {
         kind: 1,
         path: "/tmp/test-changes".into()
     }));
-    assert!(changes.contains(&ContainerChangeResponseItem {
+    assert!(changes.contains(&FilesystemChange {
         kind: 2,
         path: "/etc/xattr.conf".into()
     }));

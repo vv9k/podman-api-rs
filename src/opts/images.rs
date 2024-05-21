@@ -452,9 +452,7 @@ impl PullOpts {
         if self.params.is_empty() {
             None
         } else {
-            Some(containers_api::url::encoded_pairs(
-                self.params.iter().map(|(k, v)| (k, v)),
-            ))
+            Some(containers_api::url::encoded_pairs(self.params.iter()))
         }
     }
 
@@ -662,9 +660,7 @@ impl ImagePushOpts {
         if self.params.is_empty() {
             None
         } else {
-            Some(containers_api::url::encoded_pairs(
-                self.params.iter().map(|(k, v)| (k, v)),
-            ))
+            Some(containers_api::url::encoded_pairs(self.params.iter()))
         }
     }
 

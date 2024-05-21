@@ -12,8 +12,8 @@ repository = "https://github.com/vv9k/podman-api-rs"
 keywords = ["podman", "api", "containers", "docker", "unix"]
 
 [dependencies]
-podman-api-stubs = "0.9"
-#podman-api-stubs = { path = "./podman-api-stubs/lib" }
+#podman-api-stubs = "0.9"
+podman-api-stubs = { path = "./podman-api-stubs/lib" }
 
 containers-api = "0.9"
 #containers-api = { git = "https://github.com/vv9k/containers-api" }

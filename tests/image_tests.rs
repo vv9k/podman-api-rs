@@ -67,7 +67,7 @@ async fn image_changes() {
     let changes_result = image.changes(&Default::default()).await;
     assert!(changes_result.is_ok());
     let changes_data = changes_result.unwrap();
-    assert!(changes_data.contains(&models::ContainerChangeResponseItem {
+    assert!(changes_data.contains(&models::FilesystemChange {
         kind: 1,
         path: TEST_IMAGE_PATH.into()
     }));
