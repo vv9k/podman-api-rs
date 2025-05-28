@@ -508,21 +508,21 @@ impl ContainerCreateOptsBuilder {
     impl_vec_field!(
         /// A set of DNS options that will be used in the container's resolv.conf, replacing the host's
         /// DNS options which are used by default. Conflicts with
-        /// [`use_image_resolv_conf`](ContainerCreateOptsBuilder::use_image_resolv_conf).
+        /// [`use_image_resolve_conf`](ContainerCreateOptsBuilder::use_image_resolve_conf).
         dns_option => "dns_option"
     );
 
     impl_vec_field!(
         /// A set of DNS search domains that will be used in the container's resolv.conf, replacing
         /// the host's DNS search domains which are used by default. Conflicts with
-        /// [`use_image_resolv_conf`](ContainerCreateOptsBuilder::use_image_resolv_conf).
+        /// [`use_image_resolve_conf`](ContainerCreateOptsBuilder::use_image_resolve_conf).
         dns_search => "dns_search"
     );
 
     impl_vec_field!(
         /// A set of DNS servers that will be used in the container's resolv.conf, replacing the
         /// host's DNS Servers which are used by default. Conflicts with
-        /// [`use_image_resolv_conf`](ContainerCreateOptsBuilder::use_image_resolv_conf).
+        /// [`use_image_resolve_conf`](ContainerCreateOptsBuilder::use_image_resolve_conf).
         dns_server => "dns_server"
     );
 
@@ -987,7 +987,7 @@ impl ContainerCreateOptsBuilder {
         /// Conflicts with [`dns_server`](ContainerCreateOptsBuilder::dns_server),
         /// [`dns_search`](ContainerCreateOptsBuilder::dns_search),
         /// [`dns_option`](ContainerCreateOptsBuilder::dns_option).
-        use_image_resolv_conf: bool => "use_image_resolv_conf"
+        use_image_resolve_conf: bool => "use_image_resolve_conf"
     );
 
     impl_str_field!(
