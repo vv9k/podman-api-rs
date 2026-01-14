@@ -3,10 +3,10 @@
 set -ex
 
 LIBPOD_SWAGGER_URL="https://storage.googleapis.com/libpod-master-releases"
-LIBPOD_API_VERSION="v4.5.1"
+LIBPOD_API_VERSION="v5.4.2"
 LIBPOD_SPEC_FILE="swagger-${LIBPOD_API_VERSION}.yaml"
 LIBPOD_FULL_URL="${LIBPOD_SWAGGER_URL}/${LIBPOD_SPEC_FILE}"
-RUSTGEN="https://git.wkepka.dev/wojtek/swagger-rustgen.git"
+RUSTGEN="https://github.com/vv9k/swagger-rustgen.git"
 BUILD_DIR=build
 BASE_DIR=$PWD
 

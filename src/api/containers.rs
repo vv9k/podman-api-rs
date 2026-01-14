@@ -734,7 +734,7 @@ impl Container {
     pub async fn changes(
         &self,
         opts: &opts::ChangesOpts,
-    ) -> Result<Vec<models::ContainerChangeResponseItem>> {
+    ) -> Result<Vec<models::FilesystemChange>> {
         let ep = url::construct_ep(
             format!("/libpod/containers/{}/changes", &self.id),
             opts.serialize(),
@@ -1363,7 +1363,7 @@ impl Containers {
     pub async fn create(
         &self,
         opts: &opts::ContainerCreateOpts,
-    ) -> Result<models::ContainerCreateCreatedBody> {
+    ) -> Result<models::ContainerCreateResponse> {
         self.podman
             .post_json(
                 &"/libpod/containers/create",

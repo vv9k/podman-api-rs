@@ -886,10 +886,13 @@ impl ContainerCreateOptsBuilder {
         secret_env => "secret_env"
     );
 
+    /*
+    // TODO update for podman 4.5/5
     impl_vec_field!(
         /// Secrets are the secrets that will be added to the container.
         secrets :models::Secret => "secrets"
     );
+    */
 
     impl_vec_field!(
         /// The process label the container will use. if SELinux is enabled and this is not

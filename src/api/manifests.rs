@@ -57,7 +57,7 @@ impl Manifest {
     ///     }
     /// };
     /// ```
-    pub async fn inspect(&self) -> Result<models::Schema2List> {
+    pub async fn inspect(&self) -> Result<models::Schema2ListPublic> {
         self.podman
             .get_json(&format!("/libpod/manifests/{}/json", &self.name))
             .await

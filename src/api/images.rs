@@ -264,7 +264,7 @@ impl Image {
     pub async fn changes(
         &self,
         opts: &opts::ChangesOpts,
-    ) -> Result<Vec<models::ContainerChangeResponseItem>> {
+    ) -> Result<Vec<models::FilesystemChange>> {
         let ep = url::construct_ep(
             format!("/libpod/images/{}/changes", &self.id),
             opts.serialize(),

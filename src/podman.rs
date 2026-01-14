@@ -316,7 +316,7 @@ impl Podman {
     ///     }
     /// };
     /// ```
-        pub async fn info(&self) -> Result<models::Info> {
+        pub async fn info(&self) -> Result<models::InfoResponse> {
         self.get_json("/libpod/info").await
     }}
 
