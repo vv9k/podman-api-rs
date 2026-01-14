@@ -20,9 +20,9 @@ containers-api = "0.9"
 #containers-api = { path = "../containers-api" }
 
 log = "0.4"
-thiserror = "1"
+thiserror = "2.0.17"
 
-base64 = "0.13"
+base64 = "0.22.1"
 byteorder = "1.5"
 bytes = "1"
 
@@ -42,16 +42,16 @@ tar = "0.4"
 flate2 = "1"
 
 [dev-dependencies]
-env_logger = "0.8"
+env_logger = "0.11.8"
 # Required for examples to run
-pretty_assertions = "0.7"
+pretty_assertions = "1.4.1"
 tokio = { version = "1", features = ["macros"] }
 futures-util = "0.3"
 tempdir = "0.3"
-gethostname = "0.2"
+gethostname = "1.1.0"
 
 [target.'cfg(unix)'.dev-dependencies]
-nix = "0.25"
+nix = { version = "0.30.1", features = ["user"] }
 
 [features]
 default = ["chrono"]

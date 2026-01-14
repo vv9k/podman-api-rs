@@ -1,3 +1,4 @@
+use base64::Engine;
 use containers_api::opts::{Filter, FilterItem};
 use containers_api::{
     impl_filter_func, impl_map_field, impl_opts_builder, impl_opts_required_builder,
@@ -385,7 +386,7 @@ impl RegistryAuth {
     /// serialize authentication as JSON in base64
     pub fn serialize(&self) -> String {
         serde_json::to_string(self)
-            .map(|c| base64::encode_config(c, base64::URL_SAFE))
+            .map(|c| base64::engine::general_purpose::URL_SAFE.encode(c))
             .unwrap_or_default()
     }
 }
