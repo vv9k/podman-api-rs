@@ -524,11 +524,6 @@ impl ContainerCreateOptsBuilder {
     );
 
     impl_vec_field!(
-        /// Device requests represent requests for devices from a device driver
-        device_requests : models::DeviceRequest => "device_requests"
-    );
-
-    impl_vec_field!(
         /// A way to ensure your container inherits device specific information from another container.
         devices_from => "device_from"
     );
