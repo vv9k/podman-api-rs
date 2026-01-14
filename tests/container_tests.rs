@@ -819,6 +819,7 @@ async fn container_healthcheck() {
             interval: Some(1),
             retries: None,
             start_period: Some(1),
+            start_interval: None,
             test: Some(vec![
                 "CMD-SHELL".into(),
                 "cat".into(),
