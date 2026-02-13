@@ -5,7 +5,7 @@
 
 > Rust interface to Podman
 
-Latest version of this crate targets libpod API version: **v4.4.4**  
+Latest version of this crate targets libpod API version: **v4.5.1**  
 Master branch targets libpod API version: **v4.5.1**
 
 # Usage
@@ -14,7 +14,7 @@ Add the following to your `Cargo.toml` file
 
 ```toml
 [dependencies]
-podman-api = "0.10"
+podman-api = "0.11"
 ```
 
 ## SSL Connection
@@ -26,7 +26,7 @@ To enable HTTPS connection to podman add a `tls` flag to `Cargo.toml`.
 By default, only `chrono` feature is enabled. To disable it use:
 
 ```toml
-podman-api = { version = "0.10", default-features = false }
+podman-api = { version = "0.11", default-features = false }
 ```
 
 ## Examples
