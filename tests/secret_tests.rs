@@ -89,10 +89,55 @@ async fn secret_create_read_value() {
     assert!(matches!(chunk, conn::TtyChunk::StdOut(_)));
     if let conn::TtyChunk::StdOut(data) = chunk {
         let s = String::from_utf8_lossy(&data);
-        assert_eq!(s, format!("\"{secret_value}\""));
+        assert_eq!(s, secret_value);
     } else {
         unreachable!();
     }
+    assert!(secret.delete().await.is_ok());
+    cleanup_container(&podman, container_name).await;
+}
+
+#[tokio::test]
+async fn secret_create_read_multi_line_value() {
+    let podman = init_runtime();
+
+    let secret_name = "test-create-read-multi-linesecret";
+    let secret_value = "line0\nline1";
+    let secret = create_base_secret(&podman, secret_name, secret_value, None).await;
+
+    let secret_target: String = "/tmp/my-secret-value".into();
+    let secret_def = models::Secret {
+        gid: None,
+        uid: None,
+        mode: None,
+        source: Some(secret_name.to_string()),
+        target: Some(secret_target.clone()),
+    };
+    let container_name = "test-secret-read-container";
+    let opts = opts::ContainerCreateOpts::builder()
+        .name(container_name)
+        .secrets([secret_def])
+        .image(DEFAULT_IMAGE)
+        .command(["cat", &secret_target])
+        .build();
+    let container = create_base_container(&podman, container_name, Some(opts)).await;
+    container.start(None).await.expect("started container");
+
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
+    let mut logs_stream = container.logs(
+        &opts::ContainerLogsOpts::builder()
+            .stdout(true)
+            .stderr(true)
+            .build(),
+    );
+
+    let mut result = String::new();
+    while let Some(chunk) = logs_stream.next().await {
+        result.push_str(&format!("{}", String::from_utf8_lossy(&chunk.unwrap())));
+    }
+
+    assert_eq!(secret_value, result);
     assert!(secret.delete().await.is_ok());
     cleanup_container(&podman, container_name).await;
 }
