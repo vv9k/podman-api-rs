@@ -110,7 +110,7 @@ impl Secrets {
         self.podman
             .post_json(
                 &ep,
-                crate::conn::Payload::Json(serde_json::to_string(&secret.into())?),
+                crate::conn::Payload::Text(secret.into()),
                 crate::conn::Headers::none(),
             )
             .await
