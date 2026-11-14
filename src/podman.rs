@@ -208,10 +208,13 @@ impl Podman {
     /// Verifies the API version returned by the server and adjusts the version used by this client
     /// in future requests.
     pub async fn adjust_api_version(&mut self) -> Result<()> {
-        let server_version: Option<ApiVersion> = self
-            .version()
-            .await
-            .map(|v| v.api_version.and_then(|v| v.parse().ok()))?;
+        let server_version: Option<ApiVersion> = self.version().await.map(|v| {
+            // Since Podman 4.0.0 the project version is identical to the libpod API
+            // version. The top-level `ApiVersion` field instead reports the
+            // *Docker-compatible* version (e.g. "1.44"), which must not be used
+            // here or the client would silently downgrade to a legacy URL prefix.
+            v.version.as_deref().and_then(|v| v.parse().ok())
+        })?;
 
         if let Some(version) = server_version {
             if version <= self.version {

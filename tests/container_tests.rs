@@ -5,7 +5,7 @@ use common::{
     conn::TtyChunk,
     create_base_container, get_container_full_id, init_runtime,
     models::ContainerStatus,
-    opts::{ContainerCreateOpts, ContainerWaitOpts, ExecCreateOpts},
+    opts::{ContainerCreateOpts, ContainerStopOpts, ContainerWaitOpts, ExecCreateOpts},
     StreamExt, TryStreamExt, DEFAULT_CMD, DEFAULT_CMD_ARRAY, DEFAULT_IMAGE,
 };
 use podman_api::opts::ExecStartOpts;
@@ -201,6 +201,38 @@ async fn container_stop() {
         .await
         .expect("stopped container inspect data");
     assert!(!inspect_data.state.unwrap().running.unwrap());
+
+    cleanup_container(&podman, container_name).await;
+}
+
+#[tokio::test]
+async fn container_stop_timeout_opts_is_honored() {
+    // Regression test for upstream issue #177: the `timeout` query parameter
+    // must be sent lowercase. With the old `Timeout` casing the server
+    // silently ignored it and applied the default stop timeout (10s).
+    let podman = init_runtime();
+
+    let container_name = "test-stop-timeout-container";
+    let create_opts = ContainerCreateOpts::builder()
+        .name(container_name)
+        .image(DEFAULT_IMAGE)
+        .command(["sh", "-c", "trap '' TERM; while :; do sleep 1; done"])
+        .build();
+    let container = create_base_container(&podman, container_name, Some(create_opts)).await;
+
+    container.start(None).await.expect("start container");
+
+    let start = std::time::Instant::now();
+    let stop_opts = ContainerStopOpts::builder().timeout(1).build();
+    container.stop(&stop_opts).await.expect("stop container");
+    let elapsed = start.elapsed();
+
+    // The server must SIGKILL after the requested 1s timeout,
+    // not after the 10s default.
+    assert!(
+        elapsed < std::time::Duration::from_secs(5),
+        "stop timeout query param was not honored by the server: took {elapsed:?}"
+    );
 
     cleanup_container(&podman, container_name).await;
 }
@@ -684,6 +716,10 @@ async fn container_logs() {
         &ContainerLogsOpts::builder()
             .stdout(true)
             .stderr(true)
+            // follow=true avoids a race with the container's first write:
+            // without it the server returns an empty stream when logs are
+            // polled before the process has produced any output.
+            .follow(true)
             .build(),
     );
     let chunk = logs_stream.next().await;
@@ -693,8 +729,7 @@ async fn container_logs() {
             assert_eq!(logs, "123456\n");
         }
         chunk => {
-            eprintln!("invalid chunk {chunk:?}");
-            std::process::exit(1);
+            panic!("invalid log chunk {chunk:?}");
         }
     }
 

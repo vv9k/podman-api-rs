@@ -20,10 +20,16 @@ pub use containers_api::version::{ApiVersion, Error as VersionError};
 pub use podman::Podman;
 
 /// Latest libpod API version supported by this crate
-pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(4, Some(3), Some(1));
+///
+/// NOTE: do not raise this above the swagger version the stubs were generated
+/// from (v4.5.1) without regenerating `podman-api-stubs`: Podman serves
+/// version-adapted payloads per URL prefix (e.g. `Config.StopSignal` is an
+/// integer under `/v4.*/` but a string under `/v6.*/`), so a bare bump breaks
+/// deserialization of existing models.
+pub const LATEST_API_VERSION: ApiVersion = ApiVersion::new(4, Some(5), Some(1));
 macro_rules! _version {
     () => {
-        "v4.3.1"
+        "v4.5.1"
     };
 }
 pub(crate) use _version as version;

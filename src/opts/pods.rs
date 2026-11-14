@@ -114,7 +114,7 @@ impl PodStatsOptsBuilder {
 
     impl_url_vec_field!(
         /// Names or IDs of pods.
-        names_or_ids => "namesOrIds"
+        names_or_ids => "namesOrIDs"
     );
 }
 
@@ -366,4 +366,19 @@ impl PodCreateOptsBuilder {
         /// for all volumes sourced from the container.
         volumes_from => "volumes_from"
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PodStatsOpts;
+
+    // GET /libpod/pods/stats expects the query parameter `namesOrIDs`
+    // (capital "ID"); a wrong casing makes the server silently ignore the filter.
+    #[test]
+    fn pod_stats_opts_query_param_casing() {
+        let opts = PodStatsOpts::builder().names_or_ids(["web", "db"]).build();
+        let query = opts.serialize().unwrap();
+        assert!(query.contains("namesOrIDs="), "got: {query}");
+        assert!(!query.contains("namesOrIds"), "got: {query}");
+    }
 }
