@@ -114,12 +114,12 @@ impl ContainerStopOptsBuilder {
 
     impl_url_bool_field!(
         /// Do not return error if container is already stopped
-        ignore => "Ignore"
+        ignore => "ignore"
     );
 
     impl_url_field!(
         /// number of seconds to wait before killing container
-        timeout: usize => "Timeout"
+        timeout: usize => "timeout"
     );
 }
 
@@ -1298,4 +1298,26 @@ impl ContainerRestoreOptsBuilder {
         /// Checkpoint a container with established TCP connections.
         tcp_established => "tcpEstablished"
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ContainerStopOpts;
+
+    // Query parameters are case-sensitive on the server.
+    // POST /libpod/containers/{name}/stop expects `ignore` and `timeout` (lowercase).
+    // Regression test for upstream issue #177 (and the silently-ignored `Ignore` flag).
+    #[test]
+    fn container_stop_opts_query_param_casing() {
+        let opts = ContainerStopOpts::builder()
+            .all(true)
+            .ignore(true)
+            .timeout(10)
+            .build();
+        let query = opts.serialize().unwrap();
+        assert!(query.contains("ignore=true"), "got: {query}");
+        assert!(query.contains("timeout=10"), "got: {query}");
+        assert!(!query.contains("Ignore"), "got: {query}");
+        assert!(!query.contains("Timeout"), "got: {query}");
+    }
 }

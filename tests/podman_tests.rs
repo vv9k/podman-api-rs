@@ -1,6 +1,32 @@
 mod common;
 
 use common::init_runtime;
+use podman_api::{ApiVersion, LATEST_API_VERSION};
+
+#[tokio::test]
+async fn podman_adjust_api_version() {
+    // Negotiation must succeed against real servers and cap the client
+    // version at min(client LATEST_API_VERSION, server version).
+    let mut podman = init_runtime();
+    podman
+        .adjust_api_version()
+        .await
+        .expect("adjust api version");
+
+    // After negotiation, requests keep working at the negotiated version.
+    let info = podman.version().await.expect("version after negotiation");
+    let server: ApiVersion = info
+        .version
+        .expect("server reports version")
+        .parse()
+        .expect("server version parses");
+    assert!(
+        server >= LATEST_API_VERSION,
+        "server {server} < {LATEST_API_VERSION}"
+    );
+    assert!(podman.ping().await.is_ok());
+    assert!(podman.containers().list(&Default::default()).await.is_ok());
+}
 
 #[tokio::test]
 async fn podman_info() {

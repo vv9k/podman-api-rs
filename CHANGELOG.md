@@ -1,3 +1,20 @@
+# Unreleased (hotfix/podman6-compat)
+* Fixed case of query parameters sent by `ContainerStopOpts`: `Ignore` -> `ignore`,
+  `Timeout` -> `timeout`, as required by the libpod API (case-sensitive server-side
+  parsing). `timeout` was previously always ignored by the server (issue #177).
+* Fixed case of query parameter sent by `PodStatsOpts`: `namesOrIds` -> `namesOrIDs`.
+* Fixed `Podman::adjust_api_version()` to negotiate using the Podman version reported
+  in the `Version` field of `/libpod/version`. The previously parsed `ApiVersion` field
+  is the Docker-compatible version (e.g. "1.44") and made clients silently downgrade
+  to the legacy `/v1.44` URL prefix.
+* `LATEST_API_VERSION` aligned to `4.5.1`: the version the bundled models
+  (`podman-api-stubs`) were generated from (README already declared 4.5.1 while the
+  constant said 4.3.1). Do not raise it past the stubs' swagger version without
+  regenerating them: Podman serves version-adapted payloads per URL prefix.
+* Test suite: added regression tests for the query-parameter casing (unit tests and a
+  runtime test proving the server honors `timeout`), a `adjust_api_version()`
+  negotiation test, and a fix for the start/logs race in `container_logs`.
+
 #
 * `Pods::prune` now correctly uses POST to make the request [#157](https://github.com/vv9k/podman-api-rs/pull/157)
 * `ImagePushOptsBuilder` option `destination` was renamed to `destinations` [#158](https://github.com/vv9k/podman-api-rs/pull/158)
